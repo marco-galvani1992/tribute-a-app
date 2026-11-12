@@ -1,0 +1,2723 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gestionale Tribute-A</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+  /* Colori presi dalle grafiche 2026: fondo scuro, arancio e blu petrolio */
+  :root {
+    --sfondo: #0e1113; --carta: #171c20; --carta2: #1f262b; --testo: #f3efe9; --tenue: #9aa4ab;
+    --bordo: #2a3238; --arancio: #f08a3c; --arancio-testo: #1a0f06; --petrolio: #2f6f73;
+    --verde: #5cc28a; --giallo: #f2c14e; --rosso: #ef6b5b;
+    --nav-h: 64px; --raggio: 14px;
+    --titoli: "Archivo Black", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color-scheme: dark; /* icone di data/ora e tendine chiare sul fondo scuro */
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--sfondo); color: var(--testo);
+    font: 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-text-size-adjust: 100%; }
+  a { color: var(--arancio); }
+  h1, h2 { font-family: var(--titoli); font-weight: 400; letter-spacing: .01em; }
+  h1 { font-size: 24px; margin: 4px 0 12px; }
+  h2 { font-size: 15px; margin: 22px 0 8px; color: var(--tenue); text-transform: uppercase; letter-spacing: .06em; }
+
+  #testa { position: sticky; top: 0; z-index: 9; display: flex; align-items: center; justify-content: space-between;
+    padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
+    background: radial-gradient(120% 180% at 0% 0%, rgba(240,138,60,.35), transparent 55%),
+                radial-gradient(120% 200% at 100% 0%, rgba(47,111,115,.55), transparent 60%), #111518;
+    border-bottom: 1px solid var(--bordo); }
+  #testa:empty { display: none; }
+  #testa img { height: 34px; display: block; }
+  .marchio { font-family: var(--titoli); font-size: 20px; letter-spacing: .02em; }
+  .marchio small { font-family: -apple-system, sans-serif; font-size: 12px; color: var(--tenue); margin-left: 6px; letter-spacing: 0; }
+  .chi { font-size: 13px; color: var(--tenue); }
+
+  #app { max-width: 760px; margin: 0 auto; padding: 16px 16px calc(var(--nav-h) + 24px + env(safe-area-inset-bottom)); }
+  .carta { background: var(--carta); border: 1px solid var(--bordo); border-radius: var(--raggio); padding: 14px 16px; margin-bottom: 12px; }
+  .riga { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .tenue { color: var(--tenue); font-size: 14px; }
+  .vuoto { color: var(--tenue); text-align: center; padding: 32px 0; }
+  .barra { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+
+  button { font: inherit; cursor: pointer; border: 0; border-radius: 10px; padding: 12px 16px; min-height: 44px; color: var(--testo); }
+  .btn { background: var(--arancio); color: var(--arancio-testo); font-weight: 700; }
+  .btn-largo { width: 100%; margin-top: 12px; }
+  .btn-sec { background: var(--carta2); border: 1px solid var(--bordo); }
+  .btn-pericolo { background: transparent; color: var(--rosso); border: 1px solid rgba(239,107,91,.45); }
+  .btn-pieno-pericolo { background: var(--rosso); color: #fff; font-weight: 700; }
+  .btn-link { background: none; color: var(--arancio); padding: 8px 0; min-height: 0; }
+  .azioni { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .azioni > * { flex: 1 1 auto; }
+  a.btn-sec, a.btn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none;
+    border-radius: 10px; padding: 10px 14px; min-height: 44px; color: var(--testo); }
+
+  input, select, textarea { width: 100%; font: inherit; color: var(--testo); background: var(--carta2);
+    border: 1px solid var(--bordo); border-radius: 10px; padding: 11px 12px; min-height: 46px; }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--arancio); outline-offset: -1px; }
+  textarea { min-height: 96px; resize: vertical; }
+  label { display: block; font-size: 13px; color: var(--tenue); margin: 12px 0 4px; }
+  .campi { display: grid; grid-template-columns: 1fr; column-gap: 12px; }
+  @media (min-width: 560px) { .campi { grid-template-columns: 1fr 1fr; } .campi .intero { grid-column: 1 / -1; } }
+
+  /* Filtri */
+  .chips { display: flex; gap: 6px; overflow-x: auto; padding: 2px 0 8px; margin: 0 -16px; padding-left: 16px; padding-right: 16px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { flex: 0 0 auto; background: var(--carta); border: 1px solid var(--bordo); border-radius: 999px;
+    padding: 7px 13px; min-height: 36px; font-size: 14px; color: var(--tenue); }
+  .chip.attivo { background: var(--arancio); color: var(--arancio-testo); border-color: var(--arancio); font-weight: 700; }
+  #cerca { margin: 4px 0 10px; }
+
+  /* Elenco eventi */
+  .ev { display: flex; width: 100%; text-align: left; gap: 12px; align-items: center; background: var(--carta);
+    border: 1px solid var(--bordo); border-radius: var(--raggio); padding: 10px 12px; margin-bottom: 8px; }
+  .ev.annullato { opacity: .5; }
+  .ev.annullato .ev-tit { text-decoration: line-through; }
+  .ev-data { flex: 0 0 50px; text-align: center; line-height: 1.1; background: var(--carta2); border-radius: 10px; padding: 6px 0; }
+  .ev-data b { display: block; font-family: var(--titoli); font-weight: 400; font-size: 20px; }
+  .ev-data span { display: block; font-size: 12px; text-transform: uppercase; color: var(--arancio); }
+  .ev-data small { display: block; font-size: 11px; color: var(--tenue); }
+  .ev-corpo { flex: 1 1 auto; min-width: 0; }
+  .ev-tit { font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ev-sotto { font-size: 13px; color: var(--tenue); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ev-dx { flex: 0 0 auto; text-align: right; font-size: 15px; font-weight: 650; align-self: flex-start; padding-top: 2px; }
+  .ev-pill { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  .pill { display: inline-block; font-size: 11px; font-weight: 700; border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+  .pill.ok { background: rgba(92,194,138,.16); color: var(--verde); }
+  .pill.att { background: rgba(242,193,78,.16); color: var(--giallo); }
+  .pill.no { background: rgba(239,107,91,.16); color: var(--rosso); }
+  .pill.neutra { background: var(--carta2); color: var(--tenue); }
+  .riassunto { font-size: 13px; color: var(--tenue); margin: 2px 0 10px; }
+
+  /* Scheda evento */
+  .scheda h1 { margin-bottom: 6px; }
+  .dati { margin: 0; display: grid; grid-template-columns: minmax(110px, 38%) 1fr; gap: 6px 12px; font-size: 15px; }
+  .dati dt { color: var(--tenue); }
+  .dati dd { margin: 0; overflow-wrap: anywhere; }
+  .manca { color: var(--giallo); }
+  .avvertenza { background: rgba(242,193,78,.1); border: 1px solid rgba(242,193,78,.35); border-radius: var(--raggio);
+    padding: 12px 14px; margin: 10px 0 12px; font-size: 14px; }
+  .testo-lungo { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
+
+  /* Riepilogo */
+  .tessere { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  @media (min-width: 560px) { .tessere { grid-template-columns: repeat(3, 1fr); } }
+  .tessera { background: var(--carta); border: 1px solid var(--bordo); border-radius: var(--raggio); padding: 12px 14px; }
+  .tessera .n { font-family: var(--titoli); font-size: 22px; line-height: 1.2; }
+  .tessera .l { font-size: 13px; color: var(--tenue); }
+  .tessere.tre { grid-template-columns: repeat(3, 1fr); margin-top: 8px; }
+  .tessere.tre .n { font-size: 16px; }
+  .tessera.forte { background: linear-gradient(135deg, rgba(240,138,60,.28), rgba(47,111,115,.35)); }
+  .mesi { display: flex; align-items: flex-end; gap: 4px; height: 140px; padding-top: 8px; }
+  .mese { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 4px; }
+  .mese i { display: block; width: 100%; max-width: 28px; background: var(--arancio); border-radius: 4px 4px 0 0; min-height: 2px; }
+  .mese i.futuro { background: var(--petrolio); }
+  .mese span { font-size: 10px; color: var(--tenue); }
+  .barre .b { display: grid; grid-template-columns: 110px 1fr auto; gap: 8px; align-items: center; font-size: 14px; margin: 6px 0; }
+  .barre .b i { display: block; height: 10px; border-radius: 5px; background: var(--petrolio); }
+  .legenda { font-size: 12px; color: var(--tenue); margin-top: 6px; }
+  .legenda b { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: -1px; margin: 0 4px 0 10px; }
+
+  /* Login */
+  body.in-login #app { padding-top: 48px; }
+  .login { max-width: 360px; margin: 0 auto; text-align: center; }
+  .login img { max-width: 220px; width: 60%; margin: 0 auto 8px; display: block; }
+  .login .marchio { font-size: 34px; }
+  .login .nomi { display: grid; gap: 10px; margin-top: 18px; }
+  .login .nomi button { font-size: 18px; font-weight: 700; padding: 16px; background: var(--carta); border: 1px solid var(--bordo); }
+  .login input { text-align: center; font-size: 22px; letter-spacing: .3em; }
+
+  /* Navigazione: barra in basso sul telefono, colonna a sinistra sugli schermi larghi */
+  #nav { position: fixed; left: 0; right: 0; bottom: 0; display: flex; background: #111518;
+    border-top: 1px solid var(--bordo); padding-bottom: env(safe-area-inset-bottom); z-index: 10; }
+  #nav:empty { display: none; }
+  #nav button { flex: 1; min-width: 0; background: none; color: var(--tenue); border-radius: 0; height: var(--nav-h); padding: 0 1px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 10px; letter-spacing: -.01em; }
+  #nav button .ico { font-size: 20px; }
+  #nav button.attiva { color: var(--arancio); font-weight: 700; }
+  @media (min-width: 800px) {
+    #nav { top: 0; right: auto; width: 210px; flex-direction: column; justify-content: flex-start;
+      border-top: 0; border-right: 1px solid var(--bordo); padding: 76px 8px 16px; gap: 4px; }
+    #nav button { flex: 0 0 auto; flex-direction: row; justify-content: flex-start; gap: 10px;
+      height: 44px; padding: 0 12px; border-radius: 10px; font-size: 15px; }
+    #nav button.attiva { background: var(--carta); }
+    #testa { z-index: 11; }
+    body:not(.in-login) #app { margin-left: 210px; max-width: none; padding: 24px 32px 32px; }
+    body:not(.in-login) #app > * { max-width: 760px; }
+  }
+
+  /* Modale fatto in casa: confirm()/alert() nell'iframe di Apps Script possono non comparire */
+  .modale { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: flex-end; justify-content: center; z-index: 20; }
+  .modale .finestra { background: var(--carta); width: 100%; max-width: 480px; border-radius: 18px 18px 0 0;
+    padding: 20px 16px calc(16px + env(safe-area-inset-bottom)); max-height: 88vh; overflow-y: auto; }
+  .modale h2 { margin-top: 0; color: var(--testo); }
+  .modale .campi { grid-template-columns: 1fr; }
+  .modale .ev { background: var(--carta2); }
+  .modale .ev-sotto { white-space: normal; }
+  .modale .bottoni { display: flex; gap: 8px; margin-top: 16px; }
+  .modale .bottoni button { flex: 1; }
+  @media (min-width: 800px) { .modale { align-items: center; } .modale .finestra { border-radius: 18px; } }
+
+  .avviso { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--nav-h) + 12px + env(safe-area-inset-bottom));
+    background: var(--testo); color: var(--sfondo); padding: 10px 16px; border-radius: 14px; font-size: 14px; z-index: 30;
+    width: max-content; max-width: calc(100% - 32px); }
+  .avviso.errore { background: var(--rosso); color: #fff; }
+  .nascosto { display: none !important; }
+  .idea { flex: 0 0 auto; width: 38px; height: 38px; min-height: 38px; padding: 0; border-radius: 50%; font-size: 18px;
+    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); }
+  .carta.idea-carta { border-left: 4px solid var(--arancio); }
+  .carta.idea-carta.letto { border-left-color: var(--petrolio); }
+  .carta.idea-carta.fatto { border-left-color: var(--verde); opacity: .7; }
+  .btn-piccolo-sec { padding: 6px 10px; min-height: 34px; font-size: 13px; }
+  .chi { position: relative; }
+  .chi .badge { top: -6px; right: -6px; }
+  .chi { background: none; border: 1px solid var(--bordo); border-radius: 999px; padding: 6px 12px; min-height: 36px; font-size: 13px; color: var(--testo); }
+  .recap { white-space: pre-wrap; overflow-wrap: anywhere; font: 13px/1.45 -apple-system, sans-serif; background: var(--carta2);
+    border-radius: 10px; padding: 12px; margin: 10px 0 0; max-height: 360px; overflow-y: auto; }
+  .check { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: none; border-radius: 0;
+    padding: 8px 0; min-height: 40px; border-bottom: 1px solid var(--bordo); font-size: 15px; }
+  .check:last-child { border-bottom: 0; }
+  .check .box { flex: 0 0 26px; height: 26px; border-radius: 7px; border: 1px solid var(--bordo); background: var(--carta2);
+    display: flex; align-items: center; justify-content: center; font-size: 15px; }
+  .check.ok .box { background: var(--verde); border-color: var(--verde); color: #0e1113; }
+  .check.ok .t { color: var(--tenue); }
+  .check .auto { font-size: 11px; color: var(--tenue); margin-left: auto; white-space: nowrap; }
+  .progresso { height: 8px; background: var(--carta2); border-radius: 4px; overflow: hidden; margin: 6px 0; }
+  .progresso i { display: block; height: 100%; background: var(--verde); }
+  .compito { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--bordo); }
+  .compito:last-child { border-bottom: 0; }
+  .compito .t { flex: 1 1 auto; min-width: 0; text-align: left; background: none; padding: 6px 0; min-height: 0; color: var(--testo); }
+  .compito.fatto .t { color: var(--tenue); text-decoration: line-through; }
+  .scaduto { color: var(--rosso); font-weight: 700; }
+  .gantt .r { display: grid; grid-template-columns: minmax(80px, 30%) 1fr; gap: 8px; align-items: center; margin: 10px 0; font-size: 13px; }
+  .gantt .r > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .gantt .track { position: relative; height: 18px; background: var(--carta2); border-radius: 9px; }
+  .gantt .bar { position: absolute; top: 0; height: 100%; border-radius: 9px; background: var(--petrolio); overflow: hidden; min-width: 6px; }
+  .gantt .bar i { display: block; height: 100%; background: var(--arancio); }
+  .gantt .oggi { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--rosso); }
+  .gantt .mesi-g { position: relative; height: 16px; font-size: 10px; color: var(--tenue); }
+  .gantt .mesi-g span { position: absolute; transform: translateX(-50%); }
+  .voce { display: block; width: 100%; text-align: left; background: var(--carta2); border: 1px solid var(--bordo);
+    border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; }
+  .voce.scelta { border-color: var(--arancio); box-shadow: inset 0 0 0 1px var(--arancio); background: rgba(240,138,60,.08); }
+  .voce .riga b { font-size: 15px; }
+  .voce .desc { font-size: 13px; color: var(--tenue); margin-top: 2px; }
+  .extra { display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--bordo); padding: 6px 0; }
+  .extra:last-child { border-bottom: 0; }
+  .spunta { flex: 0 0 auto; width: 32px; height: 32px; min-height: 32px; padding: 0; border-radius: 8px; color: var(--testo);
+    background: var(--carta2); border: 1px solid var(--bordo); font-size: 18px; line-height: 30px; }
+  .spunta.on { background: var(--arancio); color: var(--arancio-testo); border-color: var(--arancio); }
+  .compito .spunta.on { background: var(--verde); border-color: var(--verde); color: #0e1113; }
+  .extra .nome { flex: 1 1 auto; min-width: 0; }
+  .extra input { width: 70px; min-height: 36px; padding: 6px 8px; text-align: right; }
+  .totali { background: linear-gradient(135deg, rgba(240,138,60,.18), rgba(47,111,115,.25)); border-radius: var(--raggio); padding: 14px 16px; }
+  .totali .riga { padding: 3px 0; }
+  .totali .grande { font-family: var(--titoli); font-size: 22px; }
+  .voci-recap { border-bottom: 1px solid rgba(255,255,255,.18); padding-bottom: 8px; margin-bottom: 6px; }
+  .voci-recap .voce-recap { font-size: 14px; padding: 2px 0; }
+  .voci-recap .voce-recap > span:first-child { min-width: 0; overflow-wrap: anywhere; }
+  .voci-recap .voce-recap > span:last-child { white-space: nowrap; }
+  .totali input { width: 110px; min-height: 36px; padding: 6px 8px; text-align: right; }
+  .stati { display: flex; gap: 6px; flex-wrap: wrap; }
+  .sugg { margin-top: 4px; border: 1px solid var(--bordo); border-radius: 10px; overflow-y: auto; max-height: 260px; }
+  .sugg:empty { display: none; }
+  .sugg-voce { display: block; width: 100%; text-align: left; background: var(--carta2); border-radius: 0; padding: 10px 12px;
+    min-height: 44px; border-bottom: 1px solid var(--bordo); font-size: 15px; }
+  .sugg-voce:last-child { border-bottom: 0; }
+  .sugg-voce .tenue { font-size: 13px; }
+  #nav .ico { position: relative; }
+  .badge { position: absolute; top: -4px; right: -12px; min-width: 18px; padding: 0 5px; border-radius: 9px; background: var(--rosso); color: #fff;
+    font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; font-family: -apple-system, sans-serif; }
+  .contatto { padding: 4px 0; border-bottom: 1px solid var(--bordo); align-items: center; }
+  .contatto:last-of-type { border-bottom: 0; }
+  .contatto .btn-link { text-align: left; color: var(--testo); padding: 8px 0; }
+  .contatto a { text-decoration: none; font-size: 20px; margin-left: 6px; }
+  .btn-x { background: none; color: var(--tenue); font-size: 22px; padding: 4px 8px; min-height: 36px; }
+</style>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; base-uri 'self'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<meta name="theme-color" content="#111518">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tribute-A">
+</head>
+<body>
+<header id="testa"></header>
+<div id="app"></div>
+<nav id="nav"></nav>
+<div id="modale" class="modale nascosto"></div>
+<div id="avviso" class="avviso nascosto"></div>
+
+<script>
+// ─── Versione e changelog: VERSIONE deve essere uguale alla prima voce (lo controlla il test)
+var VERSIONE = '0.45';
+var CHANGELOG = [
+  { v: '0.45', data: '2026-11-12', testo: 'Accesso con Face ID, come nell\'app delle finanze: funziona dall\'app fuori da Google (link in Altro → Face ID). Ognuno entra col suo PIN, attiva il Face ID sul suo telefono e da lì in poi entra guardando lo schermo. I dati restano nel foglio della band: online c\'è solo la pagina.' },
+  { v: '0.44', data: '2026-11-12', testo: 'Recap automatico anche il giorno stesso dell\'evento: alle 9 arriva "🎸 Oggi si suona" con lo stesso riassunto (orari, indirizzo, contatti), oltre a quello di 3 giorni prima.' },
+  { v: '0.43', data: '2026-11-06', testo: 'Salvataggi più veloci: la scheda si aggiorna subito e il server conferma dietro (in alto "☁️ Salvo…"). Il foglio "Date Tribute A — dal Gestionale" e Google Contatti si aggiornano da soli circa un minuto dopo, senza farti aspettare. Se qualcosa va storto te lo dice e torni al modulo con quello che avevi scritto.' },
+  { v: '0.42', data: '2026-11-04', testo: 'Messaggi di fine stagione per location, wedding planner e catering: nuova riga che chiede un feedback sul canale da cui ci hanno trovato (Musiqua, Matrimonio.com o Showgroup, col link). Se è passaparola, Musiqua.' },
+  { v: '0.41', data: '2026-11-04', testo: 'Matrimoni: nel preventivo c\'è la sezione "Persone" (sposa e sposo con i loro numeri, telefono e referente della location, wedding planner): salvando diventano contatti dell\'evento. Gli sposi sono una scheda sola con i due numeri; nei messaggi ci sono due WhatsApp, "sposa" e "sposo", e ognuno saluta solo chi lo riceve. Nella scheda evento si vede chi manca, con il tasto per aggiungerlo.' },
+  { v: '0.40', data: '2026-11-04', testo: 'Messaggi: tolti dalla coda quelli già segnati o saltati che erano ricomparsi dopo l\'unione dei contatti dei locali. "Ci vediamo presto" ora è una categoria a parte: arriva solo a chi ha eventi in programma con noi (e a loro non arriva l\'altro).' },
+  { v: '0.39', data: '2026-11-04', testo: 'Messaggi: nuovo modello per location, wedding planner e catering che hanno già date confermate in futuro. A fine stagione, al posto del solito grazie, ricevono anche "Ci vediamo presto ai prossimi eventi insieme:" con l\'elenco delle date. Il testo si modifica come gli altri ({prossime} = le date future).' },
+  { v: '0.38', data: '2026-11-04', testo: 'Contatti: la ricerca trova anche il referente (es. il nome del referente trova la scheda del suo locale), l\'indirizzo, i numeri scritti senza spazi, e non bada ad accenti e maiuscole. Nell\'elenco si vede anche il referente.' },
+  { v: '0.37', data: '2026-11-04', testo: 'Evento/preventivo: se il telefono l\'ha messo la tendina (es. quello del wedding planner) e poi cambi il referente, il telefono si svuota da solo, così il nuovo referente non prende il numero di un altro.' },
+  { v: '0.36', data: '2026-11-04', testo: 'WhatsApp: i numeri hanno sempre il prefisso giusto (anche fissi, +39, 0039, numeri esteri, due numeri nella stessa casella), così si apre la chat della persona giusta. Nel messaggio c\'è scritto a quale numero apre WhatsApp.' },
+  { v: '0.35', data: '2026-11-04', testo: 'Contatti: tolte le finte "location" nate da scritte provvisorie nel Luogo ("da confermare", "da definire", "?"…), che finivano collegate a matrimoni diversi. Non vengono più create.' },
+  { v: '0.34', data: '2026-11-04', testo: 'Contatti → "🔍 Trova doppioni": trova le schede che si somigliano (es. "Bar Centrale" e "Bar Centrali", "Mario Bar Centrale" e "Bar Centrale", stesso telefono). "Unisci" ne lascia una sola col nome e il referente che scegli; eventi e messaggi già mandati passano a quella.' },
+  { v: '0.33', data: '2026-11-04', testo: 'Contatti dei locali: niente più doppioni (il paese come "location" + il referente a parte). Ogni locale è un contatto solo: nome del locale, referente con il suo numero, e dove si trova. I doppioni che c\'erano sono stati uniti.' },
+  { v: '0.32', data: '2026-11-04', testo: 'Altro → "🔁 Confronta col foglio Date": mostra cosa è diverso fra l\'app e il foglio Date Tribute A (compensi, saldi ricevuti, netto/lordo/nero, telefoni e orari mancanti) e le date che nel foglio ci sono e nell\'app no. Spunti cosa prendere dal foglio e premi Aggiorna; il foglio non viene toccato.' },
+  { v: '0.31', data: '2026-11-04', testo: 'Contatti: per location, catering e organizzatori c\'è anche il "Nome del referente" (la persona). Nei messaggi automatici "Ciao …" usa il referente invece del nome della location; nel PDF del programma compare tra parentesi.' },
+  { v: '0.30', data: '2026-11-04', testo: 'Preventivo: in Logistica si può chiedere il pernottamento per la band (Sì/No + dettagli). Compare in tutti e due i PDF, sempre "a carico del cliente".' },
+  { v: '0.29', data: '2026-10-30', testo: 'Il pulsante si chiama solo "➕ Altra proposta per lo stesso evento".' },
+  { v: '0.28', data: '2026-10-30', testo: 'Preventivo nuovo: se quel giorno c\'è già un evento con un nome simile (nell\'app o scritto a mano nel calendario, es. "Forse matrimonio Laura") ti chiede se è lo stesso, così ne resta uno solo. Nuovo pulsante "➕ Altra proposta per lo stesso evento": più preventivi (pacchetti diversi) per la stessa coppia, un evento solo; basta che uno sia accettato e l\'evento è confermato.' },
+  { v: '0.27', data: '2026-10-30', testo: 'Preventivi: due PDF. "📄 PDF preventivo" ha solo pacchetti, extra, sconto e totale (per il cliente); "🗓️ PDF programma" ha orari, musica, logistica e contatti, senza soldi (per la band, gli sposi, la location).' },
+  { v: '0.26', data: '2026-10-29', testo: 'Messaggi: "-tipo di evento-" (o {evento}) diventa da solo "il vostro matrimonio", "la vostra sagra", "la vostra festa"…, con la parola prima accordata ("del" → "della vostra sagra"). Nel saluto, Pro Loco, bar, ristoranti ecc. restano col nome intero.' },
+  { v: '0.25', data: '2026-10-29', testo: 'Richiesta info: dopo "Ciao" c\'è solo il nome, senza cognome (per le coppie: "Ciao Laura e Paolo").' },
+  { v: '0.24', data: '2026-10-29', testo: 'Tendina dalla prima lettera anche per: nome dell\'evento (scegliendo un evento già fatto si copiano tipo, luogo, referente, telefono e tramite nei campi vuoti), tramite, piattaforma delle spese e nome di un contatto nuovo (se c\'è già in rubrica lo apri o lo colleghi, niente doppioni).' },
+  { v: '0.23', data: '2026-10-29', testo: 'Referente e luogo: già dalla prima lettera compare la tendina con tutti i nomi che iniziano così; toccandone uno si compilano telefono e ruolo (o l\'indirizzo).' },
+  { v: '0.22', data: '2026-10-29', testo: 'PDF del preventivo: il totale è scritto più grande.' },
+  { v: '0.21', data: '2026-10-29', testo: 'PDF del preventivo: se è lungo il logo si rimpicciolisce da solo (fino a un minimo) per stare in una pagina.' },
+  { v: '0.20', data: '2026-10-29', testo: 'PDF del preventivo: torna l\'impaginazione di prima, con il logo nero di misura media.' },
+  { v: '0.19', data: '2026-10-29', testo: 'PDF del preventivo in una pagina sola: logo più piccolo, testo più compatto, Evento e Programma affiancati.' },
+  { v: '0.18', data: '2026-10-29', testo: 'PDF del preventivo: logo nero grande al centro, numero di Andrea accanto al suo nome, "I prezzi sono da intendersi al netto di IVA".' },
+  { v: '0.17', data: '2026-10-29', testo: 'Preventivo: nel riquadro del totale c\'è l\'elenco dei servizi scelti con i prezzi, che si aggiorna mentre scrivi. Per sagre, locali e privati spariscono le voci da matrimonio (ingresso sposi, primo ballo, cerimonia, torta): resta solo "Richieste particolari".' },
+  { v: '0.16', data: '2026-10-09', testo: 'Se un evento ha il referente ma non il numero (es. il wedding planner su un matrimonio importato), il numero si prende da solo dalla rubrica. Corretti anche gli eventi già importati.' },
+  { v: '0.15', data: '2026-10-08', testo: 'I contatti della rubrica si salvano anche in Google Contatti dell\'account della band (etichetta "Tribute-A"), e si aggiornano da soli a ogni modifica.' },
+  { v: '0.14', data: '2026-10-07', testo: 'Messaggi: "↩︎ Rimetti" negli ultimi mandati per correggere un "fatto a mano" o un "salta" per sbaglio. "📧 Invia mail" c\'è sempre: se il contatto non ha l\'email la scrivi lì e si salva nel contatto.' },
+  { v: '0.13', data: '2026-10-07', testo: 'Nei messaggi la data si scrive "6 Luglio" invece di "06/07/2026".' },
+  { v: '0.12', data: '2026-10-07', testo: 'Nuovo pulsante "📨 Chiedi le info mancanti" negli eventi incompleti: prepara un messaggio per gli sposi o l\'organizzatore con le domande giuste, e lo mette in Messaggi da mandare. E la lampadina 💡 in alto a sinistra: suggerimenti per migliorare l\'app, li legge Galva.' },
+  { v: '0.11', data: '2026-09-29', testo: 'Recap delle prossime date (WhatsApp, Telegram o mail; automatico 3 giorni prima alle 9). Progetti con Gantt e to-do. Numeri: spese per piattaforma, ROI e utile. Checklist "cosa manca" in ogni evento. "Altro" ora è sul tuo nome in alto.' },
+  { v: '0.10', data: '2026-09-29', testo: 'Suggerimenti mentre scrivi: referente (con telefono) e luogo (con indirizzo) da rubrica ed eventi passati; "Cerca su Google Maps" per l\'indirizzo esatto. Salvando un evento, referente e location finiscono da soli in rubrica. In Altro: "Crea la rubrica dagli eventi".' },
+  { v: '0.9', data: '2026-09-29', testo: 'Preventivi: listino 2026 (matrimoni, estate, inverno) con pacchetti ed extra, totale e acconto automatici, scheda completa (orari, musica, logistica, fornitori) e PDF con il logo. Il preventivo è collegato all\'evento: calendario, foglio e contatti si aggiornano da soli.' },
+  { v: '0.8', data: '2026-09-29', testo: 'Contatti: rubrica unica (sposi, wedding planner, location, fotografo, videomaker, catering) collegata agli eventi. Messaggi: recensione agli sposi 10 giorni dopo, foto/video e collaborazione a fine stagione, con testi modificabili; si mandano per mail o WhatsApp con un tocco.' },
+  { v: '0.7', data: '2026-09-29', testo: 'Popup "Da completare": all\'apertura elenca gli eventi in programma con dati mancanti e fa compilare solo quelli. Si apre anche dopo "Aggiungi" dal calendario.' },
+  { v: '0.6', data: '2026-09-29', testo: 'Corretto: "Aggiungi" dalle date del calendario diceva "Evento non trovato" per gli eventi creati a mano o da invito.' },
+  { v: '0.5', data: '2026-09-29', testo: 'Nuovo foglio "Date Tribute A — dal Gestionale" sul Drive della band, sempre aggiornato (una scheda per anno + riepilogo). In Eventi, "Dal calendario" mostra le date scritte solo nel calendario, da aggiungere o ignorare.' },
+  { v: '0.4', data: '2026-09-29', testo: 'Corretto: due sincronizzazioni vicine creavano i concerti doppi nel calendario. Ora non succede più e "Sincronizza" cancella da solo le copie in più (solo quelle create dall\'app).' },
+  { v: '0.3', data: '2026-09-29', testo: 'Tipo completato in automatico per le date 2025 (da ritoccare dove serve); anticipi 2027 già divisi contati come ricevuti; la sincronizzazione del calendario non tocca mai le prove e gli altri impegni.' },
+  { v: '0.2', data: '2026-09-29', testo: 'Nasce il Gestionale: accesso con PIN, eventi importati dal foglio Date, scheda evento modificabile, sincronizzazione con il calendario Eventi e riepilogo economico per anno.' },
+  { v: '0.1', data: '2026-09-29', testo: 'Scheletro di prova.' }
+];
+
+// ─── Collegamento al server
+// Dentro Apps Script c'è google.script.run. Sulla pagina esterna (GitHub Pages) lo imitiamo con fetch()
+// verso la web app, senza cookie Google: stesso codice, niente problema "/u/1/" con più account nel browser.
+var API_URL = 'https://script.google.com/macros/s/AKfycbzFQTgnms2pa01cVrtcpC-oy5PH21eZ1sbL9S4QefigTmYcA0hdAGypQEN2Cbcn19T0/exec';
+var FUORI = typeof google === 'undefined' || !google.script; // true = pagina su GitHub Pages (lì funziona il Face ID)
+if (FUORI) {
+  var chiamaApi = function (ok, ko) {
+    var r = {
+      withSuccessHandler: function (f) { return chiamaApi(f, ko); },
+      withFailureHandler: function (f) { return chiamaApi(ok, f); }
+    };
+    ['getDati', 'accedi', 'azione', 'cercaLuogo', 'similiCalendario', 'sfidaPasskey', 'accediPasskey'].forEach(function (fn) {
+      r[fn] = function () {
+        var args = Array.prototype.slice.call(arguments);
+        // Google ogni tanto risponde con una sua pagina d'errore: le letture si ritentano da sole, i salvataggi
+        // no (potrebbero essere già andati a buon fine: meglio che la persona controlli e riprovi).
+        var tentativi = fn === 'azione' ? 1 : 3;
+        var prova = function () {
+          tentativi--;
+          fetch(API_URL, { method: 'POST', credentials: 'omit', redirect: 'follow',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: fn, args: args }) })
+            .then(function (x) { return x.text(); })
+            .then(function (t) {
+              var j;
+              try { j = JSON.parse(t); } catch (e) { throw new Error('risposta non valida da Google'); }
+              if (j.ok) { if (ok) ok(j.r); } else if (ko) ko(new Error(j.e));
+            })
+            .catch(function (err) {
+              if (tentativi > 0) return setTimeout(prova, 800);
+              if (ko) ko(new Error((fn === 'azione' ? 'Non so se è stato salvato: ricarica e controlla. ' : 'Connessione non riuscita, riprova. ') + '(' + err.message + ')'));
+            });
+        };
+        prova();
+      };
+    });
+    return r;
+  };
+  window.google = { script: {} };
+  Object.defineProperty(window.google.script, 'run', { get: function () { return chiamaApi(null, null); } });
+}
+
+// ─── Stato
+// doGet() sostituisce la stringa segnaposto con i dati (i commenti Google li toglie, le stringhe no)
+var DATI = '__DATI_INIZIALI__';
+if (DATI === '__DATI_INIZIALI__') DATI = null;
+var LOGO = (DATI && DATI.logo) || '';
+var SESS = ricorda('tok');          // token di sessione (30 giorni)
+var V = window.__VISTA || 'eventi'; // vista aperta
+var SEL = '';                       // id dell'evento aperto
+var BOZZA = null;                   // evento in modifica
+var LOGIN_NOME = '';
+var FILTRO = { stato: 'dafare', anno: '', q: '' };
+var ANNO_RIEP = '';
+var EXTRA = null;                   // eventi del calendario non ancora nel Gestionale
+var CONFRONTO = null, SCELTI_C = { ids: {}, nuovi: {} }; // confronto col foglio "Date Tribute A"
+var SEL_C = '';                     // contatto aperto
+var SEL_M = '';                     // modello di messaggio aperto
+var FILTRO_C = { ruolo: '', q: '' };
+var BOZZA_K = null, K_EVENTO = '';  // contatto nel popup, ed evento a cui collegarlo
+var CODA_MSG = [];                  // messaggi da mandare, nell'ordine mostrato
+var MSG = null;                     // messaggio nel popup
+var PREV = null;                    // preventivo aperto (copia di lavoro)
+var FILTRO_P = '';
+var LISTINO_V = 'Matrimonio';       // listino mostrato in Altro > Listino
+var VOCE_L = null;                  // voce di listino nel popup
+var SEL_P = '';                     // progetto aperto
+var FILTRO_PR = 'attivo';
+var NUM_TAB = 'incassi';            // Numeri: incassi | spese
+var CHAT_TG = [];                   // gruppi Telegram trovati
+var DOMANDE = [];                   // popup "Chiedi le info": [{ testo, on }]
+var occupato = false;               // una scrittura in corso
+var alConferma = null;              // cosa fare se nel modale si preme OK
+var MODALE = '';                    // '' | 'conferma' | 'lista' | 'completa'
+var BOZZA_C = null;                 // evento nel popup "completa"
+var CAMPI_C = [];                   // campi mostrati nel popup "completa"
+var DA_LISTA = false;               // il popup "completa" è partito dall'elenco
+var LISTA_MOSTRATA = false;         // l'elenco "da completare" si mostra una volta per apertura
+
+var VISTE = [
+  { id: 'eventi',    ico: '📅', nome: 'Eventi' },
+  { id: 'preventivi', ico: '💶', nome: 'Preventivi' },
+  { id: 'messaggi',  ico: '✉️', nome: 'Messaggi' },
+  { id: 'contatti',  ico: '👥', nome: 'Contatti' },
+  { id: 'progetti',  ico: '🗂️', nome: 'Progetti' },
+  { id: 'riepilogo', ico: '📊', nome: 'Numeri' }
+]; // "Altro" è sul nome in alto a destra
+// vista "figlia" -> voce della barra da accendere
+var PADRE = { evento: 'eventi', modifica: 'eventi', calendario: 'eventi', confronto: 'altro', doppioni: 'contatti', contatto: 'contatti', modello: 'messaggi',
+  preventivo: 'preventivi', recap: 'eventi', progetto: 'progetti' };
+var COLORE_STATO_P = { bozza: 'neutra', inviato: 'att', accettato: 'ok', rifiutato: 'no' };
+var EMOJI_RUOLO = { Sposi: '💍', 'Wedding planner': '📋', Location: '🏛️', Fotografo: '📷', Videomaker: '🎥', Catering: '🍽️', Organizzatore: '🎤', Altro: '👤' };
+var ETICHETTA_CANALE = { mail: '📧 mail', whatsapp: '💬 WhatsApp', fatto: '✓ a mano', saltato: '⏭ saltato' };
+var EMOJI_TIPO = { Matrimonio: '💍', Locale: '🍺', Sagra: '🎪', Privato: '🎉', Altro: '🎸' };
+var MESI = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
+var MESI_LUNGHI = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
+var GIORNI = ['domenica', 'lunedì', 'martedì', 'mercoledì', 'giovedì', 'venerdì', 'sabato'];
+var OBBLIGATORI = [['titolo', 'nome'], ['tipo', 'tipo'], ['luogo', 'luogo'], ['arrivo', 'orario di arrivo'],
+  ['totale', 'compenso'], ['referente', 'referente'], ['telefono', 'telefono']];
+
+// Modulo di modifica: [gruppo, [[campo, etichetta, tipo], ...]]
+var FORM = [
+  ['Evento', [['titolo', 'Nome evento', 'text'], ['tipo', 'Tipo', 'sel:tipi'], ['stato', 'Stato', 'sel:stati']]],
+  ['Quando', [['data', 'Data', 'date'], ['arrivo', 'Arrivo nostro', 'time'], ['inizio', 'Inizio show', 'time'],
+    ['fine', 'Fine (se diversa da arrivo + ore standard)', 'time'], ['soundcheck', 'Soundcheck / montaggio', 'text']]],
+  ['Dove', [['luogo', 'Luogo', 'text'], ['indirizzo', 'Indirizzo o link Google Maps', 'text'], ['sopralluogo', 'Sopralluogo', 'text']]],
+  ['Contatto', [['referente', 'Referente', 'text'], ['telefono', 'Telefono', 'tel'],
+    ['ruoloReferente', 'Il referente è… (per la rubrica)', 'sel:ruoli'],
+    ['contattatoDa', 'Contattato da', 'sel:membri'], ['tramite', 'Tramite (canale)', 'list:canali']]],
+  ['Soldi', [['totale', 'Compenso totale (netto + nero) €', 'num'], ['anticipo', 'Anticipo €', 'num'],
+    ['anticipoRicevuto', 'Anticipo ricevuto', 'si'], ['saldoRicevuto', 'Saldo ricevuto', 'si'],
+    ['netto', 'Netto €', 'num'], ['lordo', 'Lordo €', 'num'], ['nero', 'Nero €', 'num'],
+    ['diviso', 'Diviso tra noi', 'si'], ['service', 'Service', 'si']]],
+  ['Note', [['note', 'Note', 'area'], ['richieste', 'Richieste (pezzi, scaletta…)', 'area']]]
+];
+
+// ─── Utilità
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+function $(id) { return document.getElementById(id); }
+// Fuori da Google (sito col Face ID) il token resta solo finché l'app è aperta: a ogni apertura Face ID o PIN, come in Finanze
+function ricorda(k, v) {
+  try {
+    var st = FUORI && k === 'tok' ? sessionStorage : localStorage;
+    if (v === undefined) return st.getItem(k) || '';
+    if (v === null) st.removeItem(k); else st.setItem(k, v);
+  } catch (e) { return ''; }
+}
+// ─── Face ID (passkey), come in Finanze: solo sul sito fuori da Google
+function b64u(buf) {
+  var b = new Uint8Array(buf), t = '';
+  for (var i = 0; i < b.length; i++) t += String.fromCharCode(b[i]);
+  return btoa(t).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function deb64u(x) {
+  x = String(x).replace(/-/g, '+').replace(/_/g, '/');
+  while (x.length % 4) x += '=';
+  var t = atob(x), b = new Uint8Array(t.length);
+  for (var i = 0; i < t.length; i++) b[i] = t.charCodeAt(i);
+  return b;
+}
+var SFIDA = null, SFIDA_REG = null;
+var PUO_FACEID = FUORI && typeof window !== 'undefined' && !!window.PublicKeyCredential && !!(navigator.credentials && navigator.credentials.get);
+function caricaSfida(nome) {
+  SFIDA = null;
+  google.script.run.withSuccessHandler(function (x) { SFIDA = x; SFIDA.nome = nome; }).withFailureHandler(function () { SFIDA = null; }).sfidaPasskey(nome);
+}
+function faceIdHtml() {
+  var h = '<h2>🔐 Face ID</h2><div class="carta">';
+  if (!FUORI) {
+    return h + '<p style="margin:0">Il Face ID funziona solo dall\'app fuori da Google: <a target="_blank" rel="noopener" href="' + esc(DATI.sitoUrl) + '">' +
+      esc(String(DATI.sitoUrl || '').replace('https://', '')) + '</a>. Aprila in Safari, entra col PIN, attiva il Face ID qui in Altro e ' +
+      'aggiungila alla schermata Home (Condividi → Aggiungi a Home) al posto di questa.</p></div>';
+  }
+  if (!PUO_FACEID) return h + '<p class="tenue" style="margin:0">Questo browser non supporta il Face ID.</p></div>';
+  var pk = DATI.passkeys || [];
+  if (pk.length) h += '<p style="margin-top:0">Attivo per ' + esc(DATI.utente) + ' su: ' + pk.map(function (k) {
+    return esc(k.nome) + ' <span class="tenue">(' + esc(String(k.creato).slice(0, 10).split('-').reverse().join('/')) + ')</span> ' +
+      '<button class="btn-link" style="padding:2px 4px" data-az="togliFaceId" data-id="' + esc(k.id) + '">togli</button>';
+  }).join(' · ') + '</p>';
+  return h + '<button class="btn btn-largo" data-az="attivaFaceId">' + (pk.length ? '➕ Attiva anche su questo telefono' : '🔐 Attiva Face ID su questo telefono') + '</button>' +
+    '<p class="tenue" style="margin:8px 0 0">Ogni volta che riapri l\'app ti chiede il Face ID (o il PIN). Ognuno attiva il suo.</p></div>';
+}
+function num(x) { var n = parseFloat(String(x == null ? '' : x).replace(',', '.')); return isNaN(n) ? 0 : n; }
+function euro(x) {
+  var n = Math.round(num(x) * 100) / 100;
+  var p = (n % 1 ? n.toFixed(2) : String(n)).split('.');
+  return '€ ' + p[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.') + (p[1] ? ',' + p[1] : '');
+}
+function parti(d) { var p = String(d).split('-').map(Number); return { a: p[0], m: p[1], g: p[2] }; }
+function dataLunga(d) {
+  var p = parti(d); if (!p.a) return '';
+  return GIORNI[new Date(p.a, p.m - 1, p.g).getDay()] + ' ' + p.g + ' ' + MESI_LUNGHI[p.m - 1] + ' ' + p.a;
+}
+function eventi() { return (DATI && DATI.eventi) || []; }
+function trova(id) { return eventi().filter(function (e) { return e.id === id; })[0] || null; }
+function passato(e) { return e.data < DATI.oggi; }
+function incassato(e) {
+  if (e.stato === 'annullato') return 0;
+  if (e.saldoRicevuto === 'Sì') return num(e.totale);
+  if (e.anticipoRicevuto === 'Sì') return num(e.anticipo);
+  return 0;
+}
+function residuo(e) { return e.stato === 'annullato' ? 0 : Math.max(0, num(e.totale) - incassato(e)); }
+function mancanti(e) {
+  if (e.stato === 'annullato') return [];
+  return OBBLIGATORI.filter(function (x) { return !e[x[0]]; }).map(function (x) { return x[1]; });
+}
+/** Numero per WhatsApp e per chiamare, col prefisso: "333 123 4567" → 393331234567, "045 123456" → 39045123456,
+ *  "+39 …"/"0039 …" → 39…, "0064 22…" → 6422…. Se nella casella ci sono due numeri si prende il primo. */
+function soloCifre(t) {
+  var s = String(t || '').trim();
+  var primo = s.split(/[\/,;|]|\s+(?:-|o|oppure|e)\s+/).filter(function (p) { return p.replace(/\D/g, '').length >= 6; })[0] || s;
+  primo = primo.trim();
+  var c = primo.replace(/\D/g, '');
+  if (!c) return '';
+  if (primo.charAt(0) === '+') return c;
+  if (c.indexOf('00') === 0) return c.slice(2);
+  if (/^3\d{8,9}$/.test(c) || /^0\d{5,10}$/.test(c)) return '39' + c; // cellulare o fisso italiano
+  return c;
+}
+/** "+39 333 123 4567" per far vedere a quale numero si apre WhatsApp. */
+function numeroLeggibile(c) { return c ? '+' + c.replace(/^39(?=\d{9,})/, '39 ') : ''; }
+function dataIt(d) { return String(d || '').split('-').reverse().join('/'); }
+function giorniTra(a, b) {
+  var x = parti(a), y = parti(b);
+  return Math.round((new Date(y.a, y.m - 1, y.g) - new Date(x.a, x.m - 1, x.g)) / 86400000);
+}
+function contatti() { return (DATI && DATI.contatti) || []; }
+function contatto(id) { return contatti().filter(function (c) { return c.id === id; })[0] || null; }
+function idsContatti(e) { try { var l = JSON.parse(e.contatti || '[]'); return Array.isArray(l) ? l : []; } catch (x) { return []; } }
+function contattiDi(e) { return idsContatti(e).map(contatto).filter(Boolean); }
+function eventiDi(c) {
+  return eventi().filter(function (e) { return idsContatti(e).indexOf(c.id) >= 0; })
+    .sort(function (a, b) { return a.data < b.data ? 1 : -1; });
+}
+function linkWa(tel, testo) { return 'https://wa.me/' + tel + (testo ? '?text=' + encodeURIComponent(testo) : ''); }
+function linkInstagram(x) { x = String(x || '').trim(); return /^https?:/i.test(x) ? x : 'https://instagram.com/' + x.replace(/^@/, ''); }
+
+function linkMappa(e) {
+  if (/^https?:\/\//i.test(e.indirizzo || '')) return e.indirizzo;
+  var q = e.indirizzo || e.luogo;
+  return q ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q) : '';
+}
+
+// ─── Disegno
+function vai(v) { V = v; disegna(); if (window.scrollTo) window.scrollTo(0, 0); }
+
+function disegna() {
+  var inLogin = !DATI || !!DATI.login;
+  document.body.className = inLogin ? 'in-login' : '';
+  $('testa').innerHTML = inLogin ? '' : testaHtml();
+  $('nav').innerHTML = inLogin ? '' : VISTE.map(function (x) {
+    var attiva = x.id === V || PADRE[V] === x.id;
+    var n = x.id === 'messaggi' ? daMandare().length : 0;
+    return '<button data-vai="' + x.id + '" class="' + (attiva ? 'attiva' : '') + '">' +
+      '<span class="ico">' + x.ico + (n ? '<span class="badge">' + n + '</span>' : '') + '</span><span>' + x.nome + '</span></button>';
+  }).join('');
+  var h;
+  if (!DATI) h = '<p class="vuoto">Caricamento…</p>';
+  else if (DATI.login) h = vistaLogin();
+  else if (V === 'evento') h = vistaEvento();
+  else if (V === 'modifica') h = vistaModifica();
+  else if (V === 'riepilogo') h = vistaRiepilogo();
+  else if (V === 'altro') h = vistaAltro();
+  else if (V === 'calendario') h = vistaCalendario();
+  else if (V === 'confronto') h = vistaConfronto();
+  else if (V === 'doppioni') h = vistaDoppioni();
+  else if (V === 'messaggi') h = vistaMessaggi();
+  else if (V === 'modello') h = vistaModello();
+  else if (V === 'contatti') h = vistaContatti();
+  else if (V === 'contatto') h = vistaContatto();
+  else if (V === 'preventivi') h = vistaPreventivi();
+  else if (V === 'preventivo') h = vistaPreventivo();
+  else if (V === 'listino') h = vistaListino();
+  else if (V === 'recap') h = vistaRecap();
+  else if (V === 'progetti') h = vistaProgetti();
+  else if (V === 'progetto') h = vistaProgetto();
+  else h = vistaEventi();
+  $('app').innerHTML = h;
+}
+
+function marchio() {
+  return LOGO ? '<img src="' + esc(LOGO) + '" alt="Tribute-A">' : '<span class="marchio">TRIBUTE-A</span>';
+}
+function testaHtml() {
+  var nuovi = DATI.suggerimenti ? DATI.suggerimenti.filter(function (x) { return x.stato === 'nuovo'; }).length : 0;
+  return '<div class="barra"><button class="idea" data-az="suggerisci" aria-label="Suggerisci un miglioramento" title="Suggerisci un miglioramento">💡</button>' +
+    marchio() + '<span class="marchio"><small>Gestionale</small></span></div>' +
+    '<button class="chi" data-vai="altro" aria-label="Altro e impostazioni">⚙️ ' + esc(DATI.utente) + (nuovi ? '<span class="badge">' + nuovi + '</span>' : '') + '</button>';
+}
+
+function suggerimentiHtml() {
+  if (DATI.utente !== DATI.admin || !DATI.suggerimenti) {
+    return '<p class="tenue" style="margin-top:16px">💡 Hai un\'idea per migliorare l\'app? Tocca la lampadina in alto a sinistra: la legge ' + esc(DATI.admin || '') + '.</p>';
+  }
+  var ordine = { nuovo: 0, letto: 1, fatto: 2 };
+  var l = DATI.suggerimenti.slice().sort(function (a, b) {
+    return (ordine[a.stato] || 0) - (ordine[b.stato] || 0) || (a.data < b.data ? 1 : -1);
+  });
+  var nuovi = l.filter(function (x) { return x.stato === 'nuovo'; }).length;
+  return '<h2>💡 Suggerimenti per l\'app · ' + l.length + (nuovi ? ' (' + nuovi + ' nuovi)' : '') + '</h2>' +
+    '<p class="tenue" style="margin-top:-4px">Li vedi solo tu.</p>' +
+    (l.length ? l.map(function (x) {
+      return '<div class="carta idea-carta ' + esc(x.stato) + '"><div class="riga"><b>' + esc(x.da) + '</b><span class="tenue">' + esc(x.data) + '</span></div>' +
+        '<p class="testo-lungo" style="margin:6px 0 0">' + esc(x.testo) + '</p><div class="azioni">' +
+        (x.stato !== 'letto' ? '<button class="btn-sec btn-piccolo-sec" data-az="statoSugg" data-id="' + esc(x.id) + '" data-v="letto">👀 Letto</button>' : '') +
+        (x.stato !== 'fatto' ? '<button class="btn-sec btn-piccolo-sec" data-az="statoSugg" data-id="' + esc(x.id) + '" data-v="fatto">✅ Fatto</button>' : '') +
+        (x.stato !== 'nuovo' ? '<button class="btn-sec btn-piccolo-sec" data-az="statoSugg" data-id="' + esc(x.id) + '" data-v="nuovo">↩︎ Da leggere</button>' : '') +
+        '<button class="btn-pericolo btn-piccolo-sec" data-az="eliminaSugg" data-id="' + esc(x.id) + '">Elimina</button></div></div>';
+    }).join('') : '<p class="vuoto">Ancora nessun suggerimento.</p>');
+}
+
+// ─── Login
+function vistaLogin() {
+  var h = '<div class="login">' + marchio() + '<h1>Gestionale</h1>';
+  var m = (DATI.membri || []).filter(function (x) { return x.nome === LOGIN_NOME; })[0];
+  if (!m) {
+    return h + '<p class="tenue">Chi sei?</p><div class="nomi">' + (DATI.membri || []).map(function (x) {
+      return '<button data-az="scegliNome" data-nome="' + esc(x.nome) + '">' + esc(x.nome) + '</button>';
+    }).join('') + '</div></div>';
+  }
+  h += '<p>Ciao <b>' + esc(m.nome) + '</b></p>';
+  if (PUO_FACEID && m.faceId && m.haPin) {
+    if (!SFIDA || SFIDA.nome !== m.nome) caricaSfida(m.nome);
+    h += '<button class="btn btn-largo" style="font-size:20px;padding:16px" data-az="faceId">🔓 Entra con Face ID</button>' +
+      '<p class="tenue" style="margin:16px 0 4px">oppure con il PIN</p>';
+  }
+  if (m.haPin) {
+    h += '<label for="pin">Il tuo PIN</label><input id="pin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="8">';
+  } else {
+    h += '<p class="tenue">Primo accesso: scegli un PIN di 4-8 cifre. Ti servirà solo ogni 30 giorni.</p>' +
+      '<label for="pin">Nuovo PIN</label><input id="pin" type="password" inputmode="numeric" autocomplete="new-password" maxlength="8">' +
+      '<label for="pin2">Ripeti il PIN</label><input id="pin2" type="password" inputmode="numeric" autocomplete="new-password" maxlength="8">';
+  }
+  return h + '<button class="btn btn-largo" data-az="entra">Entra</button>' +
+    '<button class="btn-link" data-az="scegliNome" data-nome="">Non sono ' + esc(m.nome) + '</button></div>';
+}
+
+// ─── Elenco eventi
+var FILTRI_STATO = [['dafare', 'Da fare'], ['dacompletare', 'Da completare'], ['daincassare', 'Da incassare'],
+  ['passati', 'Passati'], ['annullati', 'Annullati'], ['tutti', 'Tutti']];
+
+function filtrati() {
+  var f = FILTRO, q = f.q.trim().toLowerCase();
+  var l = eventi().filter(function (e) {
+    if (f.anno && e.data.slice(0, 4) !== f.anno) return false;
+    var ann = e.stato === 'annullato';
+    switch (f.stato) {
+      case 'dafare': if (ann || passato(e)) return false; break;
+      case 'dacompletare': if (passato(e) || !mancanti(e).length) return false; break;
+      case 'daincassare': if (!residuo(e)) return false; break;
+      case 'passati': if (ann || !passato(e)) return false; break;
+      case 'annullati': if (!ann) return false; break;
+    }
+    if (q && [e.titolo, e.luogo, e.referente, e.tipo, e.note].join(' ').toLowerCase().indexOf(q) < 0) return false;
+    return true;
+  });
+  var crescente = f.stato === 'dafare' || f.stato === 'dacompletare';
+  return l.sort(function (a, b) { return crescente ? (a.data < b.data ? -1 : 1) : (a.data < b.data ? 1 : -1); });
+}
+
+function anni() {
+  var s = {};
+  eventi().forEach(function (e) { if (e.data) s[e.data.slice(0, 4)] = 1; });
+  ((DATI && DATI.spese) || []).forEach(function (x) { if (x.data) s[String(x.data).slice(0, 4)] = 1; });
+  return Object.keys(s).sort();
+}
+
+function vistaEventi() {
+  var h = '<div class="barra"><h1>Eventi</h1><button class="btn" data-az="nuovo">+ Nuovo</button></div>' +
+    '<input id="cerca" type="search" placeholder="Cerca nome, luogo, referente…" value="' + esc(FILTRO.q) + '">' +
+    '<div class="chips">' + FILTRI_STATO.map(function (x) {
+      return '<button class="chip' + (FILTRO.stato === x[0] ? ' attivo' : '') + '" data-az="filtro" data-k="stato" data-v="' + x[0] + '">' + x[1] + '</button>';
+    }).join('') + '</div>' +
+    '<div class="chips">' + [''].concat(anni()).map(function (a) {
+      return '<button class="chip' + (FILTRO.anno === a ? ' attivo' : '') + '" data-az="filtro" data-k="anno" data-v="' + a + '">' + (a || 'Tutti gli anni') + '</button>';
+    }).join('') + '</div>' +
+    '<div class="barra"><button class="btn-link" data-az="apriCalendario">📅 Solo nel calendario ›</button>' +
+    '<button class="btn-link" data-vai="recap">📣 Recap prossime date ›</button></div>';
+  return h + '<div id="lista">' + listaHtml() + '</div>';
+}
+
+function listaHtml() {
+  var l = filtrati();
+  if (!eventi().length) {
+    return '<p class="vuoto">Nessun evento. Vai in <b>Altro</b> per importare le date dal foglio, oppure premi <b>+ Nuovo</b>.</p>';
+  }
+  if (!l.length) return '<p class="vuoto">Nessun evento con questi filtri.</p>';
+  var tot = l.reduce(function (s, e) { return s + (e.stato === 'annullato' ? 0 : num(e.totale)); }, 0);
+  return '<p class="riassunto">' + l.length + (l.length === 1 ? ' evento' : ' eventi') + ' · ' + euro(tot) + '</p>' +
+    l.map(cartaEvento).join('');
+}
+
+function cartaEvento(e) {
+  var p = parti(e.data), ann = e.stato === 'annullato', m = mancanti(e), pill;
+  if (ann) pill = '<span class="pill no">annullato</span>';
+  else if (!num(e.totale)) pill = '<span class="pill neutra">senza compenso</span>';
+  else if (!residuo(e)) pill = '<span class="pill ok">incassato</span>';
+  else pill = '<span class="pill att">da incassare ' + euro(residuo(e)) + '</span>';
+  var sotto = [e.luogo, e.arrivo ? 'arrivo ' + e.arrivo : ''].filter(Boolean).join(' · ');
+  return '<button class="ev' + (ann ? ' annullato' : '') + '" data-az="apri" data-id="' + esc(e.id) + '">' +
+    '<div class="ev-data"><b>' + p.g + '</b><span>' + (MESI[p.m - 1] || '') + '</span><small>' + p.a + '</small></div>' +
+    '<div class="ev-corpo"><div class="ev-tit">' + (EMOJI_TIPO[e.tipo] || '🎸') + ' ' + esc(e.titolo) + '</div>' +
+    '<div class="ev-sotto">' + esc(sotto || e.tipo || '') + '</div>' +
+    '<div class="ev-pill">' + pill + (m.length && !passato(e) ? '<span class="pill att">⚠ mancano ' + m.length + '</span>' : '') + '</div></div>' +
+    '<div class="ev-dx">' + (num(e.totale) ? euro(e.totale) : '') + '</div></button>';
+}
+
+// ─── Scheda evento
+function dato(etichetta, valore, obbligatorio) {
+  if (!valore && !obbligatorio) return '';
+  return '<dt>' + etichetta + '</dt><dd>' + (valore || '<span class="manca">manca</span>') + '</dd>';
+}
+
+function vistaEvento() {
+  var e = trova(SEL);
+  if (!e) { V = 'eventi'; return vistaEventi(); }
+  var m = mancanti(e), futuro = !passato(e), tel = soloCifre(e.telefono), mappa = linkMappa(e);
+  var h = '<div class="scheda"><button class="btn-link" data-vai="eventi">‹ Eventi</button>' +
+    '<h1>' + (EMOJI_TIPO[e.tipo] || '🎸') + ' ' + esc(e.titolo) + '</h1>' +
+    '<p class="tenue" style="margin:0 0 8px">' + esc(dataLunga(e.data)) + ' · ' + esc(e.tipo || 'tipo?') +
+    (e.stato !== 'confermato' ? ' · <b>' + esc(e.stato) + '</b>' : '') + '</p>';
+  if (m.length && futuro) {
+    h += '<div class="avvertenza">⚠ Da completare: <b>' + esc(m.join(', ')) + '</b>' +
+      '<div><button class="btn-link" data-az="completa" data-id="' + esc(e.id) + '">Completa adesso ›</button></div></div>';
+  }
+  h += bloccoChiediInfo(e);
+  h += '<div class="azioni">' +
+    (tel ? '<a class="btn-sec" target="_blank" rel="noopener" href="https://wa.me/' + tel + '">💬 WhatsApp</a>' +
+      '<a class="btn-sec" href="tel:+' + tel + '">📞 Chiama</a>' : '') +
+    (mappa ? '<a class="btn-sec" target="_blank" rel="noopener" href="' + esc(mappa) + '">🗺️ Mappa</a>' : '') + '</div>';
+
+  h += '<h2>Quando</h2><div class="carta"><dl class="dati">' +
+    dato('Arrivo nostro', esc(e.arrivo), futuro) + dato('Inizio show', esc(e.inizio)) + dato('Fine', esc(e.fine)) +
+    dato('Soundcheck', esc(e.soundcheck)) + '</dl></div>';
+  h += '<h2>Dove</h2><div class="carta"><dl class="dati">' + dato('Luogo', esc(e.luogo), futuro) +
+    dato('Indirizzo', /^https?:/i.test(e.indirizzo) ? 'link Maps' : esc(e.indirizzo)) + dato('Sopralluogo', esc(e.sopralluogo)) + '</dl></div>';
+  h += '<h2>Contatto</h2><div class="carta"><dl class="dati">' + dato('Referente', esc(e.referente), futuro) +
+    dato('Telefono', esc(e.telefono), futuro) + dato('Contattato da', esc(e.contattatoDa)) + dato('Tramite', esc(e.tramite)) + '</dl></div>';
+  h += '<h2>Soldi</h2><div class="carta"><dl class="dati">' +
+    dato('Compenso', num(e.totale) ? euro(e.totale) : '', true) +
+    dato('Anticipo', num(e.anticipo) ? euro(e.anticipo) + (e.anticipoRicevuto === 'Sì' ? ' ✓ ricevuto' : ' · non ricevuto') : '') +
+    dato('Saldo', e.saldoRicevuto === 'Sì' ? '✓ ricevuto' : (num(e.totale) ? 'da ricevere' : '')) +
+    dato('Incassato', num(e.totale) ? euro(incassato(e)) : '') +
+    dato('Da incassare', residuo(e) ? '<b>' + euro(residuo(e)) + '</b>' : '') +
+    dato('Netto', num(e.netto) ? euro(e.netto) : '') + dato('Lordo', num(e.lordo) ? euro(e.lordo) : '') +
+    dato('Nero', num(e.nero) ? euro(e.nero) : '') + dato('Diviso', esc(e.diviso)) + dato('Service', esc(e.service)) + '</dl></div>';
+  var prs = preventiviDi(e.id);
+  if (prs.length) h += '<div class="carta">' + prs.map(function (pr) {
+    return '<div class="riga"><span>💶 Preventivo <b>' + esc(pr.numero) + '</b> · ' + euro(pr.totale) +
+      ' <span class="pill ' + (COLORE_STATO_P[pr.stato] || 'neutra') + '">' + esc(pr.stato) + '</span></span>' +
+      '<button class="btn-link" data-az="apriPrev" data-id="' + esc(pr.id) + '">Apri ›</button></div>';
+  }).join('') + '</div>';
+  h += sezioneContatti(e);
+  if (e.stato !== 'annullato' && !passato(e)) h += sezioneChecklist(e);
+  if (DATI.recap && DATI.recap[e.id]) h += '<div class="carta"><div class="riga"><span>📣 Recap per la band' +
+    (recapMandato(e.id) ? ' <span class="pill ok">mandato</span>' : '') + '</span><button class="btn-link" data-vai="recap">Apri ›</button></div></div>';
+  if (e.note) h += '<h2>Note</h2><div class="carta"><p class="testo-lungo">' + esc(e.note) + '</p></div>';
+  if (e.richieste) h += '<h2>Richieste</h2><div class="carta"><p class="testo-lungo">' + esc(e.richieste) + '</p></div>';
+  h += '<p class="tenue">' + (e.calId ? '📅 Nel calendario "' + esc(DATI.calendario) + '"' :
+      (e.stato === 'annullato' ? 'Annullato: non è nel calendario' : (futuro ? '📅 Non ancora nel calendario' : 'Evento passato: non sincronizzato'))) +
+    (e.modificato ? '<br>Ultima modifica: ' + esc(e.modificato) + ' (' + esc(e.modificatoDa) + ')' : '') + '</p>';
+  return h + '<div class="azioni"><button class="btn" data-az="modifica">✏️ Modifica</button>' +
+    '<button class="btn-pericolo" data-az="chiediElimina">Elimina</button></div></div>';
+}
+
+function sezioneContatti(e) {
+  var l = contattiDi(e);
+  var h = '<h2>Contatti</h2><div class="carta">';
+  if (!l.length) h += '<p class="tenue" style="margin-top:0">Nessun contatto collegato: servono per i messaggi dopo l\'evento.</p>';
+  h += l.map(function (c) {
+    var tel = soloCifre(c.telefono);
+    return '<div class="riga contatto"><button class="btn-link" data-az="apriContatto" data-id="' + esc(c.id) + '">' +
+      (EMOJI_RUOLO[c.ruolo] || '👤') + ' <span class="tenue">' + esc(c.ruolo) + '</span> ' + esc(c.nome) +
+      (c.referente ? ' <span class="tenue">(' + esc(c.referente) + ')</span>' : '') + '</button><span>' +
+      (tel ? '<a target="_blank" rel="noopener" href="' + esc(linkWa(tel)) + '" aria-label="WhatsApp">💬</a>' : '') +
+      (c.email ? '<a href="mailto:' + esc(c.email) + '" aria-label="Mail">📧</a>' : '') +
+      '<button class="btn-x" data-az="chiediScollega" data-id="' + esc(c.id) + '" aria-label="Togli dall\'evento">×</button></span></div>';
+  }).join('');
+  // matrimoni: le figure che servono (sposi con i due numeri, location con numero e referente, wedding planner)
+  if (e.tipo === 'Matrimonio') {
+    var ruoli = l.map(function (c) { return c.ruolo; });
+    var sp = l.filter(function (c) { return c.ruolo === 'Sposi'; })[0], loc = l.filter(function (c) { return c.ruolo === 'Location'; })[0];
+    var avvisi = [];
+    if (sp && !(sp.telSposa && sp.telSposo)) avvisi.push('sposi: ' + [!sp.telSposa && 'numero della sposa', !sp.telSposo && 'numero dello sposo'].filter(Boolean).join(' e '));
+    if (loc && !loc.telefono) avvisi.push('numero della location');
+    if (loc && !loc.referente) avvisi.push('referente della location');
+    var mancano = ['Sposi', 'Location', 'Wedding planner'].filter(function (r) { return ruoli.indexOf(r) < 0; });
+    if (avvisi.length) h += '<p class="tenue">Manca: ' + esc(avvisi.join(' · ')) + ' (tocca il contatto e ✏️ Modifica).</p>';
+    if (mancano.length) h += '<div class="azioni">' + mancano.map(function (r) {
+      return '<button class="btn-sec" data-az="nuovoContattoRuolo" data-v="' + esc(r) + '">+ ' + (EMOJI_RUOLO[r] || '') + ' ' + esc(r) + '</button>';
+    }).join('') + '</div>';
+  }
+  var giaReferente = l.some(function (c) { return c.nome === e.referente; });
+  if (e.referente && !giaReferente) {
+    h += '<button class="btn-sec btn-largo" data-az="referenteComeContatto">+ Aggiungi il referente "' + esc(e.referente) + '"</button>';
+  }
+  return h + '<button class="btn-sec btn-largo" data-az="nuovoContatto">+ Aggiungi contatto</button></div>';
+}
+
+// ─── Contatti (rubrica)
+function vistaContatti() {
+  return '<div class="barra"><h1>Contatti</h1><button class="btn" data-az="nuovoContattoRubrica">+ Nuovo</button></div>' +
+    (coppieDoppioni().length ? '<button class="btn-sec btn-largo" style="margin-top:0" data-vai="doppioni">🔍 Trova doppioni (' + coppieDoppioni().length + ')</button>' : '') +
+    '<input id="cerca-c" type="search" placeholder="Cerca nome, referente, telefono, email…" value="' + esc(FILTRO_C.q) + '">' +
+    '<div class="chips">' + [''].concat(DATI.liste.ruoli).map(function (r) {
+      return '<button class="chip' + (FILTRO_C.ruolo === r ? ' attivo' : '') + '" data-az="filtroC" data-v="' + esc(r) + '">' + (r ? (EMOJI_RUOLO[r] || '') + ' ' + esc(r) : 'Tutti') + '</button>';
+    }).join('') + '</div><div id="lista-c">' + listaContattiHtml() + '</div>';
+}
+
+// ─── Doppioni in rubrica ("Bar Centrale" / "Bar Centrali", "Mario Bar Centrale" / "Bar Centrale")
+var DOPPI_NO = {};   // coppie segnate "non sono doppioni" (fino a quando si ricarica la pagina)
+var UNIONE = null;   // coppia che si sta unendo
+function chiaveCompatta(t) { return normTxt(String(t || '').replace(/\([^)]*\)/g, '')).replace(/[^a-z0-9]/g, ''); }
+function distanza(a, b) { // Levenshtein, per nomi corti
+  var d = [], i, j;
+  for (i = 0; i <= a.length; i++) d[i] = [i];
+  for (j = 1; j <= b.length; j++) d[0][j] = j;
+  for (i = 1; i <= a.length; i++) for (j = 1; j <= b.length; j++)
+    d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return d[a.length][b.length];
+}
+function paroleNome(t) { return normTxt(String(t || '').replace(/\([^)]*\)/g, '')).split(/[^a-z0-9]+/).filter(Boolean); }
+/** Perché due contatti sembrano la stessa cosa ('' se no). */
+function sembraDoppio(a, b) {
+  var ta = soloCifre(a.telefono).slice(-9), tb = soloCifre(b.telefono).slice(-9);
+  if (ta.length >= 6 && ta === tb) return 'stesso telefono';
+  var ka = chiaveCompatta(a.nome), kb = chiaveCompatta(b.nome);
+  if (ka.length >= 5 && kb.length >= 5 && distanza(ka, kb) <= (Math.min(ka.length, kb.length) >= 9 ? 2 : 1)) return 'nome quasi uguale';
+  var pa = paroleNome(a.nome), pb = paroleNome(b.nome);
+  var corto = pa.length <= pb.length ? pa : pb, lungo = pa.length <= pb.length ? pb : pa;
+  if (corto.length >= 2 && corto.length < lungo.length && corto.every(function (p) { return lungo.indexOf(p) >= 0; })) return 'un nome contiene l\'altro';
+  return '';
+}
+function coppieDoppioni() {
+  var l = contatti(), out = [];
+  for (var i = 0; i < l.length; i++) for (var j = i + 1; j < l.length; j++) {
+    var perche = sembraDoppio(l[i], l[j]);
+    if (perche && !DOPPI_NO[l[i].id + '|' + l[j].id]) out.push({ a: l[i], b: l[j], perche: perche });
+  }
+  return out.slice(0, 50);
+}
+function eventiDelContatto(id) { return eventi().filter(function (e) { return idsContatti(e).indexOf(id) >= 0; }).length; }
+function vistaDoppioni() {
+  var l = coppieDoppioni();
+  var scheda = function (c) {
+    return '<div><b>' + (EMOJI_RUOLO[c.ruolo] || '') + ' ' + esc(c.nome) + '</b><div class="tenue">' +
+      esc([c.ruolo, c.referente && 'ref. ' + c.referente, c.telefono, eventiDelContatto(c.id) + ' eventi'].filter(Boolean).join(' · ')) + '</div></div>';
+  };
+  return '<button class="btn-link" data-vai="contatti">‹ Contatti</button><h1>Doppioni</h1>' +
+    '<p class="tenue">Contatti che si somigliano. <b>Unisci</b> = ne resta una scheda sola (scegli tu il nome giusto); eventi e messaggi già mandati passano a quella. ' +
+    'Se sono davvero due persone diverse tocca <b>Non sono doppioni</b>.</p>' +
+    (!l.length ? '<p class="vuoto">Nessun doppione ✓</p>' : l.map(function (x, i) {
+      return '<div class="carta"><p class="tenue" style="margin:0 0 6px">' + esc(x.perche) + '</p>' + scheda(x.a) + '<div style="height:8px"></div>' + scheda(x.b) +
+        '<div class="azioni"><button class="btn" data-az="apriUnione" data-i="' + i + '">Unisci</button>' +
+        '<button class="btn-sec" data-az="nonDoppi" data-i="' + i + '">Non sono doppioni</button></div></div>';
+    }).join(''));
+}
+/** Proposta per l'unione: "Mario Bar Centrale" + "Bar Centrale" → nome "Bar Centrale", referente "Mario". */
+function propostaUnione(x) {
+  var a = x.a, b = x.b;
+  // resta quello con più eventi (a parità, la Location o quello col nome più corto)
+  var ea = eventiDelContatto(a.id), eb = eventiDelContatto(b.id);
+  if (eb > ea || (eb === ea && (b.ruolo === 'Location') > (a.ruolo === 'Location'))) { var t = a; a = b; b = t; }
+  var nome = a.nome, referente = a.referente || b.referente || '';
+  var corto = paroleNome(a.nome).length <= paroleNome(b.nome).length ? a : b, lungo = corto === a ? b : a;
+  if (x.perche === 'un nome contiene l\'altro') {
+    var pc = paroleNome(corto.nome);
+    var extra = String(lungo.nome).split(/\s+/).filter(function (w) { return pc.indexOf(normTxt(w).replace(/[^a-z0-9]/g, '')) < 0; }).join(' ').trim();
+    nome = corto.nome;
+    if (!referente && extra) referente = extra;
+  }
+  return { tieni: a, togli: b, nome: nome, referente: referente };
+}
+
+function listaContattiHtml() {
+  // senza maiuscole e accenti ("bistro" trova "Bistró"), anche nel referente e nell'indirizzo; i numeri anche senza spazi
+  var q = normTxt(FILTRO_C.q), qc = q.replace(/\D/g, '');
+  var l = contatti().filter(function (c) {
+    if (FILTRO_C.ruolo && c.ruolo !== FILTRO_C.ruolo) return false;
+    if (!q) return true;
+    if (normTxt([c.nome, c.referente, c.sposa, c.sposo, c.telefono, c.telSposa, c.telSposo, c.email, c.instagram, c.indirizzo, c.note].join(' ')).indexOf(q) >= 0) return true;
+    return qc.length >= 4 && qc.length === q.replace(/\s/g, '').length &&
+      [c.telefono, c.telSposa, c.telSposo].some(function (n) { return String(n || '').replace(/\D/g, '').indexOf(qc) >= 0; });
+  }).sort(function (a, b) { return a.nome.toLowerCase() < b.nome.toLowerCase() ? -1 : 1; });
+  if (!contatti().length) return '<p class="vuoto">La rubrica è vuota. I contatti si aggiungono da qui o dalla scheda di un evento.</p>';
+  if (!l.length) return '<p class="vuoto">Nessun contatto con questi filtri.</p>';
+  return l.map(function (c) {
+    var n = eventiDi(c).length;
+    return '<button class="ev" data-az="apriContatto" data-id="' + esc(c.id) + '"><div class="ev-corpo"><div class="ev-tit">' +
+      (EMOJI_RUOLO[c.ruolo] || '👤') + ' ' + esc(c.nome) + '</div><div class="ev-sotto">' +
+      esc([c.ruolo, c.referente && 'ref. ' + c.referente, c.telefono, n ? n + (n === 1 ? ' evento' : ' eventi') : ''].filter(Boolean).join(' · ')) + '</div></div><div class="ev-dx">›</div></button>';
+  }).join('');
+}
+
+/** "Laura · 333… 💬" per sposa/sposo, col WhatsApp diretto. */
+function datoPersona(etichetta, nome, tel) {
+  if (!nome && !tel) return '';
+  var t = soloCifre(tel);
+  return dato(etichetta, esc([nome, tel].filter(Boolean).join(' · ')) +
+    (t ? ' <a target="_blank" rel="noopener" href="' + esc(linkWa(t)) + '" aria-label="WhatsApp">💬</a>' : ''));
+}
+function vistaContatto() {
+  var c = contatto(SEL_C);
+  if (!c) { V = 'contatti'; return vistaContatti(); }
+  var tel = soloCifre(c.telefono), ev = eventiDi(c);
+  return '<button class="btn-link" data-vai="contatti">‹ Contatti</button>' +
+    '<h1>' + (EMOJI_RUOLO[c.ruolo] || '👤') + ' ' + esc(c.nome) + '</h1><p class="tenue" style="margin:0">' + esc(c.ruolo) + '</p>' +
+    '<div class="azioni">' +
+    (tel ? '<a class="btn-sec" target="_blank" rel="noopener" href="' + esc(linkWa(tel)) + '">💬 WhatsApp</a><a class="btn-sec" href="tel:+' + tel + '">📞 Chiama</a>' : '') +
+    (c.email ? '<a class="btn-sec" href="mailto:' + esc(c.email) + '">📧 Mail</a>' : '') +
+    (c.instagram ? '<a class="btn-sec" target="_blank" rel="noopener" href="' + esc(linkInstagram(c.instagram)) + '">📸 Instagram</a>' : '') + '</div>' +
+    '<p class="tenue" style="margin:6px 0 0">' + (c.googleId ? '☁️ Anche in Google Contatti (account della band)' : '☁️ Non ancora in Google Contatti') + '</p>' +
+    '<h2>Dati</h2><div class="carta"><dl class="dati">' + datoPersona('Sposa', c.sposa, c.telSposa) + datoPersona('Sposo', c.sposo, c.telSposo) +
+    dato('Referente', esc(c.referente)) + dato('Telefono', esc(c.telefono), true) + dato('Email', esc(c.email), true) +
+    dato('Instagram', esc(c.instagram)) + dato('Indirizzo', c.indirizzo ? '<a target="_blank" rel="noopener" href="' +
+      esc('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(c.indirizzo)) + '">' + esc(c.indirizzo) + '</a>' : '') + '</dl>' + (c.note ? '<p class="testo-lungo">' + esc(c.note) + '</p>' : '') + '</div>' +
+    '<h2>Eventi insieme (' + ev.length + ')</h2>' + (ev.length ? ev.map(cartaEvento).join('') : '<p class="tenue">Nessun evento collegato.</p>') +
+    '<div class="azioni"><button class="btn" data-az="modificaContatto">✏️ Modifica</button>' +
+    '<button class="btn-pericolo" data-az="chiediEliminaContatto">Elimina</button></div>';
+}
+
+// Ruoli che di solito sono un posto o una ditta: hanno anche il nome della persona di riferimento
+var CON_REFERENTE = ['Location', 'Catering', 'Organizzatore'];
+function apriFormContatto(c, eventoId, preset) {
+  BOZZA_K = c ? JSON.parse(JSON.stringify(c)) : Object.assign({ ruolo: 'Sposi', nome: '', referente: '', sposa: '', telSposa: '', sposo: '', telSposo: '', telefono: '', email: '', instagram: '', indirizzo: '', note: '' }, preset || {});
+  K_EVENTO = eventoId || '';
+  var nuovo = !BOZZA_K.id;
+  var campo = function (k, etichetta, tipo) {
+    return '<label for="c-' + k + '">' + etichetta + '</label><input id="c-' + k + '" type="' + (tipo || 'text') + '" value="' + esc(BOZZA_K[k]) + '">';
+  };
+  apriModale('<h2>' + (nuovo ? 'Nuovo contatto' : 'Modifica contatto') + '</h2>' +
+    '<label for="c-ruolo">Ruolo</label><select id="c-ruolo">' + DATI.liste.ruoli.map(function (r) {
+      return '<option value="' + esc(r) + '"' + (r === BOZZA_K.ruolo ? ' selected' : '') + '>' + (EMOJI_RUOLO[r] || '') + ' ' + esc(r) + '</option>';
+    }).join('') + '</select>' +
+    '<div id="c-rubrica">' + (nuovo && K_EVENTO ? rubricaHtml(BOZZA_K.ruolo) : '') + '</div>' +
+    campo('nome', 'Nome (es. "Laura e Paolo", "Anna"; per le location il nome del posto, es. "Villa Rosa")') + (nuovo ? '<div class="sugg" id="sugg-cnome"></div>' : '') +
+    '<div id="c-box-sposi"' + (BOZZA_K.ruolo !== 'Sposi' ? ' style="display:none"' : '') + '>' +
+    campo('sposa', 'Sposa: nome') + campo('telSposa', 'Sposa: telefono', 'tel') + campo('sposo', 'Sposo: nome') + campo('telSposo', 'Sposo: telefono', 'tel') + '</div>' +
+    '<div id="c-box-referente"' + (CON_REFERENTE.indexOf(BOZZA_K.ruolo) < 0 ? ' style="display:none"' : '') + '>' +
+    campo('referente', 'Nome del referente (la persona a cui scrivi: nei messaggi "Ciao …" usa questo)') + '</div>' +
+    campo('telefono', 'Telefono', 'tel') +
+    campo('email', 'Email', 'email') + campo('instagram', 'Instagram') + campo('indirizzo', 'Indirizzo (per le location)') +
+    '<label for="c-note">Note</label><textarea id="c-note">' + esc(BOZZA_K.note) + '</textarea>' +
+    '<div class="bottoni"><button class="btn-sec" data-az="annulla">Annulla</button><button class="btn" data-az="salvaContatto">Salva</button></div>', 'contatto');
+}
+
+/** Contatti già in rubrica con quel ruolo, da collegare all'evento con un tocco. */
+function rubricaHtml(ruolo) {
+  var e = trova(K_EVENTO), gia = e ? idsContatti(e) : [];
+  var l = contatti().filter(function (c) { return c.ruolo === ruolo && gia.indexOf(c.id) < 0; })
+    .sort(function (a, b) { return a.nome.toLowerCase() < b.nome.toLowerCase() ? -1 : 1; });
+  if (!l.length) return '';
+  return '<p class="tenue" style="margin:10px 0 4px">Già in rubrica, tocca per collegarlo:</p><div class="chips" style="flex-wrap:wrap;margin:0;padding:0">' +
+    l.slice(0, 30).map(function (c) { return '<button class="chip" data-az="collega" data-id="' + esc(c.id) + '">' + esc(c.nome) + '</button>'; }).join('') +
+    '</div><p class="tenue" style="margin:10px 0 0">…oppure scrivi un contatto nuovo:</p>';
+}
+
+// ─── Messaggi dopo l'evento
+function leggiQuando(q) { var m = String(q || '').match(/^(giorni|data):(.+)$/); return m ? { tipo: m[1], v: m[2] } : { tipo: 'giorni', v: '10' }; }
+function descriviQuando(q) {
+  if (q === 'richiesta') return 'quando premi "Chiedi le info" in un evento';
+  var x = leggiQuando(q);
+  return x.tipo === 'giorni' ? x.v + ' giorni dopo l\'evento' : 'dal ' + x.v.split('-').reverse().join('/') + ' (fine stagione)';
+}
+function nomeModello(id) { var m = ((DATI && DATI.modelli) || []).filter(function (x) { return x.id === id; })[0]; return m ? m.nome : id; }
+
+/**
+ * Messaggi "maturi" e non ancora mandati/saltati. Chiave: modello|evento|contatto, oppure
+ * modello|anno|contatto per "collaborazione" (un messaggio per contatto con tutte le date dell'anno).
+ * Finestra: da quando è il momento fino a 120 giorni dopo (o fino al 31 gennaio per quelli di fine stagione).
+ */
+function daMandare() {
+  if (!DATI || !DATI.modelli) return [];
+  var fatti = {}, oggi = DATI.oggi, out = [];
+  (DATI.invii || []).forEach(function (i) { fatti[i.chiave] = 1; });
+  // Richieste di info mancanti: in cima, finché l'evento non è passato
+  var mInfo = DATI.modelli.filter(function (m) { return m.quando === 'richiesta'; })[0];
+  ((DATI.richieste) || []).forEach(function (r) {
+    var chiave = 'info|' + r.id + '|' + r.contattoId, e = trova(r.eventoId), c = contatto(r.contattoId);
+    if (!mInfo || fatti[chiave] || !e || !c || e.stato === 'annullato' || e.data < oggi) return;
+    out.push({ chiave: chiave, modello: mInfo, contatto: c, eventi: [e], domande: String(r.domande || '').split('\n').filter(Boolean), urgente: true });
+  });
+  // Fine stagione, due categorie: "arrivederci" SE E SOLO SE il contatto ha eventi in programma (confermati, da oggi in poi),
+  // altrimenti "collaborazione". Chiavi diverse; se uno dei due è già mandato/saltato per quell'anno l'altro non si propone.
+  var mArriv = DATI.modelli.filter(function (m) { return m.id === 'arrivederci'; })[0];
+  var futureDi = function (c) {
+    return eventi().filter(function (e) { return e.stato === 'confermato' && e.data >= oggi && idsContatti(e).indexOf(c.id) >= 0; })
+      .sort(function (a, b) { return a.data < b.data ? -1 : 1; });
+  };
+  var perAnno = { collaborazione: true, arrivederci: true };
+  DATI.modelli.forEach(function (m) {
+    if (m.quando === 'richiesta') return;
+    if (m.id === 'arrivederci' && !mArriv) return;
+    var ruoli = String(m.destinatari || '').split(','), q = leggiQuando(m.quando), perChiave = {};
+    var maturo = function (d) {
+      if (d >= oggi) return false;
+      if (q.tipo === 'giorni') { var g = giorniTra(d, oggi); return g >= Number(q.v) && g <= Number(q.v) + 120; }
+      var anno = Number(d.slice(0, 4));
+      return oggi >= anno + '-' + q.v && oggi <= (anno + 1) + '-01-31';
+    };
+    eventi().forEach(function (e) {
+      if (e.stato === 'annullato' || !e.data || !maturo(e.data)) return;
+      contattiDi(e).forEach(function (c) {
+        if (ruoli.indexOf(c.ruolo) < 0) return;
+        var anno = e.data.slice(0, 4);
+        var chiave = m.id + '|' + (perAnno[m.id] ? anno : e.id) + '|' + c.id;
+        if (fatti[chiave]) return;
+        if (perAnno[m.id]) {
+          var conFuture = futureDi(c).length > 0;
+          if (m.id === 'arrivederci' && !conFuture) return;               // solo con eventi in programma
+          if (m.id === 'collaborazione' && conFuture && mArriv) return;    // a loro va "arrivederci"
+          var altro = (m.id === 'arrivederci' ? 'collaborazione' : 'arrivederci') + '|' + anno + '|' + c.id;
+          if (fatti[altro]) return;                                        // già mandato l'altro: niente doppioni
+        }
+        (perChiave[chiave] = perChiave[chiave] || { chiave: chiave, modello: m, contatto: c, eventi: [] }).eventi.push(e);
+      });
+    });
+    Object.keys(perChiave).forEach(function (k) {
+      var x = perChiave[k];
+      x.eventi.sort(function (a, b) { return a.data < b.data ? -1 : 1; }); // date in ordine nel messaggio
+      x.prossimi = futureDi(x.contatto);
+      out.push(x);
+    });
+  });
+  return out.sort(function (a, b) {
+    if (!!a.urgente !== !!b.urgente) return a.urgente ? -1 : 1;
+    return a.eventi[0].data < b.eventi[0].data ? -1 : 1;
+  });
+}
+
+/** Data per i messaggi: "6 Luglio" (senza anno). */
+function dataMessaggio(d) {
+  var p = parti(d), m = MESI_LUNGHI[p.m - 1];
+  return m ? p.g + ' ' + m.charAt(0).toUpperCase() + m.slice(1) : '';
+}
+
+/** Solo i nomi, senza cognomi: "Laura Neri" → "Laura", "Laura Neri e Paolo Bianco" → "Laura e Paolo". */
+var NOMI_ENTI = /^(pro ?loco|comune|associazione|ass\.|circolo|comitato|gruppo|parrocchia|oratorio|bar|pub|birreria|ristorante|pizzeria|osteria|trattoria|agriturismo|hotel|villa|corte|cantina|locanda|tenuta|castello|club|asd|aps)\b/i;
+function soloNome(t) {
+  if (NOMI_ENTI.test(String(t || '').trim())) return String(t).replace(/\s*\([^)]*\)/g, '').trim(); // enti e locali: nome intero
+  return String(t || '').replace(/\s*\([^)]*\)/g, '').split(/\s+(?:e|&)\s+|\s*,\s*/i)
+    .map(function (p) { return p.trim().split(/\s+/)[0]; }).filter(Boolean).join(' e ');
+}
+
+// Tipo di evento nei messaggi: "il vostro matrimonio", "la vostra sagra"… [nome, femminile?]
+var EVENTO_MSG = { Matrimonio: ['matrimonio', false], Sagra: ['sagra', true], Locale: ['serata', true], Privato: ['festa', true], Altro: ['evento', false] };
+var PREP_EVENTO = { di: 'de', del: 'de', della: 'de', dello: 'de', a: 'a', al: 'a', alla: 'a', allo: 'a', in: 'ne', nel: 'ne', nella: 'ne', nello: 'ne',
+  da: 'da', dal: 'da', dalla: 'da', dallo: 'da', su: 'su', sul: 'su', sulla: 'su', sullo: 'su', il: '', la: '', lo: '' };
+/** Sostituisce {evento} (o "-tipo di evento-" scritto a mano) accordando la parola prima:
+ *  "del {evento}" → "del vostro matrimonio" / "della vostra sagra"; "per {evento}" → "per il vostro matrimonio". */
+function conEvento(t, tipo) {
+  var x = EVENTO_MSG[tipo] || EVENTO_MSG.Altro, f = x[1];
+  return String(t || '').replace(/(?:\b(di|del|della|dello|a|al|alla|allo|in|nel|nella|nello|da|dal|dalla|dallo|su|sul|sulla|sullo|il|la|lo)\s+)?(?:\{evento\}|[-–(\[]\s*tipo\s+(?:di|dell'|d')\s*evento\s*[-–)\]])/gi,
+    function (_, prep) {
+      var p = prep ? PREP_EVENTO[prep.toLowerCase()] : '';
+      var art = (p === '' ? (f ? 'la' : 'il') : p + (f ? 'lla' : 'l'));
+      var out = art + (f ? ' vostra ' : ' vostro ') + x[0];
+      return prep && prep.charAt(0) !== prep.charAt(0).toLowerCase() ? out.charAt(0).toUpperCase() + out.slice(1) : out;
+    });
+}
+
+// Dove lasciare un feedback: il canale da cui ci hanno trovato (tramite degli eventi insieme); passaparola e altri = Musiqua
+var LINK_FEEDBACK = { 'Musiqua': 'https://www.musiqua.it/band/tribute-a-27189', 'Matrimonio.com': 'https://www.matrimonio.com/shared/rate/424261',
+  'Showgroup': 'https://www.showgroup.it/vetrina/tribute-a' };
+function canaleFeedback(eventi) {
+  var conta = {}, ultimo = {};
+  (eventi || []).forEach(function (e) {
+    var t = normTxt(e.tramite), c = /musiqua/.test(t) ? 'Musiqua' : /matrimoni/.test(t) ? 'Matrimonio.com' : /showgroup/.test(t) ? 'Showgroup' : '';
+    if (!c) return;
+    conta[c] = (conta[c] || 0) + 1;
+    if (!ultimo[c] || e.data > ultimo[c]) ultimo[c] = e.data;
+  });
+  var l = Object.keys(conta).sort(function (a, b) { return conta[b] - conta[a] || (ultimo[a] < ultimo[b] ? 1 : -1); });
+  return l[0] || 'Musiqua';
+}
+
+function componi(x) {
+  var e = x.eventi[0];
+  // nelle richieste di info si saluta solo col nome
+  // per location/catering si saluta il referente (la persona), non il nome del posto
+  var chi = x.contatto.referente || x.contatto.nome;
+  var val = { nome: x.modello.id === 'info' ? soloNome(chi) : chi, sposi: e.titolo, data: dataMessaggio(e.data), luogo: e.luogo || '',
+    date: x.eventi.map(function (y) { return '• ' + y.titolo + ' (' + dataMessaggio(y.data) + ')'; }).join('\n'),
+    mancanti: (x.domande || []).map(function (d) { return '• ' + d; }).join('\n'),
+    prossime: (x.prossimi || []).map(function (y) { return '• ' + y.titolo + ' (' + dataMessaggio(y.data) + ')'; }).join('\n') };
+  val.canale = canaleFeedback(x.eventi.concat(x.prossimi || []));
+  val.link = LINK_FEEDBACK[val.canale];
+  var sost = function (t) { return conEvento(t, e.tipo).replace(/\{(nome|sposi|data|luogo|date|mancanti|prossime|canale|link)\}/g, function (_, k) { return val[k]; }); };
+  x.saluto = val.nome; // per i due WhatsApp degli sposi: si sostituisce con il nome di chi riceve
+  return { oggetto: sost(x.modello.oggetto), testo: sost(x.modello.testo) };
+}
+
+function vistaMessaggi() {
+  CODA_MSG = daMandare();
+  var h = '<h1>Messaggi</h1><h2>Da mandare</h2>';
+  if (!contatti().length) h += '<p class="tenue">Ancora nessun contatto: aggiungili dalla scheda di un evento (sezione Contatti). I messaggi compaiono qui quando è il momento.</p>';
+  else if (!CODA_MSG.length) h += '<p class="vuoto">Niente da mandare adesso ✓</p>';
+  else h += CODA_MSG.map(function (x, i) {
+    return '<button class="ev" data-az="preparaMsg" data-i="' + i + '"><div class="ev-corpo"><div class="ev-tit">' +
+      (EMOJI_RUOLO[x.contatto.ruolo] || '👤') + ' ' + esc(x.contatto.nome) + '</div><div class="ev-sotto">' + esc(x.modello.nome) + ' · ' +
+      esc(x.eventi.map(function (e) { return e.titolo + ' ' + dataIt(e.data); }).join(', ')) + '</div></div><div class="ev-dx">›</div></button>';
+  }).join('');
+  h += '<h2>Modelli</h2>' + (DATI.modelli || []).map(function (m) {
+    return '<div class="carta"><div class="riga"><b>' + esc(m.nome) + '</b><button class="btn-link" data-az="apriModello" data-id="' + esc(m.id) + '">Modifica</button></div>' +
+      '<p class="tenue" style="margin:4px 0 0">' + esc(descriviQuando(m.quando)) + ' · a: ' + esc(String(m.destinatari).replace(/,/g, ', ')) + '</p></div>';
+  }).join('');
+  var recenti = (DATI.invii || []).slice().sort(function (a, b) { return a.data < b.data ? 1 : -1; }).slice(0, 15);
+  if (recenti.length) {
+    h += '<h2>Ultimi mandati</h2><div class="carta">' + recenti.map(function (i) {
+      var rec = i.modello === 'recap' || i.modello === 'recapoggi';
+      var c = contatto(i.contattoId), ev = rec ? trova(i.eventoId) : null;
+      return '<div class="riga" style="padding:4px 0"><span>' + esc(rec ? 'Band' : (c ? c.nome : '?')) + ' <span class="tenue">· ' +
+        esc(rec ? (i.modello === 'recapoggi' ? 'Recap del giorno ' : 'Recap ') + (ev ? ev.titolo : '') : nomeModello(i.modello)) + '</span></span>' +
+        '<span class="tenue">' + esc(ETICHETTA_CANALE[i.canale] || i.canale) + ' ' + esc(dataIt(i.data.slice(0, 10))) +
+        ' <button class="btn-link" style="padding:4px 0 4px 8px" data-az="chiediAnnullaInvio" data-id="' + esc(i.id) + '">↩︎ Rimetti</button></span></div>';
+    }).join('') + '</div>';
+  }
+  return h;
+}
+
+/** Bottoni WhatsApp del messaggio: per gli sposi uno per la sposa e uno per lo sposo, ognuno saluta solo chi lo riceve. */
+function bottoniWa(x, testo) {
+  var c = x.contatto, chi = x.saluto || '';
+  var persone = c.ruolo === 'Sposi' && (c.telSposa || c.telSposo) ?
+    [['sposa', c.sposa, c.telSposa], ['sposo', c.sposo, c.telSposo]].filter(function (p) { return soloCifre(p[2]); }) :
+    [['', '', c.telefono]].filter(function (p) { return soloCifre(p[2]); });
+  return persone.map(function (p, i) {
+    var t = testo;
+    var nome = p[1] ? String(p[1]).split(' ')[0] : '';
+    if (nome && chi && t.indexOf(chi) >= 0) t = t.replace(chi, nome); // "Ciao Laura e Paolo" → "Ciao Laura"
+    return '<a id="m-wa' + i + '" class="btn-sec" target="_blank" rel="noopener" data-az="apertoWhatsapp" href="' + esc(linkWa(soloCifre(p[2]), t)) + '">💬 WhatsApp' +
+      (p[0] ? ' ' + p[0] + (nome ? ' (' + esc(nome) + ')' : '') : '') + '</a>';
+  }).join('');
+}
+function apriMessaggio(x) {
+  MSG = x;
+  var t = componi(x), c = x.contatto, tel = soloCifre(c.telefono);
+  apriModale('<h2>' + esc(x.modello.nome) + '</h2>' +
+    '<p style="margin:0">A: <b>' + esc(c.nome) + '</b> <span class="tenue">(' + esc(c.ruolo) + ')</span></p>' +
+    '<p class="tenue" style="margin:2px 0 0">' + esc(c.telefono ? 'Telefono ' + c.telefono + ' · WhatsApp apre ' + numeroLeggibile(tel) +
+      ' (se apre un\'altra chat, il numero non è su WhatsApp o è scritto male nel contatto)' : 'Nessun telefono: per WhatsApp aggiungilo nel contatto.') + '</p>' +
+    '<label for="m-email">Email' + (c.email ? '' : ' (non c\'è ancora: scrivila e la salvo nel contatto)') + '</label>' +
+    '<input id="m-email" type="email" autocomplete="off" value="' + esc(c.email) + '">' +
+    '<label for="m-oggetto">Oggetto (per la mail)</label><input id="m-oggetto" value="' + esc(t.oggetto) + '">' +
+    '<label for="m-testo">Messaggio (puoi ritoccarlo)</label><textarea id="m-testo" style="min-height:240px">' + esc(t.testo) + '</textarea>' +
+    '<div class="azioni"><button class="btn" data-az="inviaMail">📧 Invia mail</button>' +
+    '<span id="m-wa" style="display:contents">' + bottoniWa(x, t.testo) + '</span></div>' +
+    '<div class="bottoni"><button class="btn-sec" data-az="annulla">Chiudi</button><button class="btn-sec" data-az="segnaFatto">Fatto a mano</button>' +
+    '<button class="btn-sec" data-az="segnaSaltato">Salta</button></div>', 'messaggio');
+}
+
+function vistaModello() {
+  var m = ((DATI.modelli) || []).filter(function (x) { return x.id === SEL_M; })[0];
+  if (!m) { V = 'messaggi'; return vistaMessaggi(); }
+  var q = leggiQuando(m.quando), aRichiesta = m.quando === 'richiesta';
+  return '<button class="btn-link" data-vai="messaggi">‹ Messaggi</button><h1>' + esc(m.nome) + '</h1>' +
+    '<p class="tenue" style="margin:0">A: ' + esc(String(m.destinatari).replace(/,/g, ', ')) + '</p>' +
+    (aRichiesta ? '<p class="tenue">Parte quando premi "📨 Chiedi le info mancanti" in un evento. <b>{mancanti}</b> diventa l\'elenco delle domande scelte. <b>{evento}</b> si accorda da solo: "del {evento}" → "del vostro matrimonio" / "della vostra sagra".</p>' :
+    '<div class="carta campi" style="margin-top:12px"><div><label for="q-tipo">Quando</label><select id="q-tipo">' +
+    '<option value="giorni"' + (q.tipo === 'giorni' ? ' selected' : '') + '>giorni dopo l\'evento</option>' +
+    '<option value="data"' + (q.tipo === 'data' ? ' selected' : '') + '>dal giorno (fine stagione)</option></select></div>' +
+    '<div><label for="q-val">Giorni, oppure giorno/mese</label><input id="q-val" value="' + esc(q.tipo === 'data' ? q.v.split('-').reverse().join('/') : q.v) + '"></div></div>') +
+    '<label for="mm-oggetto">Oggetto (per la mail)</label><input id="mm-oggetto" value="' + esc(m.oggetto) + '">' +
+    '<label for="mm-testo">Testo</label><textarea id="mm-testo" style="min-height:320px">' + esc(m.testo) + '</textarea>' +
+    '<p class="tenue">Parole che si sostituiscono da sole: <b>{nome}</b> chi riceve · <b>{sposi}</b> nome dell\'evento · <b>{data}</b> · ' +
+    '<b>{luogo}</b> · <b>{evento}</b> il vostro matrimonio / la vostra sagra… · <b>{date}</b> elenco delle date dell\'anno (per location, wedding planner, catering)' + (aRichiesta ? ' · <b>{mancanti}</b> le domande' : '') +
+    ' · <b>{prossime}</b> le date future confermate insieme · <b>{canale}</b> e <b>{link}</b> dove lasciare un feedback (il canale da cui ci hanno trovato: Musiqua, Matrimonio.com o Showgroup; passaparola = Musiqua)' + '.</p>' +
+    (m.id === 'arrivederci' ? '<p class="tenue">Categoria a parte: arriva <b>solo</b> a chi ha eventi in programma con noi (confermati, da oggi in poi). ' +
+      'A loro non arriva "grazie e prossimo anno", agli altri sì.</p>' : '') +
+    '<button class="btn btn-largo" data-az="salvaModello">Salva il modello</button>' +
+    (m.modificatoDa ? '<p class="tenue">Ultima modifica: ' + esc(m.modificato) + ' (' + esc(m.modificatoDa) + ')</p>' : '');
+}
+
+// ─── Checklist "cosa manca"
+var CHECKLIST = [
+  // [voce, testo, per quali tipi (null = tutti), controllo automatico (null = si spunta a mano)]
+  ['data', 'Data e orario di arrivo', null, function (e) { return !!(e.data && e.arrivo); }],
+  ['luogo', 'Luogo e indirizzo', null, function (e) { return !!(e.luogo && e.indirizzo); }],
+  ['referente', 'Referente con telefono', null, function (e) { return !!(e.referente && e.telefono); }],
+  ['compenso', 'Compenso concordato', null, function (e) { return num(e.totale) > 0; }],
+  ['preventivo', 'Preventivo accettato', ['Matrimonio'], function (e) { var p = preventivoDi(e.id); return !!p && p.stato === 'accettato'; }],
+  ['acconto', 'Acconto ricevuto', ['Matrimonio'], function (e) { return e.anticipoRicevuto === 'Sì' || e.saldoRicevuto === 'Sì'; }],
+  ['service', 'Service chiarito (nostro o del posto)', ['Locale', 'Sagra', 'Privato', 'Altro', ''], function (e) { return !!e.service; }],
+  ['scaletta', 'Scaletta e brani speciali concordati', ['Matrimonio', 'Privato'], null],
+  ['sopralluogo', 'Sopralluogo fatto (o non serve)', ['Matrimonio'], null],
+  ['tecnica', 'Corrente, spazio palco e copertura verificati', null, null],
+  ['pasti', 'Pasti e camerino confermati', ['Matrimonio', 'Privato'], null],
+  ['siae', 'SIAE: chiarito chi la paga', null, null],
+  ['recap', 'Recap mandato alla band', null, function (e) { return recapMandato(e.id); }]
+];
+function recapMandato(id) { return ((DATI && DATI.invii) || []).some(function (i) { return i.chiave === 'recap|' + id + '|band'; }); }
+function vociChecklist(e) {
+  var spunte = {};
+  try { spunte = JSON.parse(e.checklist || '{}') || {}; } catch (x) { spunte = {}; }
+  return CHECKLIST.filter(function (x) { return !x[2] || x[2].indexOf(e.tipo || '') >= 0; }).map(function (x) {
+    return { k: x[0], testo: x[1], auto: !!x[3], ok: x[3] ? !!x[3](e) : !!spunte[x[0]] };
+  });
+}
+function sezioneChecklist(e) {
+  var v = vociChecklist(e), fatte = v.filter(function (x) { return x.ok; }).length;
+  return '<h2>Checklist (' + fatte + '/' + v.length + ')</h2><div class="carta"><div class="progresso"><i style="width:' +
+    Math.round(fatte / v.length * 100) + '%"></i></div>' + v.map(function (x) {
+      var dentro = '<span class="box">' + (x.ok ? '✓' : '') + '</span><span class="t">' + esc(x.testo) + '</span>' +
+        (x.auto ? '<span class="auto">automatico</span>' : '');
+      return x.auto ? '<div class="check' + (x.ok ? ' ok' : '') + '">' + dentro + '</div>' :
+        '<button class="check' + (x.ok ? ' ok' : '') + '" data-az="spunta" data-k="' + x.k + '" data-v="' + (x.ok ? '' : '1') + '">' + dentro + '</button>';
+    }).join('') + '</div>';
+}
+
+// ─── Chiedi le info mancanti (a sposi / organizzatore)
+function domandeProposte(e) {
+  var p = preventivoDi(e.id), s = {}, spunte = {}, d = [];
+  try { s = p ? JSON.parse(p.scheda || '{}') || {} : {}; } catch (x) { s = {}; }
+  try { spunte = JSON.parse(e.checklist || '{}') || {}; } catch (x) { spunte = {}; }
+  if (!e.luogo) d.push('il nome della location e l\'indirizzo esatto');
+  else if (!e.indirizzo) d.push('l\'indirizzo esatto di ' + e.luogo);
+  if (!e.arrivo) d.push('a che ora possiamo arrivare per montare (ci servono circa 2 ore prima di suonare)');
+  if (!e.inizio) d.push('a che ora inizia la musica');
+  if (!e.fine) d.push('fino a che ora possiamo suonare');
+  if (e.tipo === 'Matrimonio') {
+    if (!s.oraCerimonia) d.push('l\'orario della cerimonia');
+    if (!s.oraCena) d.push('l\'orario della cena');
+    if (!s.ingresso) d.push('il brano per l\'ingresso degli sposi');
+    if (!s.primoBallo) d.push('il brano del primo ballo');
+    if (!s.ospiti) d.push('quanti ospiti ci saranno');
+  } else if (!e.service) d.push('se l\'impianto audio e luci c\'è già o lo portiamo noi');
+  var voci = vociChecklist(e).map(function (v) { return v.k; });
+  var chk = function (k, testo) { if (voci.indexOf(k) >= 0 && !spunte[k]) d.push(testo); };
+  chk('tecnica', 'dove sarà la nostra postazione: corrente (2-3 prese 220V vicine), spazio di almeno 4x3 m e una copertura se siamo all\'aperto');
+  chk('pasti', 'se sono previsti i pasti per noi (siamo in 3, uno senza latticini) e uno spazio dove cambiarci');
+  chk('scaletta', 'se ci sono brani speciali o momenti particolari da accompagnare');
+  chk('siae', 'chi si occupa dei permessi SIAE');
+  return d;
+}
+
+/** A chi va la richiesta (stessa logica del server, solo per mostrarlo): sposi / organizzatore / referente. */
+function destinatarioInfo(e) {
+  var ruolo = e.tipo === 'Matrimonio' ? 'Sposi' : 'Organizzatore', l = contattiDi(e);
+  var c = l.filter(function (x) { return x.ruolo === ruolo; })[0] ||
+    l.filter(function (x) { return e.referente && normTxt(x.nome) === normTxt(e.referente); })[0];
+  if (c) return c.nome + ' (' + c.ruolo + ')';
+  if (e.referente && e.telefono) return e.referente + ' (' + ruolo + ', lo aggiungo in rubrica)';
+  return '';
+}
+
+function richiestePendenti(e) {
+  var fatti = {};
+  ((DATI && DATI.invii) || []).forEach(function (i) { fatti[i.chiave] = 1; });
+  return ((DATI && DATI.richieste) || []).filter(function (r) { return r.eventoId === e.id && !fatti['info|' + r.id + '|' + r.contattoId]; });
+}
+
+function bloccoChiediInfo(e) {
+  if (e.stato === 'annullato' || passato(e)) return '';
+  var pend = richiestePendenti(e), d = domandeProposte(e);
+  if (pend.length) return '<div class="carta"><div class="riga"><span>📨 Richiesta info pronta, <b>non ancora mandata</b></span>' +
+    '<button class="btn-link" data-vai="messaggi">Messaggi ›</button></div></div>';
+  if (!d.length) return '';
+  return '<button class="btn-sec btn-largo" style="margin-top:0;margin-bottom:12px" data-az="chiediInfo">📨 Chiedi le info mancanti (' + d.length + ')</button>';
+}
+
+function apriChiediInfo(daCapo) {
+  var e = trova(SEL);
+  if (!e) return;
+  if (daCapo) DOMANDE = domandeProposte(e).map(function (t) { return { testo: t, on: true }; });
+  var altro = $('dq-altro') && MODALE === 'info' ? $('dq-altro').value : '';
+  var a = destinatarioInfo(e);
+  apriModale('<h2>Chiedi le info mancanti</h2><p style="margin:0">' + (a ? 'A: <b>' + esc(a) + '</b>' :
+      '<span class="manca">Manca il referente con il telefono: aggiungilo all\'evento prima di chiedere.</span>') + '</p>' +
+    '<p class="tenue">Tocca per togliere quello che non serve. Il messaggio finisce in ✉️ Messaggi da mandare (il testo si cambia in Messaggi → Modelli).</p>' +
+    DOMANDE.map(function (q, i) {
+      return '<button class="check' + (q.on ? ' ok' : '') + '" data-az="toggleDomanda" data-i="' + i + '"><span class="box">' + (q.on ? '✓' : '') +
+        '</span><span class="t" style="color:var(--testo)">' + esc(q.testo) + '</span></button>';
+    }).join('') +
+    '<label for="dq-altro">Altro da chiedere (facoltativo)</label><input id="dq-altro" value="' + esc(altro) + '">' +
+    '<div class="bottoni"><button class="btn-sec" data-az="annulla">Annulla</button>' +
+    (a ? '<button class="btn" data-az="creaRichiesta">Metti in Messaggi</button>' : '') + '</div>', 'info');
+}
+
+// ─── Recap per la band
+function vistaRecap() {
+  var ids = Object.keys((DATI && DATI.recap) || {});
+  var l = ids.map(trova).filter(Boolean).sort(function (a, b) { return a.data < b.data ? -1 : 1; });
+  var tg = DATI.telegram && DATI.telegram.configurato && DATI.telegram.chat;
+  var h = '<button class="btn-link" data-vai="eventi">‹ Eventi</button><h1>Recap</h1><p class="tenue">Il riassunto di ogni data dei prossimi 14 giorni, da mandare a ' +
+    'Galva, Pope e Tuzzi. In automatico parte ogni mattina alle 9 per le date fra ' + esc(DATI.giorniRecap || 3) + ' giorni (' +
+    (tg ? 'su Telegram' : 'per mail; per Telegram vai in Altro') + ').</p>';
+  if (!l.length) return h + '<p class="vuoto">Nessuna data nei prossimi 14 giorni.</p>';
+  return h + l.map(function (e) {
+    var testo = DATI.recap[e.id], inv = ((DATI.invii) || []).filter(function (i) { return i.chiave === 'recap|' + e.id + '|band'; });
+    return '<div class="carta"><div class="riga"><b>' + (EMOJI_TIPO[e.tipo] || '🎸') + ' ' + esc(e.titolo) + '</b><span class="tenue">' + esc(dataIt(e.data)) + '</span></div>' +
+      (inv.length ? '<p class="tenue" style="margin:4px 0 0">✓ Mandato ' + esc(dataIt(inv[inv.length - 1].data.slice(0, 10))) + ' (' +
+        esc(ETICHETTA_CANALE[inv[inv.length - 1].canale] || inv[inv.length - 1].canale) + ', ' + esc(inv[inv.length - 1].da) + ')</p>' : '') +
+      '<pre class="recap">' + esc(testo) + '</pre><div class="azioni">' +
+      '<a class="btn-sec" target="_blank" rel="noopener" data-az="apertoWaRecap" data-id="' + esc(e.id) + '" href="' + esc(linkWa('', testo)) + '">💬 WhatsApp</a>' +
+      '<button class="btn" data-az="mandaRecap" data-id="' + esc(e.id) + '">' + (tg ? '✈️ Manda su Telegram' : '📧 Manda per mail') + '</button></div></div>';
+  }).join('');
+}
+
+// ─── Progetti e compiti
+function progetti() { return (DATI && DATI.progetti) || []; }
+function compitiDi(id) { return ((DATI && DATI.compiti) || []).filter(function (c) { return c.progettoId === id; }); }
+function progetto(id) { return progetti().filter(function (p) { return p.id === id; })[0] || null; }
+function avanzamento(p) { var c = compitiDi(p.id); return c.length ? c.filter(function (x) { return x.fatto === 'Sì'; }).length / c.length : (p.stato === 'completato' ? 1 : 0); }
+function perScadenza(a, b) { return (a.scadenza || '9999') < (b.scadenza || '9999') ? -1 : 1; }
+
+function rigaCompito(c, conProgetto) {
+  var scad = c.scadenza && c.fatto !== 'Sì' && c.scadenza < DATI.oggi;
+  return '<div class="compito' + (c.fatto === 'Sì' ? ' fatto' : '') + '"><button class="spunta' + (c.fatto === 'Sì' ? ' on' : '') + '" style="flex:0 0 32px;height:32px;min-height:32px;padding:0" ' +
+    'data-az="spuntaCompito" data-id="' + esc(c.id) + '" data-v="' + (c.fatto === 'Sì' ? '' : '1') + '" aria-label="Fatto">' + (c.fatto === 'Sì' ? '✓' : '') + '</button>' +
+    '<button class="t" data-az="apriCompito" data-id="' + esc(c.id) + '">' + esc(c.titolo) +
+    (conProgetto && progetto(c.progettoId) ? '<div class="tenue">' + esc(progetto(c.progettoId).nome) + '</div>' : '') + '</button>' +
+    (c.chi ? '<span class="pill neutra">' + esc(c.chi) + '</span>' : '') +
+    (c.scadenza ? '<span class="tenue' + (scad ? ' scaduto' : '') + '" style="font-size:12px">' + esc(dataIt(c.scadenza).slice(0, 5)) + '</span>' : '') + '</div>';
+}
+
+function ganttHtml(lista) {
+  if (!lista.length) return '';
+  var oggi = DATI.oggi, da = oggi, a = piuGiorni(oggi, 30);
+  lista.forEach(function (p) { if (p.inizio && p.inizio < da) da = p.inizio; var f = p.scadenza || piuGiorni(p.inizio || oggi, 30); if (f > a) a = f; });
+  var tot = Math.max(1, giorniTra(da, a)), pos = function (d) { return Math.max(0, Math.min(100, giorniTra(da, d) / tot * 100)); };
+  var mesi = [], p0 = parti(da);
+  for (var m = new Date(p0.a, p0.m, 1); m <= new Date(parti(a).a, parti(a).m - 1, 28); m.setMonth(m.getMonth() + 1)) {
+    var d = m.getFullYear() + '-' + ('0' + (m.getMonth() + 1)).slice(-2) + '-01';
+    mesi.push('<span style="left:' + pos(d) + '%">' + MESI[m.getMonth()] + '</span>');
+  }
+  return '<div class="carta gantt"><div class="r"><span></span><div class="mesi-g">' + mesi.join('') + '</div></div>' + lista.map(function (p) {
+    var ini = p.inizio || oggi, fine = p.scadenza || piuGiorni(ini, 30), l = pos(ini), w = Math.max(2, pos(fine) - l);
+    return '<div class="r"><span>' + esc(p.nome) + '</span><div class="track"><div class="bar" style="left:' + l + '%;width:' + w + '%">' +
+      '<i style="width:' + Math.round(avanzamento(p) * 100) + '%"></i></div><div class="oggi" style="left:' + pos(oggi) + '%"></div></div></div>';
+  }).join('') + '<div class="legenda"><b style="background:var(--arancio)"></b>fatto<b style="background:var(--petrolio)"></b>da fare<b style="background:var(--rosso);width:2px"></b>oggi</div></div>';
+}
+
+function vistaProgetti() {
+  var miei = ((DATI.compiti) || []).filter(function (c) { return c.fatto !== 'Sì' && (c.chi === DATI.utente || c.chi === 'Tutti'); }).sort(perScadenza);
+  var l = progetti().filter(function (p) { return !FILTRO_PR || p.stato === FILTRO_PR; }).sort(function (a, b) { return (a.scadenza || '9') < (b.scadenza || '9') ? -1 : 1; });
+  var h = '<div class="barra"><h1>Progetti</h1><button class="btn" data-az="nuovoProgetto">+ Nuovo</button></div>';
+  if (miei.length) h += '<h2>I tuoi compiti</h2><div class="carta">' + miei.slice(0, 8).map(function (c) { return rigaCompito(c, true); }).join('') + '</div>';
+  h += '<div class="chips">' + DATI.liste.statiProgetto.concat(['']).map(function (x) {
+    return '<button class="chip' + (FILTRO_PR === x ? ' attivo' : '') + '" data-az="filtroPr" data-v="' + x + '">' + (x || 'tutti') + '</button>';
+  }).join('') + '</div>';
+  if (!l.length) return h + '<p class="vuoto">' + (progetti().length ? 'Nessun progetto con questo filtro.' : 'Nessun progetto: nuovo video, nuovo repertorio, sito… premi <b>+ Nuovo</b>.') + '</p>';
+  return h + ganttHtml(l) + l.map(function (p) {
+    var c = compitiDi(p.id), fatti = c.filter(function (x) { return x.fatto === 'Sì'; }).length;
+    return '<button class="ev" data-az="apriProgetto" data-id="' + esc(p.id) + '"><div class="ev-corpo"><div class="ev-tit">🗂️ ' + esc(p.nome) + '</div>' +
+      '<div class="ev-sotto">' + fatti + '/' + c.length + ' fatti' + (p.scadenza ? ' · scade ' + esc(dataIt(p.scadenza)) : '') + '</div>' +
+      '<div class="progresso"><i style="width:' + Math.round(avanzamento(p) * 100) + '%"></i></div></div><div class="ev-dx">›</div></button>';
+  }).join('');
+}
+
+function vistaProgetto() {
+  var p = progetto(SEL_P);
+  if (!p) { V = 'progetti'; return vistaProgetti(); }
+  var c = compitiDi(p.id), daFare = c.filter(function (x) { return x.fatto !== 'Sì'; }).sort(perScadenza), fatti = c.filter(function (x) { return x.fatto === 'Sì'; });
+  return '<button class="btn-link" data-vai="progetti">‹ Progetti</button><h1>🗂️ ' + esc(p.nome) + '</h1>' +
+    '<p class="tenue" style="margin:0">' + esc(dataIt(p.inizio)) + (p.scadenza ? ' → ' + esc(dataIt(p.scadenza)) : '') + ' · ' + esc(p.stato) + '</p>' +
+    (p.descrizione ? '<p class="testo-lungo">' + esc(p.descrizione) + '</p>' : '') +
+    '<div class="progresso" style="height:10px"><i style="width:' + Math.round(avanzamento(p) * 100) + '%"></i></div>' +
+    '<h2>Da fare (' + daFare.length + ')</h2><div class="carta">' + (daFare.length ? daFare.map(function (x) { return rigaCompito(x); }).join('') : '<p class="tenue" style="margin:0">Niente da fare ✓</p>') +
+    '<button class="btn-link" data-az="nuovoCompito">+ Aggiungi un compito</button></div>' +
+    (fatti.length ? '<h2>Fatti (' + fatti.length + ')</h2><div class="carta">' + fatti.map(function (x) { return rigaCompito(x); }).join('') + '</div>' : '') +
+    '<div class="azioni"><button class="btn-sec" data-az="modificaProgetto">✏️ Modifica</button><button class="btn-pericolo" data-az="chiediEliminaProgetto">Elimina</button></div>';
+}
+
+function apriFormProgetto(p) {
+  var x = p || { id: '', nome: '', descrizione: '', inizio: DATI.oggi, scadenza: '', stato: 'attivo' };
+  apriModale('<h2>' + (x.id ? 'Modifica progetto' : 'Nuovo progetto') + '</h2>' +
+    '<label for="pr-nome">Nome</label><input id="pr-nome" value="' + esc(x.nome) + '">' +
+    '<label for="pr-descrizione">Descrizione</label><textarea id="pr-descrizione">' + esc(x.descrizione) + '</textarea>' +
+    '<div class="campi" style="grid-template-columns:1fr 1fr"><div><label for="pr-inizio">Inizio</label><input id="pr-inizio" type="date" value="' + esc(x.inizio) + '"></div>' +
+    '<div><label for="pr-scadenza">Scadenza</label><input id="pr-scadenza" type="date" value="' + esc(x.scadenza) + '"></div></div>' +
+    '<label for="pr-stato">Stato</label><select id="pr-stato">' + DATI.liste.statiProgetto.map(function (s) { return '<option' + (s === x.stato ? ' selected' : '') + '>' + s + '</option>'; }).join('') + '</select>' +
+    '<div class="bottoni"><button class="btn-sec" data-az="annulla">Annulla</button><button class="btn" data-az="salvaProgetto" data-id="' + esc(x.id) + '">Salva</button></div>', 'progetto');
+}
+
+function apriFormCompito(c) {
+  var x = c || { id: '', titolo: '', chi: '', scadenza: '', note: '' };
+  apriModale('<h2>' + (x.id ? 'Modifica compito' : 'Nuovo compito') + '</h2>' +
+    '<label for="cp-titolo">Cosa c\'è da fare</label><input id="cp-titolo" value="' + esc(x.titolo) + '">' +
+    '<div class="campi" style="grid-template-columns:1fr 1fr"><div><label for="cp-chi">Chi</label><select id="cp-chi">' +
+    [''].concat(DATI.liste.membri, ['Tutti']).map(function (m) { return '<option value="' + m + '"' + (m === x.chi ? ' selected' : '') + '>' + (m || '—') + '</option>'; }).join('') +
+    '</select></div><div><label for="cp-scadenza">Entro il</label><input id="cp-scadenza" type="date" value="' + esc(x.scadenza) + '"></div></div>' +
+    '<label for="cp-note">Note</label><textarea id="cp-note">' + esc(x.note) + '</textarea>' +
+    '<div class="bottoni"><button class="btn-sec" data-az="annulla">Annulla</button>' +
+    (x.id ? '<button class="btn-pericolo" data-az="eliminaCompito" data-id="' + esc(x.id) + '">Elimina</button>' : '') +
+    '<button class="btn" data-az="salvaCompito" data-id="' + esc(x.id) + '">Salva</button></div>', 'compito');
+}
+
+// ─── Numeri: spese e ROI
+function spese() { return (DATI && DATI.spese) || []; }
+function calcolaRoi(anno) {
+  var per = {}, cat = {}, spesaTot = 0, entrateTot = 0;
+  var riga = function (k) { return (per[k] = per[k] || { nome: k, investito: 0, entrate: 0, date: 0 }); };
+  spese().forEach(function (x) {
+    if (String(x.data).slice(0, 4) !== anno) return;
+    var imp = num(x.importo);
+    spesaTot += imp;
+    cat[x.categoria || 'Altro'] = (cat[x.categoria || 'Altro'] || 0) + imp;
+    if (x.piattaforma) riga(x.piattaforma).investito += imp;
+  });
+  eventi().forEach(function (e) {
+    if (e.stato === 'annullato' || String(e.data).slice(0, 4) !== anno) return;
+    entrateTot += num(e.totale);
+    var r = riga(e.tramite || 'Non indicato');
+    r.entrate += num(e.totale); r.date++;
+  });
+  var righe = Object.keys(per).map(function (k) {
+    var r = per[k];
+    r.roi = r.investito ? (r.entrate - r.investito) / r.investito : null;
+    r.costoData = r.investito && r.date ? r.investito / r.date : null;
+    return r;
+  }).sort(function (a, b) { return (b.investito - a.investito) || (b.entrate - a.entrate); });
+  return { righe: righe, categorie: cat, spese: spesaTot, entrate: entrateTot, utile: entrateTot - spesaTot };
+}
+
+function vistaSpese(anno) {
+  var r = calcolaRoi(anno);
+  var h = '<div class="tessere" style="margin-top:8px"><div class="tessera forte"><div class="n">' + euro(r.utile) + '</div><div class="l">Utile ' + esc(anno) + ' (entrate − spese)</div></div>' +
+    '<div class="tessera"><div class="n">' + euro(r.entrate) + '</div><div class="l">Entrate</div></div><div class="tessera"><div class="n">' + euro(r.spese) + '</div><div class="l">Spese</div></div></div>';
+  h += '<h2>Piattaforme: quanto rendono</h2>' + (r.righe.length ? r.righe.map(function (x) {
+    return '<div class="carta"><div class="riga"><b>' + esc(x.nome) + '</b><span>' + (x.roi == null ? '<span class="tenue">ROI —</span>' :
+      '<span class="pill ' + (x.roi >= 0 ? 'ok' : 'no') + '">ROI ' + (x.roi >= 0 ? '+' : '') + Math.round(x.roi * 100) + '%</span>') + '</span></div>' +
+      '<div class="tenue">investito ' + euro(x.investito) + ' · ' + x.date + (x.date === 1 ? ' data' : ' date') + ' · entrate ' + euro(x.entrate) +
+      (x.costoData != null ? ' · ' + euro(x.costoData) + ' per data' : '') + '</div></div>';
+  }).join('') : '<p class="tenue">Nessun dato per quest\'anno.</p>');
+  var cats = Object.keys(r.categorie).map(function (k) { return [k, { n: 0, soldi: r.categorie[k] }]; });
+  if (cats.length) {
+    var g = {};
+    cats.forEach(function (c) { g[c[0]] = { n: spese().filter(function (x) { return String(x.data).slice(0, 4) === anno && (x.categoria || 'Altro') === c[0]; }).length, soldi: c[1].soldi }; });
+    h += '<h2>Spese per categoria</h2><div class="carta">' + barre(g) + '</div>';
+  }
+  var lista = spese().filter(function (x) { return String(x.data).slice(0, 4) === anno; }).sort(function (a, b) { return a.data < b.data ? 1 : -1; });
+  h += '<div class="barra"><h2>Spese ' + esc(anno) + '</h2><button class="btn-sec" data-az="nuovaSpesa">+ Spesa</button></div>';
+  h += lista.length ? lista.map(function (x) {
+    return '<button class="ev" data-az="apriSpesa" data-id="' + esc(x.id) + '"><div class="ev-corpo"><div class="ev-tit">' + esc(x.descrizione || x.categoria) + '</div>' +
+      '<div class="ev-sotto">' + esc([dataIt(x.data), x.piattaforma, x.categoria, x.pagatoDa && 'pagato da ' + x.pagatoDa].filter(Boolean).join(' · ')) + '</div></div>' +
+      '<div class="ev-dx">' + euro(x.importo) + '</div></button>';
+  }).join('') : '<p class="tenue">Nessuna spesa registrata per il ' + esc(anno) + '.</p>';
+  if (!spese().length) h += '<button class="btn-sec btn-largo" data-az="importaSpese">Importa gli investimenti dalle Dashboard del foglio Date</button>';
+  return h;
+}
+
+function apriFormSpesa(x) {
+  var s = x || { id: '', data: DATI.oggi, importo: '', piattaforma: '', categoria: 'Pubblicità e piattaforme', descrizione: '', pagatoDa: '' };
+  apriModale('<h2>' + (s.id ? 'Modifica spesa' : 'Nuova spesa') + '</h2><div class="campi" style="grid-template-columns:1fr 1fr">' +
+    '<div><label for="sp-data">Data</label><input id="sp-data" type="date" value="' + esc(s.data) + '"></div>' +
+    '<div><label for="sp-importo">Importo €</label><input id="sp-importo" inputmode="decimal" value="' + esc(s.importo) + '"></div></div>' +
+    '<label for="sp-descrizione">Cosa</label><input id="sp-descrizione" value="' + esc(s.descrizione) + '" placeholder="es. abbonamento Musiqua 2027">' +
+    '<label for="sp-piattaforma">Piattaforma (per il ROI; vuoto se non c\'entra)</label><input id="sp-piattaforma" autocomplete="off" value="' + esc(s.piattaforma) + '"><div class="sugg" id="sugg-piattaforma"></div>' +
+    '<label for="sp-categoria">Categoria</label><select id="sp-categoria">' + DATI.liste.categorieSpesa.map(function (c) { return '<option' + (c === s.categoria ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + '</select>' +
+    '<label for="sp-pagatoDa">Pagato da</label><select id="sp-pagatoDa">' + [''].concat(DATI.liste.membri, ['Cassa band']).map(function (m) {
+      return '<option value="' + m + '"' + (m === s.pagatoDa ? ' selected' : '') + '>' + (m || '—') + '</option>';
+    }).join('') + '</select>' +
+    '<div class="bottoni"><button class="btn-sec" data-az="annulla">Annulla</button>' + (s.id ? '<button class="btn-pericolo" data-az="eliminaSpesa" data-id="' + esc(s.id) + '">Elimina</button>' : '') +
+    '<button class="btn" data-az="salvaSpesa" data-id="' + esc(s.id) + '">Salva</button></div>', 'spesa');
+}
+
+// ─── Suggerimenti mentre si scrive
+var SUGG = {};
+// Telefono messo dalla tendina (referente o evento già fatto): se poi si cambia il referente, quel numero non è suo
+var TEL_AUTO = null;
+// campo → tendina: f-referente/f-luogo/f-titolo/f-tramite (eventi e preventivi), sp-piattaforma (spese), c-nome (contatto nuovo)
+var CAMPI_SUGG = { 'f-referente': 'referente', 'f-luogo': 'luogo', 'f-titolo': 'titolo', 'f-tramite': 'tramite', 'sp-piattaforma': 'piattaforma', 'c-nome': 'cnome' };
+function normTxt(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim(); }
+function eventiRecenti() { return eventi().slice().sort(function (a, b) { return a.data < b.data ? 1 : -1; }); }
+
+function suggerimenti(k, q) {
+  var n = normTxt(q), out = [], visti = {};
+  if (!n) return [];
+  // con una lettera sola: solo i nomi che iniziano così (a tendina, tutti); da due lettere anche quelli che la contengono
+  var va = function (nome) { var t = normTxt(nome); return n.length === 1 ? t.indexOf(n) === 0 : t.indexOf(n) >= 0; };
+  var aggiungi = function (x) {
+    var key = normTxt(x.nome).replace(/\s*\([^)]*\)/g, '') + '|' + (k === 'referente' || k === 'cnome' ? soloCifre(x.telefono).slice(-9) : '');
+    if (!x.nome || !va(x.nome)) return;
+    if (visti[key]) { // già in elenco: completo i dati che mancano (es. indirizzo dall'evento)
+      if (k === 'titolo') return; // per i titoli vale l'evento più recente
+      var y = out[visti[key] - 1];
+      Object.keys(x).forEach(function (c) { if (!y[c] && x[c]) y[c] = x[c]; });
+      return;
+    }
+    out.push(x);
+    visti[key] = out.length;
+  };
+  if (k === 'tramite' || k === 'piattaforma') {
+    DATI.liste.canali.forEach(function (c) { aggiungi({ nome: c }); });
+  } else if (k === 'cnome') {
+    contatti().forEach(function (c) { aggiungi({ nome: c.nome, telefono: c.telefono, ruolo: c.ruolo, id: c.id }); });
+  } else if (k === 'titolo') { // eventi già fatti (il più recente per primo): servono per le date che si ripetono
+    eventiRecenti().forEach(function (e) {
+      aggiungi({ nome: e.titolo, tipo: e.tipo, luogo: e.luogo, indirizzo: e.indirizzo, referente: e.referente, telefono: e.telefono, tramite: e.tramite });
+    });
+  } else if (k === 'referente') {
+    contatti().filter(function (c) { return c.ruolo !== 'Location'; }).forEach(function (c) { aggiungi({ nome: c.nome, telefono: c.telefono, ruolo: c.ruolo }); });
+    eventiRecenti().forEach(function (e) { if (e.referente) aggiungi({ nome: e.referente, telefono: e.telefono, ruolo: '' }); });
+  } else {
+    contatti().filter(function (c) { return c.ruolo === 'Location'; }).forEach(function (c) { aggiungi({ nome: c.nome, indirizzo: c.indirizzo || '' }); });
+    eventiRecenti().forEach(function (e) {
+      if (!e.luogo) return;
+      var link = /^https?:/i.test(e.indirizzo || '');
+      aggiungi({ nome: e.luogo, indirizzo: link ? '' : (e.indirizzo || ''), mappa: link ? e.indirizzo : '' });
+    });
+  }
+  // prima chi inizia con quello che hai scritto, poi in ordine alfabetico
+  var inizia = function (x) { return normTxt(x.nome).indexOf(n) === 0 ? 0 : 1; };
+  out.sort(function (a, b) { return inizia(a) - inizia(b) || normTxt(a.nome).localeCompare(normTxt(b.nome)); });
+  return out.slice(0, 30);
+}
+
+function mostraSugg(k, lista, titolo) {
+  SUGG[k] = lista;
+  var box = $('sugg-' + k);
+  if (!box) return;
+  if (!titolo && k === 'cnome' && lista.length) titolo = 'Già in rubrica: tocca per ' + (K_EVENTO ? 'collegarlo all\'evento' : 'aprirlo') + ' invece di farne un doppione';
+  box.innerHTML = !lista.length ? '' : (titolo ? '<div class="tenue" style="padding:6px 12px">' + esc(titolo) + '</div>' : '') +
+    lista.map(function (x, i) {
+      var info = k === 'titolo' ? [x.tipo, x.luogo] : [x.telefono, x.ruolo, x.indirizzo || (x.mappa ? 'link Maps' : '')];
+      return '<button class="sugg-voce" data-az="scegliSugg" data-k="' + k + '" data-i="' + i + '"><b>' + esc(x.nome) + '</b> <span class="tenue">' +
+        esc(info.filter(Boolean).join(' · ')) + '</span></button>';
+    }).join('');
+}
+
+// ─── Preventivi
+function preventivi() { return (DATI && DATI.preventivi) || []; }
+function preventiviDi(eventoId) { return preventivi().filter(function (p) { return p.eventoId === eventoId; }); }
+/** Il preventivo "che conta" dell'evento: quello accettato, sennò il più recente. */
+function preventivoDi(eventoId) {
+  var l = preventiviDi(eventoId).slice().sort(function (a, b) { return String(a.modificato || '') < String(b.modificato || '') ? 1 : -1; });
+  return l.filter(function (p) { return p.stato === 'accettato'; })[0] || l[0] || null;
+}
+var PAROLE_COMUNI = ['matrimonio', 'matromonio', 'sagra', 'festa', 'privata', 'privato', 'aziendale', 'compleanno', 'party', 'concerto', 'evento', 'locale', 'della', 'delle', 'dello', 'forse'];
+/** Parole distintive di un nome (come paroleChiave_ nel server): "Forse matrimonio Laura" → ["laura"]. */
+function paroleChiave(t) { return normTxt(t).split(/[^a-z0-9]+/).filter(function (p) { return p.length >= 4 && PAROLE_COMUNI.indexOf(p) < 0; }); }
+function simili(a, b) { var pb = paroleChiave(b); return paroleChiave(a).some(function (p) { return pb.indexOf(p) >= 0; }); }
+function vociListino(listino, tipo) {
+  return ((DATI && DATI.listino) || []).filter(function (v) { return v.listino === listino && v.tipo === tipo && v.attivo !== 'No'; })
+    .sort(function (a, b) { return num(a.ordine) - num(b.ordine); });
+}
+function voceListino(id) { return ((DATI && DATI.listino) || []).filter(function (v) { return v.id === id; })[0] || null; }
+function piuGiorni(d, n) { var p = parti(d), x = new Date(p.a, p.m - 1, p.g + n); return x.getFullYear() + '-' + ('0' + (x.getMonth() + 1)).slice(-2) + '-' + ('0' + x.getDate()).slice(-2); }
+
+// Campi dell'evento che si compilano dal preventivo (stessi id del modulo di modifica: f-…)
+var CAMPI_PREV_EV = ['titolo', 'tipo', 'data', 'luogo', 'indirizzo', 'referente', 'telefono', 'ruoloReferente', 'tramite', 'contattatoDa', 'arrivo', 'inizio', 'fine'];
+var SCHEDA_PREV = [
+  ['Orari', [['oraCerimonia', 'Cerimonia', 'time'], ['oraAperitivo', 'Aperitivo', 'time'], ['oraCena', 'Cena', 'time'], ['oraTorta', 'Taglio torta', 'time']]],
+  ['Musica', [['ingresso', 'Ingresso sposi (brano)', 'text'], ['primoBallo', 'Primo ballo (brano)', 'text'], ['altriBrani', 'Altre richieste musicali', 'area']]],
+  ['Logistica', [['ospiti', 'Numero ospiti', 'num'], ['esterno', 'All\'aperto?', 'si'], ['copertura', 'Copertura se piove', 'text'],
+    ['corrente', 'Corrente (prese, distanza…)', 'text'], ['pastiBand', 'Pasti band', 'text'],
+    ['pernottamento', 'Pernottamento per la band? (a carico del cliente)', 'si'], ['notePernottamento', 'Pernottamento: dettagli (notti, persone, dove…)', 'text'],
+    ['noteTecniche', 'Note tecniche', 'area']]]
+];
+
+// Voci della scheda che hanno senso solo nei matrimoni: negli altri tipi non si mostrano e non si salvano
+var SOLO_MATRIMONIO = ['oraCerimonia', 'oraTorta', 'ingresso', 'primoBallo'];
+function campiSchedaPrev(gruppo, tipo) {
+  var matr = tipo === 'Matrimonio';
+  return gruppo.filter(function (c) { return matr || SOLO_MATRIMONIO.indexOf(c[0]) < 0; })
+    .map(function (c) { return !matr && c[0] === 'altriBrani' ? [c[0], 'Richieste particolari (brani, momenti, scaletta…)', c[2]] : c; });
+}
+
+function totaliPrev() {
+  var sub = PREV.righe.reduce(function (t, r) { return t + num(r.prezzo) * num(r.qta); }, 0);
+  var tot = Math.max(0, Math.round((sub - num(PREV.sconto)) * 100) / 100);
+  return { sub: sub, tot: tot, acconto: Math.round(tot * 0.3) };
+}
+
+// Preventivo di matrimonio, sezione "Persone": diventano contatti dell'evento al salvataggio (personeMatrimonio_ nel server)
+var CAMPI_PERSONE = [['sposa', 'Sposa: nome e cognome', 'text'], ['telSposa', 'Sposa: telefono', 'tel'], ['sposo', 'Sposo: nome e cognome', 'text'],
+  ['telSposo', 'Sposo: telefono', 'tel'], ['telLocation', 'Location: telefono', 'tel'], ['refLocation', 'Location: referente (la persona)', 'text'],
+  ['wp', 'Wedding planner: nome', 'text'], ['telWp', 'Wedding planner: telefono', 'tel']];
+/** Le persone già in rubrica per quell'evento, per partire compilati. */
+function personeDaEvento(ev) {
+  var l = ev && ev.id ? contattiDi(ev) : [], p = {};
+  var sp = l.filter(function (c) { return c.ruolo === 'Sposi'; })[0], lo = l.filter(function (c) { return c.ruolo === 'Location'; })[0],
+    wp = l.filter(function (c) { return c.ruolo === 'Wedding planner'; })[0];
+  if (sp) { p.sposa = sp.sposa || ''; p.telSposa = sp.telSposa || ''; p.sposo = sp.sposo || ''; p.telSposo = sp.telSposo || ''; }
+  if (lo) { p.telLocation = lo.telefono || ''; p.refLocation = lo.referente || ''; }
+  if (wp) { p.wp = wp.nome; p.telWp = wp.telefono || ''; }
+  return p;
+}
+
+function nuovoPrev() {
+  return { id: '', stato: 'bozza', listino: 'Matrimonio', righe: [], sconto: '0', validita: piuGiorni(DATI.oggi, 30),
+    noteCliente: '', pdfId: '', pdfProgrammaId: '', numero: '', eventoId: '', scheda: {}, persone: {}, evento: { tipo: 'Matrimonio', data: '', titolo: '' } };
+}
+
+function apriPrev(p) {
+  var ev = trova(p.eventoId) || {};
+  PREV = { id: p.id, numero: p.numero, stato: p.stato, listino: p.listino, sconto: p.sconto, validita: p.validita, noteCliente: p.noteCliente,
+    pdfId: p.pdfId, pdfProgrammaId: p.pdfProgrammaId || '', eventoId: p.eventoId, righe: JSON.parse(p.righe || '[]'), scheda: JSON.parse(p.scheda || '{}'),
+    evento: JSON.parse(JSON.stringify(ev)), persone: personeDaEvento(ev) };
+  SEL = p.eventoId;
+  vai('preventivo');
+}
+
+/** Prima di ridisegnare: quello che è scritto nei campi finisce in PREV (così non si perde). */
+function leggiModuloPrev() {
+  if (!PREV || V !== 'preventivo') return;
+  CAMPI_PREV_EV.forEach(function (k) { var el = $('f-' + k); if (el) PREV.evento[k] = String(el.value || '').trim(); });
+  SCHEDA_PREV.forEach(function (g) {
+    campiSchedaPrev(g[1], PREV.evento.tipo).forEach(function (c) { var el = $('s-' + c[0]); if (el) PREV.scheda[c[0]] = String(el.value || '').trim(); });
+  });
+  PREV.sconto = String($('p-sconto').value || '0').replace(',', '.');
+  PREV.validita = String($('p-validita').value || '');
+  PREV.noteCliente = String($('p-note').value || '');
+  PREV.persone = PREV.persone || {};
+  CAMPI_PERSONE.forEach(function (c) { var el = $('pp-' + c[0]); if (el) PREV.persone[c[0]] = String(el.value || '').trim(); });
+  PREV.righe.forEach(function (r, i) {
+    if (r.tipo === 'extra' && $('q-' + i)) r.qta = num($('q-' + i).value);
+    if (!r.lid) { r.nome = String($('l-nome-' + i).value || '').trim(); r.prezzo = num($('l-prezzo-' + i).value); }
+  });
+}
+
+function vistaPreventivi() {
+  var l = preventivi().filter(function (p) { return !FILTRO_P || p.stato === FILTRO_P; })
+    .sort(function (a, b) { return a.numero < b.numero ? 1 : -1; });
+  return '<div class="barra"><h1>Preventivi</h1><button class="btn" data-az="nuovoPrev">+ Nuovo</button></div>' +
+    '<div class="chips">' + [''].concat(DATI.liste.statiPreventivo).map(function (x) {
+      return '<button class="chip' + (FILTRO_P === x ? ' attivo' : '') + '" data-az="filtroP" data-v="' + x + '">' + (x || 'Tutti') + '</button>';
+    }).join('') + '</div>' +
+    (!l.length ? '<p class="vuoto">' + (preventivi().length ? 'Nessun preventivo con questo filtro.' : 'Ancora nessun preventivo: premi <b>+ Nuovo</b>.') + '</p>' :
+      l.map(function (p) {
+        var e = trova(p.eventoId) || {}, d = parti(e.data || '');
+        return '<button class="ev" data-az="apriPrev" data-id="' + esc(p.id) + '">' +
+          '<div class="ev-data"><b>' + (d.g || '?') + '</b><span>' + (MESI[d.m - 1] || '') + '</span><small>' + (d.a || '') + '</small></div>' +
+          '<div class="ev-corpo"><div class="ev-tit">' + esc(e.titolo || '(evento eliminato)') + '</div>' +
+          '<div class="ev-sotto">n. ' + esc(p.numero) + ' · ' + esc(p.listino) + (e.luogo ? ' · ' + esc(e.luogo) : '') + '</div>' +
+          '<div class="ev-pill"><span class="pill ' + (COLORE_STATO_P[p.stato] || 'neutra') + '">' + esc(p.stato) + '</span></div></div>' +
+          '<div class="ev-dx">' + euro(p.totale) + '</div></button>';
+      }).join(''));
+}
+
+/** Recap dei servizi scelti (nel riquadro del totale): una riga per voce con quantità e prezzo. */
+function vociRecapHtml() {
+  var l = PREV.righe.filter(function (r) { return num(r.qta) > 0 && (r.lid || r.nome); });
+  if (!l.length) return '<p class="tenue" style="margin:0 0 6px">Nessun servizio scelto: tocca un pacchetto qui sopra.</p>';
+  return l.map(function (r) {
+    var q = num(r.qta);
+    return '<div class="riga voce-recap"><span>' + (r.tipo === 'pacchetto' ? '🎸 ' : '+ ') + esc(r.nome || 'Voce libera') +
+      (q !== 1 ? ' <span class="tenue">× ' + esc(String(q).replace('.', ',')) + (r.unita ? ' ' + esc(r.unita) : '') + '</span>' : '') +
+      '</span><span>' + euro(num(r.prezzo) * q) + '</span></div>';
+  }).join('');
+}
+
+function totaliHtml() {
+  var t = totaliPrev();
+  return '<div id="t-voci" class="voci-recap">' + vociRecapHtml() + '</div>' +
+    '<div class="riga"><span>Subtotale</span><span id="t-sub">' + euro(t.sub) + '</span></div>' +
+    '<div class="riga"><label for="p-sconto" style="margin:0">Sconto €</label><input id="p-sconto" inputmode="decimal" value="' + esc(PREV.sconto) + '"></div>' +
+    '<div class="riga"><b>Totale</b><span class="grande" id="t-tot">' + euro(t.tot) + '</span></div>' +
+    '<div class="riga tenue"><span>Acconto 30% per bloccare la data</span><span id="t-acc">' + euro(t.acconto) + '</span></div>';
+}
+
+function vistaPreventivo() {
+  if (!PREV) { V = 'preventivi'; return vistaPreventivi(); }
+  var P = PREV, tutti = FORM.reduce(function (a, g) { return a.concat(g[1]); }, []);
+  var campoEv = function (k) { return campoHtml(tutti.filter(function (c) { return c[0] === k; })[0], P.evento); };
+  var scelto = P.righe.filter(function (r) { return r.tipo === 'pacchetto'; })[0];
+  var h = '<button class="btn-link" data-az="chiudiPrev">‹ Preventivi</button>' +
+    '<h1>' + (P.id ? 'Preventivo ' + esc(P.numero) : 'Nuovo preventivo') + '</h1>';
+  if (P.id) {
+    h += '<div class="stati">' + DATI.liste.statiPreventivo.map(function (x) {
+      return '<button class="chip' + (P.stato === x ? ' attivo' : '') + '" data-az="prevStato" data-v="' + x + '">' + x + '</button>';
+    }).join('') + '</div>';
+    if (P.stato === 'accettato') {
+      var t0 = totaliPrev();
+      h += '<div class="carta" style="margin-top:10px">🧾 <b>Fattura</b>: ' + esc(P.evento.referente || P.evento.titolo) + ' · ' + esc(dataIt(P.evento.data)) +
+        ' · ' + euro(t0.tot) + ' (acconto ' + euro(t0.acconto) + ')<div class="azioni"><a class="btn-sec" target="_blank" rel="noopener" href="' +
+        esc(DATI.esibirsi) + '">Apri Esibirsi ›</a></div></div>';
+    }
+  }
+  h += '<h2>Cliente ed evento</h2><div class="carta campi">' + ['titolo', 'tipo', 'data', 'luogo', 'indirizzo', 'referente', 'telefono', 'ruoloReferente', 'tramite', 'contattatoDa'].map(campoEv).join('') + '</div>';
+  if (P.evento.tipo === 'Matrimonio') {
+    var pp = P.persone || {};
+    h += '<h2>Persone</h2><p class="tenue" style="margin-top:0">Salvando finiscono nei contatti dell\'evento: sposi (una scheda con i due numeri), location, wedding planner.</p>' +
+      '<div class="carta campi">' + CAMPI_PERSONE.map(function (c) {
+        return '<div><label for="pp-' + c[0] + '">' + esc(c[1]) + '</label><input id="pp-' + c[0] + '" type="' + c[2] + '" autocomplete="off" value="' + esc(pp[c[0]] || '') + '"></div>';
+      }).join('') + '</div>';
+  }
+  h += '<h2>Pacchetto</h2><div class="chips">' + DATI.liste.listini.map(function (l) {
+    return '<button class="chip' + (P.listino === l ? ' attivo' : '') + '" data-az="prevListino" data-v="' + l + '">' + l + '</button>';
+  }).join('') + '</div>' + vociListino(P.listino, 'pacchetto').map(function (v) {
+    var on = scelto && scelto.lid === v.id;
+    return '<button class="voce' + (on ? ' scelta' : '') + '" data-az="prevPacchetto" data-id="' + esc(v.id) + '"><div class="riga"><b>' +
+      (on ? '✓ ' : '') + esc(v.nome) + '</b><span>' + euro(on ? scelto.prezzo : v.prezzo) + '</span></div><div class="desc">' + esc(v.descrizione) + '</div></button>';
+  }).join('');
+  h += '<h2>Extra</h2><div class="carta">' + vociListino(P.listino, 'extra').map(function (v) {
+    var i = -1;
+    P.righe.forEach(function (r, j) { if (r.lid === v.id) i = j; });
+    var r = P.righe[i];
+    return '<div class="extra"><button class="spunta' + (r ? ' on' : '') + '" data-az="prevExtra" data-id="' + esc(v.id) + '" aria-label="Aggiungi">' + (r ? '✓' : '+') + '</button>' +
+      '<div class="nome">' + esc(v.nome) + '<div class="tenue">' + euro(r ? r.prezzo : v.prezzo) + (v.unita ? ' / ' + esc(v.unita) : '') + '</div></div>' +
+      (r ? '<input id="q-' + i + '" inputmode="decimal" value="' + esc(r.qta) + '" aria-label="Quantità">' : '') + '</div>';
+  }).join('') + P.righe.map(function (r, i) {
+    if (r.lid) return '';
+    return '<div class="extra"><button class="spunta on" data-az="prevTogliLibera" data-i="' + i + '" aria-label="Togli">×</button>' +
+      '<input id="l-nome-' + i + '" style="flex:1;width:auto;text-align:left" placeholder="Voce" value="' + esc(r.nome) + '">' +
+      '<input id="l-prezzo-' + i + '" inputmode="decimal" placeholder="€" value="' + esc(r.prezzo) + '"></div>';
+  }).join('') + '<button class="btn-link" data-az="prevLibera">+ Voce libera (trasferta, sconto sposi, altro…)</button></div>';
+  h += '<div class="totali" id="p-totali">' + totaliHtml() + '</div>';
+  h += '<h2>Orari</h2><div class="carta campi">' + ['arrivo', 'inizio', 'fine'].map(campoEv).join('') +
+    campiSchedaPrev(SCHEDA_PREV[0][1], P.evento.tipo).map(function (c) { return campoHtml(c, P.scheda).replace('id="f-', 'id="s-').replace('for="f-', 'for="s-'); }).join('') + '</div>';
+  SCHEDA_PREV.slice(1).forEach(function (g) {
+    h += '<h2>' + (g[0] === 'Musica' && P.evento.tipo !== 'Matrimonio' ? 'Richieste' : g[0]) + '</h2><div class="carta campi">' + campiSchedaPrev(g[1], P.evento.tipo).map(function (c) {
+      return campoHtml(c, P.scheda).replace('id="f-', 'id="s-').replace('for="f-', 'for="s-');
+    }).join('') + '</div>';
+  });
+  h += '<h2>Per il cliente</h2><div class="carta campi"><div><label for="p-validita">Valido fino al</label><input id="p-validita" type="date" value="' + esc(P.validita) + '"></div>' +
+    '<div class="intero"><label for="p-note">Note che compaiono nel PDF</label><textarea id="p-note">' + esc(P.noteCliente) + '</textarea></div></div>';
+  if (P.id && trova(P.eventoId)) h += sezioneContatti(trova(P.eventoId));
+  else h += '<p class="tenue">Dopo il primo salvataggio potrai aggiungere sposi e fornitori (wedding planner, location, fotografo…).</p>';
+  h += '<button class="btn btn-largo" data-az="salvaPrev">Salva</button>';
+  if (P.id) {
+    // due PDF: preventivo (solo prezzi, per il cliente) e programma della giornata (orari, musica, logistica, senza soldi)
+    var pdf = function (tipo, id, ico, nome) {
+      return '<div class="azioni"><button class="btn-sec" data-az="creaPdf" data-v="' + tipo + '">' + ico + ' ' + (id ? 'Rifai' : 'Crea') + ' PDF ' + nome + '</button>' +
+        (id ? '<a class="btn-sec" target="_blank" rel="noopener" href="https://drive.google.com/file/d/' + esc(id) + '/view">Apri ›</a>' : '') + '</div>';
+    };
+    h += '<h2>PDF</h2><p class="tenue" style="margin-top:0">Il <b>preventivo</b> ha solo pacchetti, extra e prezzi (per il cliente). ' +
+      'Il <b>programma</b> ha orari, musica, logistica e contatti, senza soldi (per la band, gli sposi, la location…). Salva prima di rifarli.</p>' +
+      pdf('preventivo', P.pdfId, '📄', 'preventivo') + pdf('programma', P.pdfProgrammaId, '🗓️', 'programma') +
+      '<button class="btn-sec btn-largo" data-az="altraProposta">➕ Altra proposta per lo stesso evento</button>' +
+      '<div class="azioni"><button class="btn-sec" data-az="apri" data-id="' + esc(P.eventoId) + '">📅 Vai all\'evento</button>' +
+      '<button class="btn-pericolo" data-az="chiediEliminaPrev">Elimina</button></div>';
+  }
+  return h;
+}
+
+// ─── Listino (Altro > Listino prezzi)
+function vistaListino() {
+  var righe = function (tipo) {
+    return vociListinoTutte(LISTINO_V, tipo).map(function (v) {
+      return '<button class="voce" data-az="apriVoce" data-id="' + esc(v.id) + '"><div class="riga"><b>' + esc(v.nome) + (v.attivo === 'No' ? ' <span class="pill no">nascosta</span>' : '') +
+        '</b><span>' + euro(v.prezzo) + (v.unita ? ' / ' + esc(v.unita) : '') + '</span></div><div class="desc">' + esc(v.descrizione) + '</div></button>';
+    }).join('');
+  };
+  return '<button class="btn-link" data-vai="altro">‹ Altro</button><h1>Listino prezzi</h1>' +
+    '<div class="chips">' + DATI.liste.listini.map(function (l) {
+      return '<button class="chip' + (LISTINO_V === l ? ' attivo' : '') + '" data-az="listinoV" data-v="' + l + '">' + l + '</button>';
+    }).join('') + '</div><p class="tenue">Cambiare un prezzo vale per i preventivi nuovi: quelli già fatti restano come sono.</p>' +
+    '<h2>Pacchetti</h2>' + righe('pacchetto') + '<h2>Extra</h2>' + righe('extra') +
+    '<button class="btn-sec btn-largo" data-az="nuovaVoce">+ Nuova voce</button>';
+}
+function vociListinoTutte(listino, tipo) {
+  return ((DATI && DATI.listino) || []).filter(function (v) { return v.listino === listino && v.tipo === tipo; })
+    .sort(function (a, b) { return num(a.ordine) - num(b.ordine); });
+}
+function apriVoce(v) {
+  VOCE_L = v ? JSON.parse(JSON.stringify(v)) : { id: '', listino: LISTINO_V, tipo: 'extra', nome: '', descrizione: '', prezzo: '', unita: '', attivo: 'Sì' };
+  var c = function (k, et, extra) { return '<label for="v-' + k + '">' + et + '</label><input id="v-' + k + '" ' + (extra || '') + ' value="' + esc(VOCE_L[k]) + '">'; };
+  apriModale('<h2>' + (VOCE_L.id ? 'Modifica voce' : 'Nuova voce') + ' · ' + esc(VOCE_L.listino) + '</h2>' +
+    (VOCE_L.id ? '' : '<label for="v-tipo">Tipo</label><select id="v-tipo"><option value="extra">Extra</option><option value="pacchetto">Pacchetto</option></select>') +
+    c('nome', 'Nome') + c('prezzo', 'Prezzo €', 'inputmode="decimal"') + c('unita', 'Unità (vuoto = a corpo, es. "km")') +
+    '<label for="v-descrizione">Descrizione</label><textarea id="v-descrizione">' + esc(VOCE_L.descrizione) + '</textarea>' +
+    '<label for="v-attivo">Si vede nei preventivi?</label><select id="v-attivo"><option' + (VOCE_L.attivo !== 'No' ? ' selected' : '') + '>Sì</option>' +
+    '<option' + (VOCE_L.attivo === 'No' ? ' selected' : '') + '>No</option></select>' +
+    '<div class="bottoni"><button class="btn-sec" data-az="annulla">Annulla</button><button class="btn" data-az="salvaVoce">Salva</button></div>', 'voce');
+}
+
+// ─── Modifica / nuovo
+function campoHtml(c, obj) {
+  obj = obj || BOZZA;
+  var k = c[0], tipo = c[2], v = obj[k] == null ? '' : String(obj[k]), id = 'f-' + k;
+  var h = '<div' + (tipo === 'area' ? ' class="intero"' : '') + '><label for="' + id + '">' + esc(c[1]) + '</label>';
+  if (tipo.indexOf('sel:') === 0) {
+    var ops = DATI.liste[tipo.slice(4)].slice();
+    if (v && ops.indexOf(v) < 0) ops.push(v);
+    if (k !== 'stato') ops.unshift('');
+    h += '<select id="' + id + '">' + ops.map(function (o) {
+      return '<option value="' + esc(o) + '"' + (o === v ? ' selected' : '') + '>' + esc(o || '—') + '</option>';
+    }).join('') + '</select>';
+  } else if (tipo === 'si') {
+    h += '<select id="' + id + '">' + ['', 'Sì', 'No'].map(function (o) {
+      return '<option value="' + o + '"' + (o === v ? ' selected' : '') + '>' + (o || '—') + '</option>';
+    }).join('') + '</select>';
+  } else if (tipo === 'area') {
+    h += '<textarea id="' + id + '">' + esc(v) + '</textarea>';
+  } else {
+    var t = tipo === 'num' || tipo.indexOf('list:') === 0 ? (tipo === 'num' ? 'text" inputmode="decimal' : 'text') : tipo;
+    h += '<input id="' + id + '" type="' + t + '" value="' + esc(v) + '"' + (CAMPI_SUGG[id] ? ' autocomplete="off"' : '') + '>';
+  }
+  // Tendina mentre si scrive (referente → telefono, luogo → indirizzo, titolo → dati dell'evento, tramite → canali)
+  if (CAMPI_SUGG[id]) h += '<div class="sugg" id="sugg-' + k + '"></div>';
+  if (k === 'luogo') h += '<button class="btn-link" data-az="cercaMaps">🔍 Cerca l\'indirizzo su Google Maps</button>';
+  return h + '</div>';
+}
+
+function vistaModifica() {
+  if (!BOZZA) { V = 'eventi'; return vistaEventi(); }
+  var h = '<button class="btn-link" data-az="annullaModifica">‹ Annulla</button>' +
+    '<h1>' + (BOZZA.id ? 'Modifica evento' : 'Nuovo evento') + '</h1>';
+  FORM.forEach(function (g) { h += '<h2>' + g[0] + '</h2><div class="carta campi">' + g[1].map(function (c) { return campoHtml(c); }).join('') + '</div>'; });
+  return h + '<button class="btn btn-largo" data-az="salvaEvento">Salva</button>' +
+    '<p class="tenue">Salvando, l\'evento si aggiorna anche nel calendario "' + esc(DATI.calendario) + '".</p>';
+}
+
+// ─── Riepilogo
+function calcolaRiepilogo(anno) {
+  var r = { date: 0, passate: 0, dafare: 0, annullate: 0, totale: 0, netto: 0, lordo: 0, nero: 0,
+    incassato: 0, daIncassare: 0, tipi: {}, canali: {}, mesi: [] };
+  for (var i = 0; i < 12; i++) r.mesi.push({ fatto: 0, futuro: 0 });
+  eventi().forEach(function (e) {
+    if (!e.data || e.data.slice(0, 4) !== anno) return;
+    if (e.stato === 'annullato') { r.annullate++; return; }
+    var t = num(e.totale);
+    r.date++;
+    if (passato(e)) r.passate++; else r.dafare++;
+    r.totale += t; r.netto += num(e.netto); r.lordo += num(e.lordo); r.nero += num(e.nero);
+    r.incassato += incassato(e); r.daIncassare += residuo(e);
+    var tp = e.tipo || 'Senza tipo';
+    r.tipi[tp] = r.tipi[tp] || { n: 0, soldi: 0 }; r.tipi[tp].n++; r.tipi[tp].soldi += t;
+    var c = e.tramite || 'Non indicato';
+    r.canali[c] = r.canali[c] || { n: 0, soldi: 0 }; r.canali[c].n++; r.canali[c].soldi += t;
+    r.mesi[parti(e.data).m - 1][passato(e) ? 'fatto' : 'futuro'] += t;
+  });
+  r.media = r.date ? r.totale / r.date : 0;
+  r.aTesta = r.totale / ((DATI.liste && DATI.liste.membri.length) || 3);
+  return r;
+}
+
+function barre(gruppi) {
+  var l = Object.keys(gruppi).map(function (k) { return [k, gruppi[k]]; }).sort(function (a, b) { return b[1].soldi - a[1].soldi; });
+  var max = Math.max.apply(null, l.map(function (x) { return x[1].soldi; }).concat([1]));
+  return '<div class="barre">' + l.map(function (x) {
+    return '<div class="b"><span>' + esc(x[0]) + ' <span class="tenue">(' + x[1].n + ')</span></span>' +
+      '<i style="width:' + Math.round(x[1].soldi / max * 100) + '%"></i><span>' + euro(x[1].soldi) + '</span></div>';
+  }).join('') + '</div>';
+}
+
+function vistaRiepilogo() {
+  var a = anni();
+  if (!a.length) return '<h1>Riepilogo</h1><p class="vuoto">Ancora nessun evento.</p>';
+  if (a.indexOf(ANNO_RIEP) < 0) ANNO_RIEP = a.indexOf(DATI.oggi.slice(0, 4)) >= 0 ? DATI.oggi.slice(0, 4) : a[a.length - 1];
+  var r = calcolaRiepilogo(ANNO_RIEP);
+  var maxMese = Math.max.apply(null, r.mesi.map(function (m) { return m.fatto + m.futuro; }).concat([1]));
+  var tessera = function (n, l, forte) { return '<div class="tessera' + (forte ? ' forte' : '') + '"><div class="n">' + n + '</div><div class="l">' + l + '</div></div>'; };
+  var testa = '<h1>Numeri</h1><div class="chips">' + [['incassi', '💶 Incassi'], ['spese', '📉 Spese e ROI']].map(function (t) {
+      return '<button class="chip' + (NUM_TAB === t[0] ? ' attivo' : '') + '" data-az="numTab" data-v="' + t[0] + '">' + t[1] + '</button>';
+    }).join('') + '</div><div class="chips">' + a.map(function (x) {
+      return '<button class="chip' + (x === ANNO_RIEP ? ' attivo' : '') + '" data-az="annoRiep" data-v="' + x + '">' + x + '</button>';
+    }).join('') + '</div>';
+  if (NUM_TAB === 'spese') return testa + vistaSpese(ANNO_RIEP);
+  return testa +
+    '<div class="tessere">' +
+    tessera(euro(r.totale), 'Totale (netto + nero)', true) + tessera(euro(r.incassato), 'Incassato') +
+    tessera(euro(r.daIncassare), 'Da incassare') + tessera(euro(r.aTesta), 'A testa') +
+    tessera(euro(r.media), 'Media per data') + tessera(r.date, 'Date: ' + r.passate + ' fatte, ' + r.dafare + ' da fare') +
+    '</div>' +
+    '<div class="tessere tre">' + tessera(euro(r.netto), 'Netto') + tessera(euro(r.lordo), 'Lordo') + tessera(euro(r.nero), 'Nero') + '</div>' +
+    '<h2>Mese per mese</h2><div class="carta"><div class="mesi">' + r.mesi.map(function (m, i) {
+      var alt = function (x) { return Math.round(x / maxMese * 110); };
+      return '<div class="mese">' + (m.futuro ? '<i class="futuro" style="height:' + alt(m.futuro) + 'px"></i>' : '') +
+        (m.fatto ? '<i style="height:' + alt(m.fatto) + 'px"></i>' : '') + '<span>' + MESI[i].charAt(0).toUpperCase() + '</span></div>';
+    }).join('') + '</div><div class="legenda"><b style="background:var(--arancio)"></b>fatte<b style="background:var(--petrolio)"></b>in programma</div></div>' +
+    '<h2>Per tipo</h2><div class="carta">' + barre(r.tipi) + '</div>' +
+    '<h2>Per canale (da dove arrivano)</h2><div class="carta">' + barre(r.canali) + '</div>' +
+    (r.annullate ? '<p class="tenue">' + r.annullate + ' date annullate non contate.</p>' : '');
+}
+
+// ─── Eventi scritti solo nel calendario
+function vistaCalendario() {
+  var h = '<button class="btn-link" data-vai="eventi">‹ Eventi</button><h1>Dal calendario</h1>' +
+    '<p class="tenue">Eventi nel calendario "' + esc(DATI.calendario) + '" (da oggi in poi) che non sono nel Gestionale. ' +
+    '<b>Aggiungi</b> i concerti; <b>Ignora</b> sopralluoghi, promemoria e il resto: non compariranno più qui.</p>';
+  if (!EXTRA) return h + '<p class="vuoto">Controllo il calendario…</p>';
+  if (!EXTRA.length) return h + '<p class="vuoto">Tutto allineato ✓</p>';
+  return h + EXTRA.map(function (x, i) {
+    var p = parti(x.data);
+    return '<div class="ev"><div class="ev-data"><b>' + p.g + '</b><span>' + (MESI[p.m - 1] || '') + '</span><small>' + p.a + '</small></div>' +
+      '<div class="ev-corpo"><div class="ev-tit">' + esc(x.titolo || '(senza titolo)') + '</div>' +
+      '<div class="ev-sotto">' + esc([x.ora, x.luogo].filter(Boolean).join(' · ') || 'tutto il giorno') + '</div>' +
+      '<div class="azioni" style="margin-top:8px"><button class="btn" data-az="daCalendario" data-i="' + i + '">Aggiungi</button>' +
+      '<button class="btn-sec" data-az="ignoraCalendario" data-i="' + i + '">Ignora</button></div></div></div>';
+  }).join('');
+}
+
+// ─── Confronto col foglio "Date Tribute A"
+function valoreConfronto(campo, v) {
+  if (v === '' || v == null) return '<span class="tenue">vuoto</span>';
+  if (['totale', 'anticipo', 'netto', 'lordo', 'nero'].indexOf(campo) >= 0) return euro(num(v));
+  return esc(v);
+}
+function vistaConfronto() {
+  var h = '<button class="btn-link" data-vai="altro">‹ Altro</button><h1>Confronto col foglio Date</h1>' +
+    '<p class="tenue">Differenze fra l\'app e il foglio "Date Tribute A". Soldi e pagamenti: si propone il valore del foglio quando è diverso; ' +
+    'gli altri dati solo se nell\'app mancano. Una cella vuota nel foglio non cancella niente. Spunta quello che vuoi prendere dal foglio e premi ' +
+    '<b>Aggiorna</b>: il foglio non viene toccato.</p>';
+  if (!CONFRONTO) return h + '<p class="vuoto">Leggo il foglio…</p>';
+  var C = CONFRONTO, nSc = Object.keys(SCELTI_C.ids).length + Object.keys(SCELTI_C.nuovi).length;
+  if (!C.diversi.length && !C.nuovi.length) return h + '<p class="vuoto">Tutto allineato col foglio ✓</p>';
+  var spunta = function (tipo, k, on) {
+    return '<button class="chip' + (on ? ' attivo' : '') + '" data-az="sceltaConfronto" data-v="' + tipo + '" data-id="' + esc(k) + '">' + (on ? '✓ Prendi dal foglio' : 'Prendi dal foglio') + '</button>';
+  };
+  h += '<div class="azioni"><button class="btn-sec" data-az="tuttiConfronto">Seleziona tutti</button><button class="btn-sec" data-az="nessunoConfronto">Nessuno</button></div>';
+  if (C.diversi.length) h += '<h2>Dati diversi (' + C.diversi.length + ')</h2>' + C.diversi.map(function (d, i) {
+    var p = parti(d.data);
+    return '<div class="carta"><div class="riga"><span><b>' + p.g + '/' + p.m + '/' + p.a + '</b> · ' + esc(d.titolo) +
+      (d.titoloFoglio !== d.titolo ? ' <span class="tenue">(nel foglio: ' + esc(d.titoloFoglio) + ')</span>' : '') + '</span></div>' +
+      '<dl class="dati">' + d.campi.map(function (x) {
+        return '<dt>' + esc(x.nome) + '</dt><dd>app: ' + valoreConfronto(x.campo, x.app) + ' → foglio: <b>' + valoreConfronto(x.campo, x.foglio) + '</b></dd>';
+      }).join('') + '</dl>' + spunta('ids', 'd' + i, !!SCELTI_C.ids['d' + i]) + '</div>';
+  }).join('');
+  if (C.nuovi.length) h += '<h2>Nel foglio ma non nell\'app (' + C.nuovi.length + ')</h2>' + C.nuovi.map(function (n, i) {
+    var p = parti(n.data);
+    return '<div class="carta"><div class="riga"><span><b>' + p.g + '/' + p.m + '/' + p.a + '</b> · ' + esc(n.titolo) + '</span>' +
+      (n.totale ? '<span>' + euro(num(n.totale)) + '</span>' : '') + '</div><p class="tenue" style="margin:4px 0">' +
+      esc([n.tipo, n.luogo, n.annullato ? 'riga rossa (annullato)' : ''].filter(Boolean).join(' · ')) + '</p>' +
+      spunta('nuovi', 'n' + i, !!SCELTI_C.nuovi['n' + i]) + '</div>';
+  }).join('');
+  return h + '<button class="btn btn-largo" data-az="applicaConfronto"' + (nSc ? '' : ' disabled') + '>Aggiorna ' + nSc + ' dal foglio</button>';
+}
+
+// ─── Altro
+function vistaAltro() {
+  return '<h1>Altro</h1>' +
+    '<div class="carta"><div class="riga"><b>Ciao ' + esc(DATI.utente) + '</b><button class="btn-sec" data-az="chiediEsci">Esci</button></div></div>' +
+    '<h2>Date dal foglio</h2><div class="carta"><p style="margin-top:0">Importa le schede 2025, 2026, 2027… del foglio "Date Tribute A". ' +
+    'Aggiunge solo gli eventi che non ci sono già: si può rilanciare senza fare doppioni.</p>' +
+    '<p class="tenue">' + (DATI.importato ? 'Ultimo import: ' + esc(DATI.importato) : 'Non ancora importato.') + '</p>' +
+    '<button class="btn btn-largo" data-az="importa">Importa dal foglio Date</button>' +
+    '<p class="tenue">Se nel foglio avete cambiato dei numeri (saldi ricevuti, compensi…) o aggiunto date, confrontalo con l\'app:</p>' +
+    '<button class="btn-sec btn-largo" style="margin-top:0" data-az="apriConfronto">🔁 Confronta col foglio Date</button></div>' +
+    '<h2>Recap automatico</h2><div class="carta"><p style="margin-top:0">Ogni mattina alle 9 parte il recap delle date fra ' + esc(DATI.giorniRecap || 3) +
+    ' giorni, e di nuovo il giorno stesso dell\'evento ("Oggi si suona"): su Telegram se è collegato, altrimenti per mail a Galva, Pope e Tuzzi.</p><p>Telegram: <b>' +
+    (DATI.telegram && DATI.telegram.configurato ? (DATI.telegram.chat ? 'collegato ✓' : 'bot salvato, manca il gruppo') : 'non collegato') + '</b></p>' +
+    '<details><summary>Come collegare Telegram (5 minuti)</summary><ol class="tenue"><li>Su Telegram cerca <b>@BotFather</b>, scrivi <b>/newbot</b> e scegli un nome: ti dà un <b>token</b>.</li>' +
+    '<li>Incollalo qui sotto e premi Salva.</li><li>Aggiungi il bot al gruppo della band e scrivi un messaggio qualsiasi nel gruppo.</li>' +
+    '<li>Premi <b>Trova il gruppo</b> e tocca il vostro.</li><li>Premi <b>Manda una prova</b>.</li></ol></details>' +
+    '<label for="tg-token">Token del bot</label><input id="tg-token" type="password" autocomplete="off" placeholder="' +
+    (DATI.telegram && DATI.telegram.configurato ? 'già salvato (scrivi solo per cambiarlo)' : '123456:ABC…') + '">' +
+    '<div class="azioni"><button class="btn-sec" data-az="salvaTg">Salva</button><button class="btn-sec" data-az="trovaChat">Trova il gruppo</button>' +
+    '<button class="btn-sec" data-az="provaTg">Manda una prova</button></div>' +
+    (CHAT_TG.length ? '<p class="tenue">Tocca il gruppo della band:</p>' + CHAT_TG.map(function (c, i) {
+      return '<button class="voce" data-az="scegliChat" data-i="' + i + '">' + esc(c.nome) + '</button>';
+    }).join('') : '') + '</div>' +
+    faceIdHtml() +
+    '<h2>Preventivi</h2><div class="carta"><button class="btn-sec btn-largo" style="margin-top:0" data-vai="listino">💶 Listino prezzi ›</button></div>' +
+    '<h2>Rubrica</h2><div class="carta"><p style="margin-top:0">Ogni evento salvato mette da solo in rubrica referente e location. ' +
+    'Per le date già importate, premi qui una volta: un referente che compare in più matrimoni diventa "Wedding planner".</p>' +
+    '<button class="btn-sec btn-largo" data-az="rubricaDagliEventi">👥 Crea la rubrica dagli eventi</button>' +
+    '<p class="tenue">Ogni contatto salvato qui finisce anche in Google Contatti dell\'account della band (etichetta "Tribute-A"). ' +
+    'Per copiare quelli che c\'erano già, premi una volta:</p>' +
+    '<button class="btn-sec btn-largo" style="margin-top:0" data-az="copiaRubricaGoogle">☁️ Copia la rubrica su Google Contatti</button></div>' +
+    '<h2>Foglio Date (sempre aggiornato)</h2><div class="carta"><p style="margin-top:0">"Date Tribute A — dal Gestionale" sul Drive della band: ' +
+    'una scheda per anno con tutte le date e un Riepilogo. Si riscrive da solo a ogni modifica fatta qui: è comodo da consultare, ' +
+    'ma le modifiche vanno fatte nell\'app (quelle fatte nel foglio vengono sovrascritte).</p>' +
+    (DATI.urlFoglio ? '<a class="btn-sec" style="width:100%" target="_blank" rel="noopener" href="' + esc(DATI.urlFoglio) + '">Apri il foglio</a>' : '') +
+    '<p class="tenue">Il foglio e Google Contatti si aggiornano in sottofondo, circa un minuto dopo ogni salvataggio' +
+    (DATI.inSospeso ? ': <b>aggiornamento in arrivo</b>.' : '.') + (DATI.sfondo ? ' Ultimo: ' + esc(DATI.sfondo) : '') + '</p>' +
+    '<button class="btn-link" data-az="rigeneraFoglio">Riscrivi il foglio da capo</button></div>' +
+    '<h2>Calendario</h2><div class="carta"><p style="margin-top:0">Ogni evento salvato si aggiorna da solo nel calendario "' + esc(DATI.calendario) +
+    '", dall\'orario di arrivo per ' + esc(DATI.durataOre) + ' ore. Qui puoi rifare il giro per tutti gli eventi futuri. Se un concerto c\'era già (stesso giorno, titolo con una parola del nome) viene aggiornato invece di duplicarlo; le prove e gli altri impegni non si toccano.</p>' +
+    '<button class="btn-sec btn-largo" data-az="sincronizza">Sincronizza tutto il calendario</button></div>' +
+    suggerimentiHtml() +
+    '<h2>Novità</h2>' + CHANGELOG.map(function (c) {
+      return '<div class="carta"><div class="riga"><b>v' + esc(c.v) + '</b><span class="tenue">' + esc(c.data.split('-').reverse().join('/')) + '</span></div>' +
+        '<p class="testo-lungo" style="margin-top:6px">' + esc(c.testo) + '</p></div>';
+    }).join('') + '<p class="tenue">Versione ' + esc(VERSIONE) + '</p>';
+}
+
+// ─── Modale e avvisi
+function apriModale(html, tipo) {
+  MODALE = tipo;
+  $('modale').innerHTML = '<div class="finestra">' + html + '</div>';
+  $('modale').classList.remove('nascosto');
+}
+function chiedi(testo, etichettaOk, fn) {
+  alConferma = fn;
+  apriModale('<p style="margin:0">' + esc(testo) + '</p>' +
+    '<div class="bottoni"><button class="btn-sec" data-az="annulla">Annulla</button>' +
+    '<button class="btn-pieno-pericolo" data-az="conferma">' + esc(etichettaOk) + '</button></div>', 'conferma');
+}
+/** Domanda con due risposte (es. "Sì, è lo stesso" / "No, è un altro"); "Annulla" non fa niente. */
+var alNo = null;
+function chiedi2(testo, etichettaSi, etichettaNo, fnSi, fnNo) {
+  alConferma = fnSi; alNo = fnNo;
+  apriModale('<p style="margin:0">' + esc(testo) + '</p>' +
+    '<div class="bottoni"><button class="btn-sec" data-az="annulla">Annulla</button>' +
+    '<button class="btn-sec" data-az="rispostaNo">' + esc(etichettaNo) + '</button>' +
+    '<button class="btn" data-az="conferma">' + esc(etichettaSi) + '</button></div>', 'conferma');
+}
+function chiudiModale() {
+  alNo = null;
+  alConferma = null; MODALE = ''; BOZZA_C = null; BOZZA_K = null; MSG = null; VOCE_L = null;
+  $('modale').classList.add('nascosto'); $('modale').innerHTML = '';
+}
+
+// ─── Popup "Da completare"
+function daCompletare() {
+  return eventi().filter(function (e) { return !passato(e) && mancanti(e).length; })
+    .sort(function (a, b) { return a.data < b.data ? -1 : 1; });
+}
+
+function segna(canale) {
+  if (!MSG) return;
+  var chiave = MSG.chiave, x = MSG;
+  chiudiModale();
+  // sparisce subito dalla coda; il server lo registra dietro
+  scrivi('segnaMessaggio', { chiave: chiave, canale: canale }, function () { disegna(); }, function () {
+    DATI.invii = DATI.invii || [];
+    if (!DATI.invii.some(function (i) { return i.chiave === chiave; })) DATI.invii.push({ id: 'tmp', chiave: chiave, modello: x.modello.id,
+      contattoId: x.contatto.id, eventoId: '', canale: canale, data: DATI.oggi + ' ' + 'adesso', da: DATI.utente });
+  });
+}
+
+function mostraListaDaCompletare() {
+  var l = daCompletare();
+  if (!l.length) { chiudiModale(); return; }
+  apriModale('<h2>Da completare</h2><p class="tenue">' + (l.length === 1 ? '1 evento in programma ha' : l.length + ' eventi in programma hanno') +
+    ' dati mancanti. Tocca un evento per completarlo.</p>' +
+    l.slice(0, 30).map(function (e) {
+      var p = parti(e.data);
+      return '<button class="ev" data-az="completa" data-id="' + esc(e.id) + '">' +
+        '<div class="ev-data"><b>' + p.g + '</b><span>' + (MESI[p.m - 1] || '') + '</span><small>' + p.a + '</small></div>' +
+        '<div class="ev-corpo"><div class="ev-tit">' + (EMOJI_TIPO[e.tipo] || '🎸') + ' ' + esc(e.titolo) + '</div>' +
+        '<div class="ev-sotto">manca: ' + esc(mancanti(e).join(', ')) + '</div></div><div class="ev-dx">›</div></button>';
+    }).join('') +
+    (l.length > 30 ? '<p class="tenue">…e altri ' + (l.length - 30) + ' (filtro "Da completare").</p>' : '') +
+    '<div class="bottoni"><button class="btn-sec" data-az="annulla">Dopo</button></div>', 'lista');
+}
+
+function apriCompleta(id, daLista) {
+  var e = trova(id);
+  if (!e) return;
+  DA_LISTA = !!daLista;
+  BOZZA_C = JSON.parse(JSON.stringify(e));
+  var mancano = OBBLIGATORI.filter(function (x) { return !e[x[0]]; }).map(function (x) { return x[0]; });
+  var tutti = FORM.reduce(function (a, g) { return a.concat(g[1]); }, []);
+  var campi = tutti.filter(function (c) { return mancano.indexOf(c[0]) >= 0; });
+  CAMPI_C = campi.map(function (c) { return c[0]; });
+  apriModale('<h2>Completa</h2><p style="margin:0 0 4px"><b>' + (EMOJI_TIPO[e.tipo] || '🎸') + ' ' + esc(e.titolo) + '</b></p>' +
+    '<p class="tenue" style="margin:0">' + esc(dataLunga(e.data)) + (e.luogo ? ' · ' + esc(e.luogo) : '') + '</p>' +
+    (campi.length ? '<div class="campi">' + campi.map(function (c) { return campoHtml(c, BOZZA_C); }).join('') + '</div>'
+      : '<p>Non manca niente ✓</p>') +
+    '<div class="bottoni"><button class="btn-sec" data-az="' + (DA_LISTA ? 'tornaLista' : 'annulla') + '">' + (DA_LISTA ? '‹ Elenco' : 'Dopo') + '</button>' +
+    (campi.length ? '<button class="btn" data-az="salvaCompleta">Salva</button>' : '') + '</div>' +
+    '<button class="btn-link" data-az="modificaTutto" data-id="' + esc(e.id) + '">Apri la modifica completa ›</button>', 'completa');
+}
+
+/** Dopo il primo arrivo dei dati: una volta per apertura, l'elenco degli eventi da completare. */
+function forseListaDaCompletare() {
+  if (LISTA_MOSTRATA || !DATI || DATI.login || MODALE || V === 'modifica') return;
+  LISTA_MOSTRATA = true;
+  if (daCompletare().length) mostraListaDaCompletare();
+}
+
+var _timerAvviso = null;
+function avviso(testo, errore, ms) {
+  var el = $('avviso');
+  clearTimeout(_timerAvviso);
+  if (!testo) { el.classList.add('nascosto'); return; }
+  el.textContent = testo;
+  el.className = 'avviso' + (errore ? ' errore' : '');
+  if (errore || ms) _timerAvviso = setTimeout(function () { avviso(''); }, ms || 6000);
+}
+
+// ─── Server
+function messaggio(err) { return String(err && err.message || err).replace(/^(Exception|Error):\s*/, ''); }
+
+function suErrore(err) {
+  occupato = false;
+  var m = messaggio(err);
+  if (m.indexOf('SESSIONE') >= 0) { esci(); avviso('Sessione scaduta: rientra con il tuo PIN.', true); return; }
+  avviso(m, true);
+}
+
+function riceviDati(d) {
+  DATI = d;
+  if (d.logo && !LOGO) LOGO = d.logo;
+  if (d.calendarioExtra) EXTRA = d.calendarioExtra;
+  if (d.confrontoDate) CONFRONTO = d.confrontoDate;
+  if (d.chatTrovate) CHAT_TG = d.chatTrovate;
+  if (d.login && SESS) { SESS = ''; ricorda('tok', null); }
+}
+
+function ricarica() {
+  google.script.run
+    .withSuccessHandler(function (d) { riceviDati(d); disegna(); forseListaDaCompletare(); })
+    .withFailureHandler(suErrore)
+    .getDati(SESS);
+}
+
+/**
+ * Scrive sul server. Con `ottimista` (una funzione che applica la modifica a DATI, ripetibile senza danni) la pagina
+ * mostra subito il risultato e il server conferma dietro; i salvataggi ottimisti fatti nel frattempo aspettano in fila.
+ * Se il server dà errore: avviso, `seErrore` (es. riapre il modulo) e si ricaricano i dati veri.
+ */
+var CODA = [];
+function scrivi(nome, args, dopo, ottimista, seErrore) {
+  var x = { nome: nome, args: args, dopo: dopo, ottimista: ottimista, seErrore: seErrore };
+  if (occupato) {
+    if (!ottimista) return; // doppio tocco su un salvataggio "normale": si ignora come prima
+    CODA.push(x); ottimista(); disegna();
+    return;
+  }
+  if (ottimista) { ottimista(); disegna(); }
+  avvia(x);
+}
+function avvia(x) {
+  occupato = true;
+  avviso(x.nome === 'importa' || x.nome === 'sincronizza' ? 'Ci vuole qualche secondo…' : x.ottimista ? '☁️ Salvo…' : 'Salvataggio…');
+  google.script.run
+    .withSuccessHandler(function (d) {
+      occupato = false;
+      riceviDati(d);
+      CODA.forEach(function (y) { if (y.ottimista) y.ottimista(); }); // quelli ancora in fila restano visibili
+      var prossimo = CODA.shift();
+      if (!prossimo) avviso('');
+      if (d.avviso) avviso(d.avviso, /^⚠/.test(d.avviso), 9000);
+      if (x.dopo) x.dopo(d); else disegna();
+      if (prossimo) avvia(prossimo);
+    })
+    .withFailureHandler(function (err) {
+      var falliti = [x].concat(CODA);
+      CODA = [];
+      suErrore(err);
+      falliti.forEach(function (y) { if (y.seErrore) y.seErrore(); });
+      if (x.ottimista) ricarica(); // la pagina aveva già mostrato la modifica: si torna ai dati veri
+    })
+    .azione(SESS, x.nome, x.args);
+}
+var N_TEMP = 0;
+function idTemporaneo() { return 'tmp' + Date.now().toString(36) + (++N_TEMP); }
+
+function esci() {
+  SESS = ''; ricorda('tok', null); LOGIN_NOME = ''; BOZZA = null; V = 'eventi'; LISTA_MOSTRATA = false;
+  if (MODALE) chiudiModale();
+  DATI = { app: DATI && DATI.app, login: true, membri: (DATI && DATI.membri) || [] };
+  disegna();
+  ricarica();
+}
+
+// ─── Comandi dei bottoni (data-az="nome")
+var COMANDI = {
+  scegliNome: function (d) { LOGIN_NOME = d.nome || ''; disegna(); },
+  faceId: function () {
+    if (!SFIDA || SFIDA.nome !== LOGIN_NOME) { caricaSfida(LOGIN_NOME); return avviso('Un attimo, riprova fra un secondo…'); }
+    var sf = SFIDA; SFIDA = null;
+    navigator.credentials.get({ publicKey: { challenge: deb64u(sf.challenge), rpId: sf.rpId, userVerification: 'required', timeout: 60000,
+      allowCredentials: sf.ids.map(function (id) { return { type: 'public-key', id: deb64u(id) }; }) } })
+      .then(function (a) {
+        avviso('Entro…', false, 0);
+        google.script.run.withSuccessHandler(function (r) {
+          SESS = r.token; ricorda('tok', SESS); riceviDati(r.dati); avviso(''); vai('eventi'); forseListaDaCompletare();
+        }).withFailureHandler(function (e) { suErrore(e); caricaSfida(LOGIN_NOME); }).accediPasskey({ id: a.id, authenticatorData: b64u(a.response.authenticatorData),
+          clientDataJSON: b64u(a.response.clientDataJSON), signature: b64u(a.response.signature) });
+      })
+      .catch(function (e) { caricaSfida(LOGIN_NOME); avviso('Face ID annullato (' + (e && e.name || e) + '): riprova o usa il PIN.', true, 6000); });
+  },
+  attivaFaceId: function () {
+    scrivi('opzioniPasskey', {}, function (d) {
+      SFIDA_REG = d.sfidaRegistra; disegna();
+      // la creazione della passkey deve partire da un tocco: secondo passaggio nel popup
+      apriModale('<h2>🔐 Face ID</h2><p style="margin:4px 0 0">Tocca il bottone e guarda il telefono.</p>' +
+        '<div class="bottoni"><button class="btn-sec" data-az="annulla">Annulla</button><button class="btn" data-az="creaFaceId">Usa Face ID</button></div>', 'conferma');
+    });
+  },
+  creaFaceId: function () {
+    var reg = SFIDA_REG; SFIDA_REG = null;
+    chiudiModale();
+    if (!reg) return avviso('Riprova da "Attiva Face ID"', true);
+    navigator.credentials.create({ publicKey: { challenge: deb64u(reg.challenge), rp: { name: 'Tribute-A', id: reg.rpId },
+      user: { id: deb64u(reg.utente), name: 'Tribute-A · ' + reg.nome, displayName: 'Tribute-A · ' + reg.nome }, pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
+      authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required', residentKey: 'preferred' }, timeout: 60000, attestation: 'none' } })
+      .then(function (c) {
+        var r = c.response, spki = r.getPublicKey ? r.getPublicKey() : null;
+        if (!spki) return avviso('⚠ Questo telefono è troppo vecchio per il Face ID nel browser: aggiorna iOS.', true, 8000);
+        scrivi('registraPasskey', { c: { id: c.id, spki: b64u(spki), alg: r.getPublicKeyAlgorithm ? r.getPublicKeyAlgorithm() : -7,
+          clientDataJSON: b64u(r.clientDataJSON), nome: /iPad/.test(navigator.userAgent) ? 'iPad' : /iPhone/.test(navigator.userAgent) ? 'iPhone' : 'questo dispositivo' } });
+      })
+      .catch(function (e) { avviso('Face ID non attivato (' + (e && e.name || e) + ')', true, 6000); });
+  },
+  togliFaceId: function (d) { chiedi('Togliere il Face ID da quel dispositivo?', 'Togli', function () { scrivi('togliPasskey', { id: d.id }); }); },
+  entra: function () {
+    var m = (DATI.membri || []).filter(function (x) { return x.nome === LOGIN_NOME; })[0];
+    if (!m || occupato) return;
+    var pin = $('pin').value.trim();
+    if (!/^\d{4,8}$/.test(pin)) return avviso('Il PIN deve avere da 4 a 8 cifre.', true);
+    if (!m.haPin && $('pin2').value.trim() !== pin) return avviso('I due PIN non sono uguali.', true);
+    occupato = true;
+    avviso('Accesso…');
+    google.script.run
+      .withSuccessHandler(function (r) {
+        occupato = false; avviso('');
+        SESS = r.token; ricorda('tok', r.token); riceviDati(r.dati); V = 'eventi'; disegna(); forseListaDaCompletare();
+      })
+      .withFailureHandler(suErrore)
+      .accedi(m.nome, pin);
+  },
+  filtro: function (d) { FILTRO[d.k] = d.v; disegna(); },
+  annoRiep: function (d) { ANNO_RIEP = d.v; disegna(); },
+  apri: function (d) { SEL = d.id; vai('evento'); },
+  nuovo: function () {
+    SEL = ''; BOZZA = { stato: 'confermato', data: DATI.oggi };
+    vai('modifica');
+  },
+  modifica: function () {
+    var e = trova(SEL);
+    if (!e) return;
+    BOZZA = JSON.parse(JSON.stringify(e));
+    vai('modifica');
+  },
+  annullaModifica: function () { var eraNuovo = !BOZZA || !BOZZA.id; BOZZA = null; vai(eraNuovo ? 'eventi' : 'evento'); },
+  salvaEvento: function () {
+    var ev = { id: BOZZA.id || '' };
+    FORM.forEach(function (g) { g[1].forEach(function (c) { ev[c[0]] = String($('f-' + c[0]).value || '').trim(); }); });
+    if (!ev.titolo) return avviso('Scrivi il nome dell\'evento.', true);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(ev.data)) return avviso('Metti la data.', true);
+    ['totale', 'anticipo', 'netto', 'lordo', 'nero'].forEach(function (k) { ev[k] = ev[k].replace(/[€\s]/g, '').replace(',', '.'); });
+    // si vede subito la scheda dell'evento; il server conferma dietro (calendario, contatti…)
+    var eNuovo = !ev.id, id = ev.id || idTemporaneo(), bozza = Object.assign({}, BOZZA, ev), campi = Object.assign({}, ev);
+    SEL = id; BOZZA = null; V = 'evento'; if (window.scrollTo) window.scrollTo(0, 0);
+    scrivi('salvaEvento', { evento: ev }, function (d) {
+      if (eNuovo && SEL === id) SEL = d.ultimoId || id;
+      disegna();
+    }, function () {
+      var l = DATI.eventi, i = -1;
+      l.forEach(function (e, j) { if (e.id === id) i = j; });
+      var nuovo = Object.assign({}, i >= 0 ? l[i] : { stato: 'confermato' }, campi, { id: id });
+      if (i >= 0) l[i] = nuovo; else l.push(nuovo);
+    }, function () { BOZZA = bozza; V = 'modifica'; disegna(); }); // errore: si torna al modulo con quello scritto
+  },
+  chiediElimina: function () {
+    var e = trova(SEL);
+    if (!e) return;
+    chiedi('Eliminare "' + e.titolo + '" del ' + e.data.split('-').reverse().join('/') + '? Sparisce anche dal calendario. ' +
+      'Se è solo saltato, meglio metterlo "annullato".', 'Elimina', function () {
+      scrivi('eliminaEvento', { id: e.id }, function () { SEL = ''; vai('eventi'); });
+    });
+  },
+  importa: function () { scrivi('importa', {}); },
+  suggerisci: function () {
+    apriModale('<h2>💡 Migliora l\'app</h2><p class="tenue" style="margin-top:0">Cosa manca, cosa non funziona, cosa faresti diversamente? ' +
+      'Lo legge solo ' + esc(DATI.admin || '') + '.</p><textarea id="f-sugg" style="min-height:140px"></textarea>' +
+      '<div class="bottoni"><button class="btn-sec" data-az="annulla">Annulla</button><button class="btn" data-az="inviaSugg">Invia</button></div>', 'suggerimento');
+    try { $('f-sugg').focus(); } catch (e) { /* niente */ }
+  },
+  inviaSugg: function () {
+    var t = String($('f-sugg').value || '').trim();
+    if (!t) return avviso('Scrivi prima il suggerimento.', true);
+    chiudiModale();
+    scrivi('suggerisci', { testo: t });
+  },
+  statoSugg: function (d) { scrivi('statoSuggerimento', { id: d.id, stato: d.v }); },
+  eliminaSugg: function (d) { chiedi('Eliminare questo suggerimento?', 'Elimina', function () { scrivi('statoSuggerimento', { id: d.id, stato: 'elimina' }); }); },
+  chiediInfo: function () { apriChiediInfo(true); },
+  toggleDomanda: function (d) { var q = DOMANDE[d.i]; if (q) { q.on = !q.on; apriChiediInfo(false); } },
+  creaRichiesta: function () {
+    var domande = DOMANDE.filter(function (q) { return q.on; }).map(function (q) { return q.testo; });
+    var altro = String($('dq-altro').value || '').trim();
+    if (altro) domande.push(altro);
+    if (!domande.length) return avviso('Scegli almeno una cosa da chiedere.', true);
+    var id = SEL;
+    chiudiModale();
+    scrivi('chiediInfo', { eventoId: id, domande: domande }, function () { disegna(); });
+  },
+  // checklist e recap
+  spunta: function (d) { scrivi('spuntaChecklist', { id: SEL, voce: d.k, valore: !!d.v }); },
+  mandaRecap: function (d) {
+    var e = trova(d.id);
+    if (!e) return;
+    chiedi('Mandare adesso il recap di "' + e.titolo + '"' + (DATI.telegram && DATI.telegram.chat ? ' sul gruppo Telegram' : ' per mail a Galva, Pope e Tuzzi') + '?', 'Manda', function () {
+      scrivi('mandaRecap', { id: e.id });
+    });
+  },
+  apertoWaRecap: function (d) {
+    var id = d.id;
+    setTimeout(function () {
+      apriModale('<h2>WhatsApp</h2><p>Hai mandato il recap nel gruppo della band?</p><div class="bottoni"><button class="btn-sec" data-az="annulla">No</button>' +
+        '<button class="btn" data-az="segnaRecapWa" data-id="' + esc(id) + '">Sì, mandato</button></div>', 'conferma');
+    }, 400);
+  },
+  segnaRecapWa: function (d) { chiudiModale(); scrivi('segnaRecap', { id: d.id, canale: 'whatsapp' }); },
+  salvaTg: function () {
+    var t = String($('tg-token').value || '').trim();
+    if (!t) return avviso('Incolla il token che ti ha dato @BotFather.', true);
+    scrivi('salvaTelegram', { token: t });
+  },
+  trovaChat: function () { scrivi('trovaChatTelegram', {}); },
+  scegliChat: function (d) { var c = CHAT_TG[d.i]; if (c) { CHAT_TG = []; scrivi('salvaTelegram', { chatId: c.id }); } },
+  provaTg: function () { scrivi('provaTelegram', {}); },
+  // progetti
+  filtroPr: function (d) { FILTRO_PR = d.v; disegna(); },
+  nuovoProgetto: function () { apriFormProgetto(null); },
+  apriProgetto: function (d) { SEL_P = d.id; vai('progetto'); },
+  modificaProgetto: function () { apriFormProgetto(progetto(SEL_P)); },
+  salvaProgetto: function (d) {
+    var p = { id: d.id || '' };
+    ['nome', 'descrizione', 'inizio', 'scadenza', 'stato'].forEach(function (k) { p[k] = String($('pr-' + k).value || '').trim(); });
+    if (!p.nome) return avviso('Scrivi il nome del progetto.', true);
+    if (p.inizio && p.scadenza && p.scadenza < p.inizio) return avviso('La scadenza è prima dell\'inizio.', true);
+    chiudiModale();
+    scrivi('salvaProgetto', { progetto: p }, function (r) { if (!p.id && r.ultimoId) { SEL_P = r.ultimoId; vai('progetto'); } else disegna(); });
+  },
+  chiediEliminaProgetto: function () {
+    var p = progetto(SEL_P);
+    if (p) chiedi('Eliminare il progetto "' + p.nome + '" e tutti i suoi compiti?', 'Elimina', function () {
+      scrivi('eliminaProgetto', { id: p.id }, function () { SEL_P = ''; vai('progetti'); });
+    });
+  },
+  nuovoCompito: function () { apriFormCompito(null); },
+  apriCompito: function (d) { var c = ((DATI.compiti) || []).filter(function (x) { return x.id === d.id; })[0]; if (c) apriFormCompito(c); },
+  salvaCompito: function (d) {
+    var c = { id: d.id || '', progettoId: SEL_P };
+    ['titolo', 'chi', 'scadenza', 'note'].forEach(function (k) { c[k] = String($('cp-' + k).value || '').trim(); });
+    if (!c.titolo) return avviso('Scrivi cosa c\'è da fare.', true);
+    if (!c.id && !c.progettoId) return avviso('Apri prima un progetto.', true);
+    chiudiModale();
+    scrivi('salvaCompito', { compito: c }, function () { disegna(); });
+  },
+  spuntaCompito: function (d) { scrivi('spuntaCompito', { id: d.id, fatto: !!d.v }, function () { disegna(); }); },
+  eliminaCompito: function (d) { chiudiModale(); scrivi('eliminaCompito', { id: d.id }, function () { disegna(); }); },
+  // spese
+  numTab: function (d) { NUM_TAB = d.v; disegna(); },
+  nuovaSpesa: function () { apriFormSpesa(null); },
+  apriSpesa: function (d) { var x = spese().filter(function (y) { return y.id === d.id; })[0]; if (x) apriFormSpesa(x); },
+  salvaSpesa: function (d) {
+    var x = { id: d.id || '' };
+    ['data', 'importo', 'piattaforma', 'categoria', 'descrizione', 'pagatoDa'].forEach(function (k) { x[k] = String($('sp-' + k).value || '').trim(); });
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(x.data)) return avviso('Metti la data.', true);
+    x.importo = x.importo.replace(/[€\s]/g, '').replace(',', '.');
+    if (!/^\d+(\.\d{1,2})?$/.test(x.importo)) return avviso('Importo non valido.', true);
+    chiudiModale();
+    scrivi('salvaSpesa', { spesa: x }, function () { disegna(); });
+  },
+  eliminaSpesa: function (d) { chiudiModale(); scrivi('eliminaSpesa', { id: d.id }, function () { disegna(); }); },
+  importaSpese: function () { scrivi('importaSpese', {}); },
+  copiaRubricaGoogle: function () {
+    chiedi('Copiare tutti i contatti della rubrica in Google Contatti dell\'account della band? Quelli già copiati vengono solo aggiornati.', 'Copia', function () {
+      scrivi('copiaRubricaGoogle', {});
+    });
+  },
+  rubricaDagliEventi: function () {
+    chiedi('Creare la rubrica da tutti gli eventi? Referenti e location finiscono in Contatti (senza doppioni), poi controlli i ruoli.', 'Crea', function () {
+      scrivi('rubricaDagliEventi', {});
+    });
+  },
+  scegliSugg: function (d) {
+    var x = (SUGG[d.k] || [])[d.i];
+    if (!x) return;
+    if (d.k === 'cnome') return x.id && (K_EVENTO ? COMANDI.collega({ id: x.id }) : COMANDI.apriContatto({ id: x.id }));
+    if (d.k === 'tramite' || d.k === 'piattaforma') $(d.k === 'tramite' ? 'f-tramite' : 'sp-piattaforma').value = x.nome;
+    else if (d.k === 'titolo') {
+      // titolo di un evento già fatto: copia i dati solo nei campi ancora vuoti
+      $('f-titolo').value = x.nome;
+      var tipoPrima = $('f-tipo') ? $('f-tipo').value : '';
+      ['tipo', 'luogo', 'indirizzo', 'referente', 'telefono', 'tramite'].forEach(function (c) {
+        var el = $('f-' + c);
+        if (el && !String(el.value || '').trim() && x[c]) {
+          el.value = x[c];
+          if (c === 'telefono') TEL_AUTO = { nome: $('f-referente') ? $('f-referente').value : '', tel: x[c] };
+        }
+      });
+      // nel preventivo il tipo decide le voci da mostrare
+      if (V === 'preventivo' && PREV && $('f-tipo') && $('f-tipo').value !== tipoPrima) { mostraSugg(d.k, []); leggiModuloPrev(); disegna(); return; }
+    } else if (d.k === 'referente') {
+      $('f-referente').value = x.nome;
+      if (x.telefono) { $('f-telefono').value = x.telefono; TEL_AUTO = { nome: x.nome, tel: x.telefono }; }
+      if (x.ruolo && $('f-ruoloReferente')) $('f-ruoloReferente').value = x.ruolo;
+    } else {
+      if (x.nome) $('f-luogo').value = x.nome;
+      if (x.indirizzo || x.mappa) $('f-indirizzo').value = x.indirizzo || x.mappa;
+    }
+    mostraSugg(d.k, []);
+  },
+  cercaMaps: function () {
+    var luogo = String($('f-luogo').value || '').trim(), ind = String($('f-indirizzo').value || '').trim();
+    var q = [luogo, /^https?:/i.test(ind) ? '' : ind].filter(Boolean).join(', ');
+    if (q.length < 3) return avviso('Scrivi prima il nome della location (e magari la città).', true);
+    avviso('Cerco su Google Maps…');
+    google.script.run
+      .withSuccessHandler(function (r) {
+        avviso('');
+        if (!r.length) return avviso('Google Maps non ha trovato niente: prova ad aggiungere la città.', true);
+        mostraSugg('luogo', r.map(function (x) { return { nome: luogo, indirizzo: x.indirizzo }; }), 'Da Google Maps, tocca quello giusto:');
+      })
+      .withFailureHandler(suErrore)
+      .cercaLuogo(SESS, q);
+  },
+  // preventivi
+  filtroP: function (d) { FILTRO_P = d.v; disegna(); },
+  nuovoPrev: function () { PREV = nuovoPrev(); SEL = ''; vai('preventivo'); },
+  apriPrev: function (d) { var p = preventivi().filter(function (x) { return x.id === d.id; })[0]; if (p) apriPrev(p); },
+  chiudiPrev: function () { PREV = null; vai('preventivi'); },
+  prevListino: function (d) {
+    leggiModuloPrev();
+    if (d.v === PREV.listino) return;
+    var prima = PREV.righe.filter(function (r) { return r.lid; }).length;
+    PREV.listino = d.v;
+    PREV.righe = PREV.righe.filter(function (r) { return !r.lid; });
+    disegna();
+    if (prima) avviso('Listino cambiato: pacchetto ed extra da rifare.', false, 4000);
+  },
+  prevPacchetto: function (d) {
+    leggiModuloPrev();
+    var v = voceListino(d.id);
+    if (!v) return;
+    PREV.righe = PREV.righe.filter(function (r) { return r.tipo !== 'pacchetto'; });
+    PREV.righe.unshift({ lid: v.id, tipo: 'pacchetto', nome: v.nome, prezzo: num(v.prezzo), qta: 1, unita: '' });
+    disegna();
+  },
+  prevExtra: function (d) {
+    leggiModuloPrev();
+    var v = voceListino(d.id);
+    if (!v) return;
+    var gia = PREV.righe.some(function (r) { return r.lid === v.id; });
+    if (gia) PREV.righe = PREV.righe.filter(function (r) { return r.lid !== v.id; });
+    else PREV.righe.push({ lid: v.id, tipo: 'extra', nome: v.nome, prezzo: num(v.prezzo), qta: v.unita ? 0 : 1, unita: v.unita || '' });
+    disegna();
+  },
+  prevLibera: function () { leggiModuloPrev(); PREV.righe.push({ lid: '', tipo: 'extra', nome: '', prezzo: 0, qta: 1, unita: '' }); disegna(); },
+  prevTogliLibera: function (d) { leggiModuloPrev(); PREV.righe.splice(Number(d.i), 1); disegna(); },
+  prevStato: function (d) {
+    var salva = function () { leggiModuloPrev(); PREV.stato = d.v; COMANDI.salvaPrev(); };
+    if (d.v === 'rifiutato') chiedi('Segnare come rifiutato? L\'evento diventa "annullato" e sparisce dal calendario.', 'Rifiutato', salva);
+    else salva();
+  },
+  salvaPrev: function () {
+    leggiModuloPrev();
+    var P = PREV, ev = {};
+    CAMPI_PREV_EV.forEach(function (k) { ev[k] = P.evento[k] || ''; });
+    if (!ev.titolo) return avviso('Scrivi il nome (es. "Laura e Paolo").', true);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(ev.data)) return avviso('Metti la data dell\'evento.', true);
+    var righe = P.righe.filter(function (r) { return r.lid || r.nome; });
+    if (righe.some(function (r) { return !r.lid && !(num(r.prezzo) >= 0); })) return avviso('Controlla i prezzi delle voci libere.', true);
+    var scheda = Object.assign({}, P.scheda);
+    if (ev.tipo !== 'Matrimonio') SOLO_MATRIMONIO.forEach(function (k) { delete scheda[k]; });
+    var manda = function (extra) {
+      scrivi('salvaPreventivo', Object.assign({ preventivo: { id: P.id, eventoId: P.eventoId || '', stato: P.stato, listino: P.listino, righe: righe,
+        sconto: P.sconto, validita: P.validita, noteCliente: P.noteCliente, scheda: scheda, evento: ev },
+        persone: ev.tipo === 'Matrimonio' ? (P.persone || {}) : null }, extra || {}), function (d) {
+        var p = (d.preventivi || []).filter(function (x) { return x.id === (d.ultimoId || P.id); })[0];
+        if (p) apriPrev(p); else disegna();
+      });
+    };
+    if (P.id || P.eventoId) return manda();
+    // Preventivo nuovo: prima di creare un altro evento, controlla se c'è già (nell'app o scritto a mano nel calendario)
+    var gia = eventi().filter(function (x) { return x.data === ev.data && x.stato !== 'annullato' && simili(x.titolo, ev.titolo); })[0];
+    var calendario = function () {
+      avviso('Controllo il calendario…');
+      google.script.run
+        .withSuccessHandler(function (l) {
+          avviso('');
+          if (!l || !l.length) return manda();
+          var x = l[0];
+          chiedi2('Nel calendario il ' + dataLunga(ev.data) + ' c\'è già "' + x.titolo + '"' + (x.ora ? ' (' + x.ora + ')' : '') +
+            '. È lo stesso evento? Se sì lo aggiorno io e ne resta uno solo.', 'Sì, è lo stesso', 'No, è un altro',
+            function () { manda({ calId: x.calId }); }, function () { manda({ nuovoNelCalendario: true }); });
+        })
+        .withFailureHandler(function () { avviso(''); manda(); })
+        .similiCalendario(SESS, ev.data, ev.titolo);
+    };
+    if (gia) {
+      return chiedi2('Il ' + dataLunga(ev.data) + ' c\'è già l\'evento "' + gia.titolo + '". È lo stesso (un\'altra proposta per loro)? ' +
+        'Se sì, il preventivo si aggiunge a quell\'evento e nel calendario ne resta uno solo.', 'Sì, è lo stesso', 'No, è un altro',
+        function () { P.eventoId = gia.id; manda(); }, calendario);
+    }
+    calendario();
+  },
+  altraProposta: function () {
+    if (!PREV || !PREV.id) return;
+    leggiModuloPrev();
+    // stessa coppia, altro pacchetto: nuovo preventivo sullo stesso evento (nel calendario resta uno solo)
+    PREV = Object.assign(JSON.parse(JSON.stringify(PREV)), { id: '', numero: '', stato: 'bozza', pdfId: '', pdfProgrammaId: '' });
+    disegna();
+    avviso('Nuova proposta per lo stesso evento: cambia pacchetto o extra e premi Salva.');
+  },
+  creaPdf: function (d) {
+    if (!PREV || !PREV.id) return;
+    var id = PREV.id;
+    scrivi('creaPdf', { id: id, tipo: d.v === 'programma' ? 'programma' : 'preventivo' }, function (d) { var p = (d.preventivi || []).filter(function (x) { return x.id === id; })[0]; if (p) apriPrev(p); });
+  },
+  chiediEliminaPrev: function () {
+    if (!PREV) return;
+    var id = PREV.id;
+    apriModale('<h2>Eliminare il preventivo ' + esc(PREV.numero) + '?</h2><p>Vuoi togliere anche l\'evento (dal calendario e dal foglio)?</p>' +
+      '<div class="bottoni"><button class="btn-sec" data-az="annulla">Annulla</button>' +
+      '<button class="btn-sec" data-az="eliminaPrev" data-id="' + esc(id) + '" data-v="">Solo il preventivo</button>' +
+      '<button class="btn-pieno-pericolo" data-az="eliminaPrev" data-id="' + esc(id) + '" data-v="si">Anche l\'evento</button></div>', 'conferma');
+  },
+  eliminaPrev: function (d) {
+    chiudiModale();
+    scrivi('eliminaPreventivo', { id: d.id, ancheEvento: d.v === 'si' }, function () { PREV = null; vai('preventivi'); });
+  },
+  // listino
+  listinoV: function (d) { LISTINO_V = d.v; disegna(); },
+  apriVoce: function (d) { apriVoce(voceListino(d.id)); },
+  nuovaVoce: function () { apriVoce(null); },
+  salvaVoce: function () {
+    var v = { id: VOCE_L.id, listino: VOCE_L.listino, tipo: VOCE_L.id ? VOCE_L.tipo : $('v-tipo').value };
+    ['nome', 'prezzo', 'unita', 'descrizione', 'attivo'].forEach(function (k) { v[k] = String($('v-' + k).value || '').trim(); });
+    if (!v.nome) return avviso('Scrivi il nome della voce.', true);
+    if (!/^\d+([.,]\d{1,2})?$/.test(v.prezzo)) return avviso('Prezzo non valido.', true);
+    chiudiModale();
+    scrivi('salvaVoceListino', { voce: v }, function () { disegna(); });
+  },
+  // contatti
+  filtroC: function (d) { FILTRO_C.ruolo = d.v; disegna(); },
+  apriContatto: function (d) { if (MODALE) chiudiModale(); SEL_C = d.id; vai('contatto'); },
+  nuovoContatto: function () { apriFormContatto(null, SEL); },
+  nuovoContattoRuolo: function (d) { apriFormContatto(null, SEL, { ruolo: d.v }); },
+  nuovoContattoRubrica: function () { apriFormContatto(null, ''); },
+  referenteComeContatto: function () {
+    var e = trova(SEL);
+    if (e) apriFormContatto(null, SEL, { nome: e.referente, telefono: e.telefono, ruolo: e.tipo === 'Matrimonio' ? 'Sposi' : 'Altro' });
+  },
+  modificaContatto: function () { var c = contatto(SEL_C); if (c) apriFormContatto(c, ''); },
+  salvaContatto: function () {
+    var c = { id: BOZZA_K.id || '' };
+    ['ruolo', 'nome', 'referente', 'telefono', 'email', 'instagram', 'indirizzo', 'note', 'sposa', 'telSposa', 'sposo', 'telSposo'].forEach(function (k) { c[k] = String(($('c-' + k) || {}).value || '').trim(); });
+    if (CON_REFERENTE.indexOf(c.ruolo) < 0) c.referente = '';
+    if (c.ruolo !== 'Sposi') { c.sposa = ''; c.telSposa = ''; c.sposo = ''; c.telSposo = ''; }
+    if (!c.nome) return avviso('Scrivi il nome del contatto.', true);
+    if (c.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email)) return avviso('L\'email non sembra giusta.', true);
+    var ev = K_EVENTO, id = c.id || idTemporaneo(), campi = Object.assign({}, c);
+    chiudiModale();
+    scrivi('salvaContatto', { contatto: c, eventoId: ev }, function () { disegna(); }, function () {
+      var l = DATI.contatti || (DATI.contatti = []), i = -1;
+      l.forEach(function (x, j) { if (x.id === id) i = j; });
+      var nuovo = Object.assign({}, i >= 0 ? l[i] : {}, campi, { id: id });
+      if (i >= 0) l[i] = nuovo; else l.push(nuovo);
+      var e = ev && trova(ev);
+      if (e && idsContatti(e).indexOf(id) < 0) e.contatti = JSON.stringify(idsContatti(e).concat([id]));
+    });
+  },
+  collega: function (d) {
+    var ev = K_EVENTO;
+    chiudiModale();
+    scrivi('collegaContatto', { eventoId: ev, contattoId: d.id }, function () { disegna(); });
+  },
+  chiediScollega: function (d) {
+    var c = contatto(d.id), ev = SEL;
+    if (!c) return;
+    chiedi('Togliere ' + c.nome + ' da questo evento? Resta comunque in rubrica.', 'Togli', function () {
+      scrivi('scollegaContatto', { eventoId: ev, contattoId: c.id });
+    });
+  },
+  chiediEliminaContatto: function () {
+    var c = contatto(SEL_C);
+    if (!c) return;
+    chiedi('Eliminare ' + c.nome + ' dalla rubrica? Sparisce anche da tutti gli eventi.', 'Elimina', function () {
+      scrivi('eliminaContatto', { id: c.id }, function () { SEL_C = ''; vai('contatti'); });
+    });
+  },
+  // messaggi
+  preparaMsg: function (d) { var x = CODA_MSG[d.i]; if (x) apriMessaggio(x); },
+  inviaMail: function () {
+    if (!MSG) return;
+    var email = String($('m-email').value || '').trim();
+    if (!email) return avviso('Scrivi l\'email a cui mandarlo (oppure usa WhatsApp).', true);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return avviso('L\'email non sembra giusta.', true);
+    var args = { chiave: MSG.chiave, email: email, oggetto: $('m-oggetto').value, testo: $('m-testo').value };
+    chiudiModale();
+    scrivi('inviaMail', args, function () { disegna(); });
+  },
+  apertoWhatsapp: function () {
+    // Il link apre WhatsApp; qui si chiede solo se è stato mandato davvero
+    var x = MSG;
+    setTimeout(function () {
+      if (!x) return;
+      MSG = x;
+      apriModale('<h2>WhatsApp</h2><p>Hai mandato il messaggio a <b>' + esc(x.contatto.nome) + '</b>?</p>' +
+        '<div class="bottoni"><button class="btn-sec" data-az="annulla">No, non ancora</button>' +
+        '<button class="btn" data-az="segnaWhatsapp">Sì, mandato</button></div>', 'messaggio');
+    }, 400);
+  },
+  segnaWhatsapp: function () { segna('whatsapp'); },
+  chiediAnnullaInvio: function (d) {
+    var i = ((DATI.invii) || []).filter(function (x) { return x.id === d.id; })[0];
+    if (!i) return;
+    var c = contatto(i.contattoId), chi = /^recap/.test(i.modello) ? 'il recap alla band' : 'il messaggio a ' + (c ? c.nome : '?');
+    chiedi('Rimettere ' + chi + ' tra quelli da mandare?' + (i.canale === 'mail' || i.canale === 'telegram' ?
+      ' Era già partito per ' + i.canale + ': quello non si può richiamare, qui si toglie solo il segno.' : ''), 'Rimetti', function () {
+      scrivi('annullaInvio', { id: i.id }, function () { disegna(); });
+    });
+  },
+  segnaFatto: function () { segna('fatto'); },
+  segnaSaltato: function () { segna('saltato'); },
+  apriModello: function (d) { SEL_M = d.id; vai('modello'); },
+  salvaModello: function () {
+    var m0 = ((DATI.modelli) || []).filter(function (x) { return x.id === SEL_M; })[0] || {};
+    var tipo = m0.quando === 'richiesta' ? 'richiesta' : $('q-tipo').value, val = String(tipo === 'richiesta' ? '' : $('q-val').value || '').trim(), quando;
+    if (tipo === 'richiesta') quando = 'richiesta';
+    else if (tipo === 'giorni') {
+      if (!/^\d{1,3}$/.test(val)) return avviso('Scrivi un numero di giorni, per esempio 10.', true);
+      quando = 'giorni:' + Number(val);
+    } else {
+      var p = val.match(/^(\d{1,2})[\/.-](\d{1,2})$/);
+      if (!p) return avviso('Scrivi giorno/mese, per esempio 01/11.', true);
+      quando = 'data:' + ('0' + p[2]).slice(-2) + '-' + ('0' + p[1]).slice(-2);
+    }
+    scrivi('salvaModello', { modello: { id: SEL_M, oggetto: $('mm-oggetto').value, testo: $('mm-testo').value, quando: quando } },
+      function () { vai('messaggi'); });
+  },
+  rigeneraFoglio: function () { scrivi('rigeneraFoglio', {}); },
+  apriCalendario: function () { EXTRA = null; vai('calendario'); scrivi('controllaCalendario', {}); },
+  apriUnione: function (d) {
+    var x = coppieDoppioni()[Number(d.i)];
+    if (!x) return;
+    UNIONE = propostaUnione(x);
+    var U = UNIONE;
+    apriModale('<h2>Unisci i contatti</h2><p class="tenue" style="margin-top:0">Resta una scheda sola. Eventi e messaggi di "' + esc(U.togli.nome) +
+      '" passano a quella; i dati che mancano (telefono, email…) si prendono dall\'altra.</p>' +
+      '<label for="u-nome">Nome (per un locale: il nome del locale)</label><input id="u-nome" value="' + esc(U.nome) + '">' +
+      '<label for="u-referente">Referente (la persona; vuoto se non serve)</label><input id="u-referente" value="' + esc(U.referente) + '">' +
+      '<p class="tenue">Ruolo: ' + esc(U.tieni.ruolo) + (U.tieni.telefono || U.togli.telefono ? ' · tel. ' + esc(U.tieni.telefono || U.togli.telefono) : '') + '</p>' +
+      '<div class="bottoni"><button class="btn-sec" data-az="annulla">Annulla</button><button class="btn" data-az="confermaUnione">Unisci</button></div>', 'unione');
+  },
+  confermaUnione: function () {
+    if (!UNIONE) return;
+    var a = { tieni: UNIONE.tieni.id, togli: UNIONE.togli.id, nome: String($('u-nome').value || '').trim(), referente: String($('u-referente').value || '').trim() };
+    if (!a.nome) return avviso('Scrivi il nome.', true);
+    chiudiModale(); UNIONE = null;
+    scrivi('unisciContatti', a, function () { disegna(); });
+  },
+  nonDoppi: function (d) {
+    var x = coppieDoppioni()[Number(d.i)];
+    if (x) DOPPI_NO[x.a.id + '|' + x.b.id] = true;
+    disegna();
+  },
+  apriConfronto: function () { CONFRONTO = null; SCELTI_C = { ids: {}, nuovi: {} }; vai('confronto'); scrivi('confrontaFoglioDate', {}); },
+  sceltaConfronto: function (d) {
+    var l = SCELTI_C[d.v === 'nuovi' ? 'nuovi' : 'ids'];
+    if (l[d.id]) delete l[d.id]; else l[d.id] = true;
+    disegna();
+  },
+  tuttiConfronto: function () {
+    if (!CONFRONTO) return;
+    CONFRONTO.diversi.forEach(function (x, i) { SCELTI_C.ids['d' + i] = true; });
+    CONFRONTO.nuovi.forEach(function (x, i) { SCELTI_C.nuovi['n' + i] = true; });
+    disegna();
+  },
+  nessunoConfronto: function () { SCELTI_C = { ids: {}, nuovi: {} }; disegna(); },
+  applicaConfronto: function () {
+    if (!CONFRONTO) return;
+    var ids = CONFRONTO.diversi.filter(function (x, i) { return SCELTI_C.ids['d' + i]; }).map(function (x) { return x.id; });
+    var nuovi = CONFRONTO.nuovi.filter(function (x, i) { return SCELTI_C.nuovi['n' + i]; }).map(function (x) { return x.chiave; });
+    if (!ids.length && !nuovi.length) return avviso('Spunta prima cosa prendere dal foglio.', true);
+    chiedi('Aggiornare ' + ids.length + ' eventi e aggiungerne ' + nuovi.length + ' dal foglio Date? Il foglio non viene toccato.', 'Aggiorna', function () {
+      SCELTI_C = { ids: {}, nuovi: {} };
+      scrivi('applicaFoglioDate', { ids: ids, nuovi: nuovi });
+    });
+  },
+  daCalendario: function (d) {
+    var x = EXTRA && EXTRA[d.i];
+    if (x) scrivi('aggiungiDaCalendario', { calId: x.calId, data: x.data }, function (r) { disegna(); if (r.ultimoId) apriCompleta(r.ultimoId); });
+  },
+  completa: function (d) { apriCompleta(d.id, MODALE === 'lista'); },
+  tornaLista: mostraListaDaCompletare,
+  modificaTutto: function (d) { chiudiModale(); SEL = d.id; COMANDI.modifica(); },
+  salvaCompleta: function () {
+    if (!BOZZA_C) return;
+    var ev = { id: BOZZA_C.id }, pieni = 0;
+    CAMPI_C.forEach(function (k) {
+      var v = String($('f-' + k).value || '').trim();
+      if (!v) return;
+      if (['totale', 'anticipo', 'netto', 'lordo', 'nero'].indexOf(k) >= 0) v = v.replace(/[€\s]/g, '').replace(',', '.');
+      ev[k] = v; pieni++;
+    });
+    if (!pieni) return avviso('Compila almeno un campo, oppure premi ' + (DA_LISTA ? '"Elenco"' : '"Dopo"') + '.', true);
+    var daLista = DA_LISTA;
+    chiudiModale();
+    scrivi('salvaEvento', { evento: ev }, function (r) {
+      disegna();
+      if (!r.avviso) avviso('Salvato ✓', false, 3000);
+      if (daLista) mostraListaDaCompletare();
+    });
+  },
+  ignoraCalendario: function (d) { var x = EXTRA && EXTRA[d.i]; if (x) scrivi('ignoraDaCalendario', { calId: x.calId, data: x.data }); },
+  sincronizza: function () { scrivi('sincronizzaCalendario', {}); },
+  chiediEsci: function () { chiedi('Uscire? Per rientrare servirà il PIN.', 'Esci', esci); },
+  conferma: function () { var fn = alConferma; chiudiModale(); if (fn) fn(); },
+  rispostaNo: function () { var fn = alNo; chiudiModale(); if (fn) fn(); },
+  annulla: chiudiModale,
+  ricarica: ricarica
+};
+
+document.addEventListener('click', function (e) {
+  var el = e.target && e.target.closest ? e.target.closest('[data-vai],[data-az]') : null;
+  if (!el) return;
+  if (el.dataset.vai) { if (V === 'modifica') BOZZA = null; return vai(el.dataset.vai); }
+  var fn = COMANDI[el.dataset.az];
+  if (fn) fn(el.dataset);
+});
+
+// La ricerca ridisegna solo l'elenco, così la tastiera resta aperta
+document.addEventListener('input', function (e) {
+  if (e.target && e.target.id === 'cerca') { FILTRO.q = e.target.value; $('lista').innerHTML = listaHtml(); }
+  if (e.target && PREV && V === 'preventivo' && /^(q-\d+|l-prezzo-\d+|l-nome-\d+|p-sconto)$/.test(e.target.id || '')) {
+    var id = e.target.id, v = e.target.value;
+    if (id === 'p-sconto') PREV.sconto = String(v).replace(',', '.');
+    else if (id.indexOf('q-') === 0) PREV.righe[Number(id.slice(2))].qta = num(v);
+    else if (id.indexOf('l-nome-') === 0) PREV.righe[Number(id.slice(7))].nome = String(v);
+    else PREV.righe[Number(id.slice(9))].prezzo = num(v);
+    // aggiorna solo l'elenco e i numeri, non i campi (così il cursore resta dov'è)
+    var t = totaliPrev();
+    $('t-voci').innerHTML = vociRecapHtml();
+    $('t-sub').textContent = euro(t.sub); $('t-tot').textContent = euro(t.tot); $('t-acc').textContent = euro(t.acconto);
+  }
+  if (e.target && e.target.id === 'f-referente' && TEL_AUTO && $('f-telefono') && $('f-telefono').value === TEL_AUTO.tel &&
+      normTxt(e.target.value) !== normTxt(TEL_AUTO.nome)) {
+    $('f-telefono').value = ''; // era il numero di un altro (es. del wedding planner): per il nuovo referente va scritto il suo
+    TEL_AUTO = null;
+  }
+  if (e.target && CAMPI_SUGG[e.target.id] && $('sugg-' + CAMPI_SUGG[e.target.id])) {
+    var k = CAMPI_SUGG[e.target.id];
+    mostraSugg(k, suggerimenti(k, e.target.value));
+  }
+  if (e.target && e.target.id === 'cerca-c') { FILTRO_C.q = e.target.value; $('lista-c').innerHTML = listaContattiHtml(); }
+  if (e.target && e.target.id === 'm-testo' && MSG && $('m-wa')) $('m-wa').innerHTML = bottoniWa(MSG, e.target.value);
+});
+document.addEventListener('change', function (e) {
+  if (e.target && e.target.id === 'c-ruolo' && K_EVENTO && BOZZA_K && !BOZZA_K.id) $('c-rubrica').innerHTML = rubricaHtml(e.target.value);
+  if (e.target && e.target.id === 'c-ruolo' && $('c-box-referente')) $('c-box-referente').style.display = CON_REFERENTE.indexOf(e.target.value) < 0 ? 'none' : '';
+  if (e.target && e.target.id === 'c-ruolo' && $('c-box-sposi')) $('c-box-sposi').style.display = e.target.value === 'Sposi' ? '' : 'none';
+  // nel preventivo il tipo decide quali voci mostrare (matrimonio sì/no): si ridisegna tenendo quello già scritto
+  if (e.target && e.target.id === 'f-tipo' && V === 'preventivo' && PREV) { leggiModuloPrev(); disegna(); }
+});
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter' && e.target && (e.target.id === 'pin' || e.target.id === 'pin2')) COMANDI.entra();
+});
+
+// Ricarica da sola ogni 60 s, ma non mentre si scrive, c'è il modale o si è nel login
+setInterval(function () {
+  if (occupato || MODALE || ['modifica', 'calendario', 'modello', 'preventivo', 'listino'].indexOf(V) >= 0 || !SESS || !DATI || DATI.login) return;
+  ricarica();
+}, 60000);
+
+// Avvio: con un token salvato si chiedono i dati veri, altrimenti basta il login
+if (SESS || !DATI) { if (SESS && DATI) DATI = null; disegna(); ricarica(); } else disegna();
+</script>
+</body>
+</html>
