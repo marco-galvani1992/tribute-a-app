@@ -257,8 +257,9 @@
 
 <script>
 // ─── Versione e changelog: VERSIONE deve essere uguale alla prima voce (lo controlla il test)
-var VERSIONE = '0.45';
+var VERSIONE = '0.46';
 var CHANGELOG = [
+  { v: '0.46', data: '2026-11-12', testo: 'Face ID: se su un dispositivo non è ancora attivo (es. attivato solo col dito sul Mac), l\'app lo dice chiaramente e ti porta al PIN; poi lo attivi anche lì da Altro → Face ID. Nell\'elenco dei dispositivi compare anche "Mac".' },
   { v: '0.45', data: '2026-11-12', testo: 'Accesso con Face ID, come nell\'app delle finanze: funziona dall\'app fuori da Google (link in Altro → Face ID). Ognuno entra col suo PIN, attiva il Face ID sul suo telefono e da lì in poi entra guardando lo schermo. I dati restano nel foglio della band: online c\'è solo la pagina.' },
   { v: '0.44', data: '2026-11-12', testo: 'Recap automatico anche il giorno stesso dell\'evento: alle 9 arriva "🎸 Oggi si suona" con lo stesso riassunto (orari, indirizzo, contatti), oltre a quello di 3 giorni prima.' },
   { v: '0.43', data: '2026-11-06', testo: 'Salvataggi più veloci: la scheda si aggiorna subito e il server conferma dietro (in alto "☁️ Salvo…"). Il foglio "Date Tribute A — dal Gestionale" e Google Contatti si aggiornano da soli circa un minuto dopo, senza farti aspettare. Se qualcosa va storto te lo dice e torni al modulo con quello che avevi scritto.' },
@@ -450,6 +451,10 @@ function deb64u(x) {
   return b;
 }
 var SFIDA = null, SFIDA_REG = null;
+function nomeDispositivo() {
+  var u = navigator.userAgent || '';
+  return /iPad/.test(u) ? 'iPad' : /iPhone/.test(u) ? 'iPhone' : /Android/.test(u) ? 'Android' : /Macintosh|Mac OS/.test(u) ? 'Mac' : /Windows/.test(u) ? 'PC' : 'questo dispositivo';
+}
 var PUO_FACEID = FUORI && typeof window !== 'undefined' && !!window.PublicKeyCredential && !!(navigator.credentials && navigator.credentials.get);
 function caricaSfida(nome) {
   SFIDA = null;
@@ -469,7 +474,8 @@ function faceIdHtml() {
       '<button class="btn-link" style="padding:2px 4px" data-az="togliFaceId" data-id="' + esc(k.id) + '">togli</button>';
   }).join(' · ') + '</p>';
   return h + '<button class="btn btn-largo" data-az="attivaFaceId">' + (pk.length ? '➕ Attiva anche su questo telefono' : '🔐 Attiva Face ID su questo telefono') + '</button>' +
-    '<p class="tenue" style="margin:8px 0 0">Ogni volta che riapri l\'app ti chiede il Face ID (o il PIN). Ognuno attiva il suo.</p></div>';
+    '<p class="tenue" style="margin:8px 0 0">Ogni volta che riapri l\'app ti chiede il Face ID (o il PIN). Ognuno attiva il suo, <b>su ogni dispositivo</b>: ' +
+    'quello attivato sul Mac (col dito, in Brave o Chrome) non vale sull\'iPhone.</p></div>';
 }
 function num(x) { var n = parseFloat(String(x == null ? '' : x).replace(',', '.')); return isNaN(n) ? 0 : n; }
 function euro(x) {
@@ -2135,7 +2141,13 @@ var COMANDI = {
         }).withFailureHandler(function (e) { suErrore(e); caricaSfida(LOGIN_NOME); }).accediPasskey({ id: a.id, authenticatorData: b64u(a.response.authenticatorData),
           clientDataJSON: b64u(a.response.clientDataJSON), signature: b64u(a.response.signature) });
       })
-      .catch(function (e) { caricaSfida(LOGIN_NOME); avviso('Face ID annullato (' + (e && e.name || e) + '): riprova o usa il PIN.', true, 6000); });
+      .catch(function (e) {
+        caricaSfida(LOGIN_NOME);
+        // NotAllowedError = annullato, oppure su questo dispositivo la chiave non c'è (es. attivato col dito sul Mac in Brave/Chrome)
+        avviso((e && e.name === 'NotAllowedError' ? 'Face ID non riuscito: forse su questo dispositivo non è ancora attivo. ' : 'Face ID non riuscito (' + (e && e.name || e) + '). ') +
+          'Entra col PIN qui sotto, poi in Altro → Face ID tocca "Attiva anche su questo telefono".', true, 12000);
+        if ($('pin') && $('pin').focus) $('pin').focus();
+      });
   },
   attivaFaceId: function () {
     scrivi('opzioniPasskey', {}, function (d) {
@@ -2156,7 +2168,7 @@ var COMANDI = {
         var r = c.response, spki = r.getPublicKey ? r.getPublicKey() : null;
         if (!spki) return avviso('⚠ Questo telefono è troppo vecchio per il Face ID nel browser: aggiorna iOS.', true, 8000);
         scrivi('registraPasskey', { c: { id: c.id, spki: b64u(spki), alg: r.getPublicKeyAlgorithm ? r.getPublicKeyAlgorithm() : -7,
-          clientDataJSON: b64u(r.clientDataJSON), nome: /iPad/.test(navigator.userAgent) ? 'iPad' : /iPhone/.test(navigator.userAgent) ? 'iPhone' : 'questo dispositivo' } });
+          clientDataJSON: b64u(r.clientDataJSON), nome: nomeDispositivo() } });
       })
       .catch(function (e) { avviso('Face ID non attivato (' + (e && e.name || e) + ')', true, 6000); });
   },
