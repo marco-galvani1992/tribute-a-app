@@ -257,8 +257,9 @@
 
 <script>
 // ─── Versione e changelog: VERSIONE deve essere uguale alla prima voce (lo controlla il test)
-var VERSIONE = '0.46';
+var VERSIONE = '0.47';
 var CHANGELOG = [
+  { v: '0.47', data: '2026-11-12', testo: 'Apertura istantanea dal link di Google: si vedono subito gli ultimi dati e si aggiornano da soli (sul sito col Face ID no, per riservatezza). Copia di sicurezza automatica del foglio dati ogni lunedì notte nella cartella Backup sul Drive della band (restano le ultime 8), più il pulsante "Fai una copia adesso" in Altro.' },
   { v: '0.46', data: '2026-11-12', testo: 'Face ID: se su un dispositivo non è ancora attivo (es. attivato solo col dito sul Mac), l\'app lo dice chiaramente e ti porta al PIN; poi lo attivi anche lì da Altro → Face ID. Nell\'elenco dei dispositivi compare anche "Mac".' },
   { v: '0.45', data: '2026-11-12', testo: 'Accesso con Face ID, come nell\'app delle finanze: funziona dall\'app fuori da Google (link in Altro → Face ID). Ognuno entra col suo PIN, attiva il Face ID sul suo telefono e da lì in poi entra guardando lo schermo. I dati restano nel foglio della band: online c\'è solo la pagina.' },
   { v: '0.44', data: '2026-11-12', testo: 'Recap automatico anche il giorno stesso dell\'evento: alle 9 arriva "🎸 Oggi si suona" con lo stesso riassunto (orari, indirizzo, contatti), oltre a quello di 3 giorni prima.' },
@@ -1944,6 +1945,9 @@ function vistaAltro() {
     '<p class="tenue">Il foglio e Google Contatti si aggiornano in sottofondo, circa un minuto dopo ogni salvataggio' +
     (DATI.inSospeso ? ': <b>aggiornamento in arrivo</b>.' : '.') + (DATI.sfondo ? ' Ultimo: ' + esc(DATI.sfondo) : '') + '</p>' +
     '<button class="btn-link" data-az="rigeneraFoglio">Riscrivi il foglio da capo</button></div>' +
+    '<h2>Copie di sicurezza</h2><div class="carta"><p style="margin-top:0">Ogni lunedì notte l\'app salva una copia del foglio dati in ' +
+    'Drive della band → Gestionale Tribute-A → <b>Backup</b> (restano le ultime 8). Ultima: <b>' + esc(DATI.ultimoBackup || 'ancora nessuna') + '</b>.</p>' +
+    '<button class="btn-sec btn-largo" style="margin-top:0" data-az="backupOra">💾 Fai una copia adesso</button></div>' +
     '<h2>Calendario</h2><div class="carta"><p style="margin-top:0">Ogni evento salvato si aggiorna da solo nel calendario "' + esc(DATI.calendario) +
     '", dall\'orario di arrivo per ' + esc(DATI.durataOre) + ' ore. Qui puoi rifare il giro per tutti gli eventi futuri. Se un concerto c\'era già (stesso giorno, titolo con una parola del nome) viene aggiornato invece di duplicarlo; le prove e gli altri impegni non si toccano.</p>' +
     '<button class="btn-sec btn-largo" data-az="sincronizza">Sincronizza tutto il calendario</button></div>' +
@@ -2060,8 +2064,30 @@ function suErrore(err) {
   avviso(m, true);
 }
 
+/**
+ * Copia degli ultimi dati sul dispositivo, per aprire l'app senza aspettare. Dal link di Google (dove la sessione dura 30
+ * giorni) sta in localStorage; sul sito col Face ID solo in sessionStorage: chiusa l'app sparisce, così senza Face ID sul
+ * telefono non resta niente di leggibile. Si scarta se è di un'altra versione o di un'altra persona.
+ */
+function salvaCopia(d) {
+  try {
+    var st = FUORI ? sessionStorage : localStorage;
+    if (!d) { st.removeItem('copiaDati'); return; }
+    var c = Object.assign({}, d); delete c.logo; delete c.avviso; delete c.ultimoId;
+    st.setItem('copiaDati', JSON.stringify({ v: VERSIONE, tok: SESS.split('|')[0], d: c }));
+  } catch (e) { /* spazio finito o storage bloccato: pazienza, si aspetta il server */ }
+}
+function copiaDati() {
+  try {
+    var x = JSON.parse((FUORI ? sessionStorage : localStorage).getItem('copiaDati') || 'null');
+    if (!x || x.v !== VERSIONE || x.tok !== SESS.split('|')[0] || !x.d || x.d.login) return null;
+    return x.d;
+  } catch (e) { return null; }
+}
+
 function riceviDati(d) {
   DATI = d;
+  if (d && !d.login && SESS) salvaCopia(d);
   if (d.logo && !LOGO) LOGO = d.logo;
   if (d.calendarioExtra) EXTRA = d.calendarioExtra;
   if (d.confrontoDate) CONFRONTO = d.confrontoDate;
@@ -2119,7 +2145,7 @@ var N_TEMP = 0;
 function idTemporaneo() { return 'tmp' + Date.now().toString(36) + (++N_TEMP); }
 
 function esci() {
-  SESS = ''; ricorda('tok', null); LOGIN_NOME = ''; BOZZA = null; V = 'eventi'; LISTA_MOSTRATA = false;
+  SESS = ''; ricorda('tok', null); salvaCopia(null); LOGIN_NOME = ''; BOZZA = null; V = 'eventi'; LISTA_MOSTRATA = false;
   if (MODALE) chiudiModale();
   DATI = { app: DATI && DATI.app, login: true, membri: (DATI && DATI.membri) || [] };
   disegna();
@@ -2231,6 +2257,7 @@ var COMANDI = {
     });
   },
   importa: function () { scrivi('importa', {}); },
+  backupOra: function () { scrivi('backupOra', {}); },
   suggerisci: function () {
     apriModale('<h2>💡 Migliora l\'app</h2><p class="tenue" style="margin-top:0">Cosa manca, cosa non funziona, cosa faresti diversamente? ' +
       'Lo legge solo ' + esc(DATI.admin || '') + '.</p><textarea id="f-sugg" style="min-height:140px"></textarea>' +
@@ -2729,7 +2756,13 @@ setInterval(function () {
 }, 60000);
 
 // Avvio: con un token salvato si chiedono i dati veri, altrimenti basta il login
-if (SESS || !DATI) { if (SESS && DATI) DATI = null; disegna(); ricarica(); } else disegna();
+// Avvio istantaneo: con un token si mostrano subito gli ultimi dati salvati su questo dispositivo, poi arrivano quelli veri
+if (SESS || !DATI) {
+  var COPIA = SESS ? copiaDati() : null;
+  DATI = COPIA || (SESS ? null : DATI);
+  disegna();
+  ricarica();
+} else disegna();
 </script>
 </body>
 </html>
