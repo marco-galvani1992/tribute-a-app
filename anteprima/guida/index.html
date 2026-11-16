@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tribute-A · Guida di stile 2026</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@600;700;800&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+  /* ── Gettoni di stile: gli stessi andranno nell'app e nel sito ── */
+  :root {
+    --inchiostro: #141419;   /* nero degli sfondi */
+    --notte: #0f2127;        /* petrolio scurissimo: fondo dell'app */
+    --petrolio: #15373b;     /* petrolio: schede, superfici */
+    --petrolio-2: #1e4a4f;   /* bordi e superfici rialzate */
+    --pesca: #ea9a57;        /* il chiaro del fumo */
+    --arancio: #f08a3c;      /* azioni principali */
+    --fiamma: #d94c1a;       /* il cuore rosso del fumo: accenti, titoli sul chiaro */
+    --crema: #f5efe7;        /* fondo delle sezioni chiare del sito */
+    --testo: #f4efe8;
+    --tenue: #9fb3b5;
+    --verde: #5fbf8f; --giallo: #f2c94c; --rosso: #ef6b5b;
+    --titoli: 'Montserrat Alternates', 'Montserrat', sans-serif;
+    --corpo: 'Montserrat', system-ui, sans-serif;
+    --r: 18px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--inchiostro); color: var(--testo); font: 16px/1.6 var(--corpo); }
+  /* grana da pellicola sopra tutto, come nelle grafiche */
+  body::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 50; opacity: .09; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"); }
+  h1, h2, h3, .titolo { font-family: var(--titoli); font-weight: 800; letter-spacing: .3px; line-height: 1.05; margin: 0; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+  section { padding: 72px 0; border-top: 1px solid rgba(255,255,255,.06); }
+  .etichetta { font-family: var(--corpo); font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; font-size: 12px; color: var(--pesca); }
+  .sez h2 { font-size: clamp(26px, 4vw, 40px); margin: 8px 0 10px; }
+  .sez > .wrap > p { color: var(--tenue); max-width: 720px; margin: 0 0 30px; }
+
+  /* copertina */
+  .copertina { min-height: min(78vh, 720px); display: flex; align-items: flex-end; padding: 60px 0;
+    background: linear-gradient(90deg, rgba(20,20,25,.95) 0%, rgba(20,20,25,.55) 45%, rgba(20,20,25,0) 75%), url('fumo-nuvola.jpg') right center / auto 130% no-repeat, var(--inchiostro); }
+  .copertina img { width: min(250px, 55vw); margin-bottom: 26px; }
+  .copertina h1 { font-size: clamp(38px, 7vw, 84px); text-transform: uppercase; }
+  .copertina p { color: #d9d3cb; max-width: 560px; font-size: 18px; }
+
+  /* font */
+  .font { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .riquadro { background: var(--notte); border: 1px solid var(--petrolio-2); border-radius: var(--r); padding: 26px; }
+  .riquadro small { color: var(--tenue); display: block; margin-bottom: 12px; }
+  .esempio-titolo { font-family: var(--titoli); font-weight: 800; font-size: 46px; line-height: 1; text-transform: uppercase; }
+  .esempio-corpo b { font-weight: 700; }
+  @media (max-width: 760px) { .font { grid-template-columns: 1fr; } }
+
+  /* colori */
+  .colori { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+  .colore { border-radius: var(--r); overflow: hidden; border: 1px solid rgba(255,255,255,.08); background: var(--notte); }
+  .colore div { height: 92px; }
+  .colore p { margin: 0; padding: 10px 12px; font-size: 13px; color: var(--tenue); }
+  .colore p b { display: block; color: var(--testo); font-size: 14px; }
+
+  /* sfondi */
+  .sfondi { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  .sfondi div { height: 230px; border-radius: var(--r); display: flex; align-items: flex-end; padding: 16px; font-weight: 700; }
+  @media (max-width: 760px) { .sfondi { grid-template-columns: 1fr; } }
+
+  /* componenti */
+  .comp { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 760px) { .comp { grid-template-columns: 1fr; } }
+  .btn { display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: 14px; padding: 13px 22px; font: 700 15px var(--corpo);
+    cursor: pointer; text-decoration: none; }
+  .btn.pieno { background: var(--arancio); color: #1b0f06; box-shadow: 0 8px 24px -10px rgba(240,138,60,.8); }
+  .btn.contorno { background: transparent; color: var(--testo); border: 1.5px solid rgba(244,239,232,.35); }
+  .btn.pericolo { background: transparent; color: var(--rosso); border: 1.5px solid rgba(239,107,91,.5); }
+  .riga-btn { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip { display: inline-block; border-radius: 999px; padding: 7px 14px; font-weight: 600; font-size: 14px; background: var(--petrolio); color: var(--tenue); border: 1px solid var(--petrolio-2); }
+  .chip.on { background: var(--testo); color: var(--inchiostro); border-color: var(--testo); }
+  .pill { display: inline-block; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 700; }
+  .pill.ok { background: rgba(95,191,143,.15); color: var(--verde); }
+  .pill.att { background: rgba(242,201,76,.15); color: var(--giallo); }
+  .pill.no { background: rgba(239,107,91,.15); color: var(--rosso); }
+  label { font-size: 13px; color: var(--tenue); display: block; margin: 12px 0 6px; }
+  input { width: 100%; background: var(--inchiostro); border: 1px solid var(--petrolio-2); color: var(--testo); border-radius: 12px; padding: 12px 14px; font: 15px var(--corpo); }
+  input:focus { outline: 2px solid var(--arancio); outline-offset: 1px; }
+
+  /* ── prova APP: telefono da 360 px ── */
+  .telefoni { display: flex; gap: 28px; flex-wrap: wrap; justify-content: center; }
+  .telefono { width: 360px; height: 740px; border-radius: 42px; padding: 10px; background: #050607; box-shadow: 0 30px 80px -30px #000, 0 0 0 1px #2a2f33; flex: none; }
+  .schermo { width: 100%; height: 100%; border-radius: 34px; overflow: hidden; position: relative; display: flex; flex-direction: column;
+    background: radial-gradient(120% 50% at 100% 0%, rgba(234,154,87,.30), transparent 60%), radial-gradient(80% 40% at 0% 0%, rgba(21,55,59,.9), transparent 70%), var(--notte); }
+  .app-testa { display: flex; align-items: center; justify-content: space-between; padding: 18px 18px 8px; }
+  .app-testa img { height: 30px; }
+  .app-testa .io { font-size: 13px; font-weight: 700; background: rgba(255,255,255,.08); border-radius: 999px; padding: 6px 12px; }
+  .app-corpo { flex: 1; overflow: hidden; padding: 6px 16px 0; }
+  .app-corpo h2 { font-size: 30px; text-transform: uppercase; margin: 6px 0 12px; }
+  .filtri { display: flex; gap: 6px; overflow: hidden; margin-bottom: 14px; }
+  .filtri .chip { font-size: 12px; padding: 6px 11px; white-space: nowrap; }
+  .ev { display: flex; gap: 12px; align-items: center; background: rgba(21,55,59,.72); border: 1px solid var(--petrolio-2); border-radius: 18px; padding: 12px; margin-bottom: 10px; backdrop-filter: blur(6px); }
+  .ev .data { width: 52px; text-align: center; border-radius: 12px; background: var(--inchiostro); padding: 6px 0; flex: none; }
+  .ev .data b { display: block; font-family: var(--titoli); font-size: 22px; line-height: 1; }
+  .ev .data span { font-size: 10px; font-weight: 700; color: var(--pesca); letter-spacing: 1px; }
+  .ev .t { font-weight: 700; font-size: 15px; line-height: 1.25; }
+  .ev .s { font-size: 12px; color: var(--tenue); }
+  .ev .soldi { margin-left: auto; text-align: right; font-weight: 700; font-size: 14px; white-space: nowrap; }
+  .barra { display: grid; grid-template-columns: repeat(6, 1fr); background: rgba(10,16,19,.92); border-top: 1px solid var(--petrolio-2); padding: 8px 4px 16px; backdrop-filter: blur(10px); }
+  .barra a { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10px; font-weight: 600; color: var(--tenue); text-decoration: none; position: relative; }
+  .barra a.on { color: var(--arancio); }
+  .barra svg { width: 22px; height: 22px; }
+  .barra .num { position: absolute; top: -4px; right: 10px; background: var(--fiamma); color: #fff; font-size: 10px; border-radius: 999px; padding: 0 5px; }
+  .fab { position: absolute; right: 18px; bottom: 86px; width: 56px; height: 56px; border-radius: 18px; background: var(--arancio); color: #1b0f06;
+    display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 700; box-shadow: 0 12px 30px -8px rgba(240,138,60,.9); }
+  /* scheda evento */
+  .copertina-ev { margin: -6px -16px 14px; padding: 18px 16px 16px; background: linear-gradient(180deg, transparent, rgba(15,33,39,.9)), url('fumo-nuvola.jpg') center / cover; }
+  .copertina-ev .tipo { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; color: var(--inchiostro); background: var(--pesca); border-radius: 999px; padding: 3px 10px; display: inline-block; }
+  .copertina-ev h2 { font-size: 26px; margin: 10px 0 4px; }
+  .dati { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  .dato { background: rgba(21,55,59,.72); border: 1px solid var(--petrolio-2); border-radius: 14px; padding: 10px 12px; }
+  .dato small { display: block; font-size: 11px; color: var(--tenue); text-transform: uppercase; letter-spacing: 1px; }
+  .dato b { font-size: 16px; }
+  .azioni-ev { display: flex; gap: 8px; margin-bottom: 12px; }
+  .azioni-ev .btn { flex: 1; justify-content: center; padding: 11px 8px; font-size: 13px; border-radius: 12px; }
+
+  /* ── prova SITO ── */
+  .sito { border-radius: 24px; overflow: hidden; border: 1px solid #2a2f33; }
+  .sito-hero { min-height: 560px; display: flex; align-items: flex-end; padding: 46px;
+    background: linear-gradient(90deg, rgba(20,20,25,.92) 0%, rgba(20,20,25,.35) 55%, rgba(20,20,25,.1) 100%), url('fumo-nuvola.jpg') right center / 70% auto no-repeat, var(--inchiostro); }
+  .sito-hero img { width: 200px; margin-bottom: 22px; }
+  .sito-hero h3 { font-size: clamp(34px, 5.5vw, 64px); text-transform: uppercase; max-width: 680px; }
+  .sito-hero h3 em { font-style: normal; color: var(--pesca); }
+  .sito-hero p { color: #d9d3cb; max-width: 520px; font-size: 17px; }
+  .sito-chiaro { background: var(--crema); color: var(--inchiostro); padding: 56px 46px; display: grid; grid-template-columns: 1.1fr .9fr; gap: 36px; align-items: center; }
+  .sito-chiaro .sopra { font-family: var(--titoli); font-weight: 700; color: var(--fiamma); font-size: 22px; }
+  .sito-chiaro h3 { font-size: clamp(34px, 5vw, 58px); color: var(--fiamma); text-transform: uppercase; margin: 2px 0 14px; }
+  .sito-chiaro .date b { display: block; font-family: var(--titoli); color: var(--arancio); font-size: 24px; text-transform: uppercase; line-height: 1.1; }
+  .sito-chiaro .date span { color: #a65a2c; font-weight: 600; }
+  .sito-chiaro .date div { margin-bottom: 14px; }
+  .sito-chiaro img { width: 100%; border-radius: 20px; filter: grayscale(1) contrast(1.05); }
+  .sito-chiaro .btn.pieno { background: var(--fiamma); color: #fff; box-shadow: none; }
+  @media (max-width: 860px) { .sito-chiaro { grid-template-columns: 1fr; padding: 40px 22px; } .sito-hero { padding: 28px 22px; background-size: 140% auto; background-position: 40% center; } }
+  footer { padding: 40px 0 60px; color: var(--tenue); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<header class="copertina">
+  <div class="wrap">
+    <img src="logo-bianco.png" alt="Tribute-A">
+    <div class="etichetta">Guida di stile 2026 · bozza da approvare</div>
+    <h1>Fumo, grana<br>e Montserrat</h1>
+    <p>Un solo stile per l'app e per il sito, preso dalle vostre grafiche: i font dei listini, i colori del fumo del roll-up, la grana da pellicola.</p>
+  </div>
+</header>
+
+<section class="sez" id="s1">
+  <div class="wrap">
+    <div class="etichetta">1 · Font</div>
+    <h2>Gli stessi dei listini</h2>
+    <p>Titoli in <b>Montserrat Alternates</b> (quello di "TRIBUTE-A" nei listini e nel roll-up), tutto il resto in <b>Montserrat</b>. Gratis, da Google: funzionano ovunque.</p>
+    <div class="font">
+      <div class="riquadro"><small>Titoli · Montserrat Alternates Bold, maiuscolo</small>
+        <div class="esempio-titolo">Vi aspettiamo</div>
+        <div class="titolo" style="font-size:26px;margin-top:10px;color:var(--pesca)">Sagra di paese · 25 luglio</div></div>
+      <div class="riquadro esempio-corpo"><small>Testi · Montserrat 400 / 600 / 700</small>
+        <p style="margin:0 0 10px">Un medley per ogni decennio: dagli anni '60 a oggi, due ore senza fermarsi.</p>
+        <p style="margin:0;font-weight:600">Arrivo 17:30 · Show 21:00 · Referente con WhatsApp</p>
+        <p style="margin:8px 0 0;font-weight:700;font-size:22px">€ 1.950</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sez" id="s2">
+  <div class="wrap">
+    <div class="etichetta">2 · Colori</div>
+    <h2>La palette del fumo</h2>
+    <p>Presi dagli sfondi 2026. Il petrolio fa da fondo e da superficie, l'arancio è per le azioni (un solo bottone arancio per schermata), la fiamma per gli accenti e i titoli sul chiaro.</p>
+    <div class="colori">
+      <div class="colore"><div style="background:#141419"></div><p><b>Inchiostro</b>#141419 · fondo</p></div>
+      <div class="colore"><div style="background:#0f2127"></div><p><b>Notte</b>#0f2127 · fondo app</p></div>
+      <div class="colore"><div style="background:#15373b"></div><p><b>Petrolio</b>#15373b · schede</p></div>
+      <div class="colore"><div style="background:#ea9a57"></div><p><b>Pesca</b>#ea9a57 · dettagli</p></div>
+      <div class="colore"><div style="background:#f08a3c"></div><p><b>Arancio</b>#f08a3c · azioni</p></div>
+      <div class="colore"><div style="background:#d94c1a"></div><p><b>Fiamma</b>#d94c1a · accenti</p></div>
+      <div class="colore"><div style="background:#f5efe7"></div><p><b>Crema</b>#f5efe7 · sito chiaro</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sez" id="s3">
+  <div class="wrap">
+    <div class="etichetta">3 · Sfondi</div>
+    <h2>Fumo del roll-up, sempre con la grana</h2>
+    <p>Il fumo vero del roll-up per le aperture; nell'app solo un alone in alto, così le schede restano leggibili.</p>
+    <div class="sfondi">
+      <div style="background:url('fumo-rollup.jpg') 60% 4% / 160% auto">Apertura sito · ricciolo</div>
+      <div style="background:url('fumo-nuvola.jpg') center / cover">Scheda evento · nuvola</div>
+      <div style="background:radial-gradient(120% 60% at 100% 0%, rgba(234,154,87,.35), transparent 60%), var(--notte)">App · alone leggero</div>
+    </div>
+  </div>
+</section>
+
+<section class="sez" id="s4">
+  <div class="wrap">
+    <div class="etichetta">4 · Pezzi</div>
+    <h2>Bottoni, filtri, campi, stati</h2>
+    <p>Angoli morbidi, bottoni grandi per il pollice, un solo arancio per schermata.</p>
+    <div class="comp">
+      <div class="riquadro"><small>Bottoni</small>
+        <div class="riga-btn"><a class="btn pieno">Salva</a><a class="btn contorno">💬 WhatsApp</a><a class="btn pericolo">Elimina</a></div>
+        <small style="margin-top:22px">Filtri</small>
+        <div class="riga-btn"><span class="chip on">Da fare</span><span class="chip">Da incassare</span><span class="chip">Passati</span></div>
+        <small style="margin-top:22px">Stati</small>
+        <div class="riga-btn"><span class="pill ok">confermato</span><span class="pill att">da confermare</span><span class="pill no">annullato</span></div></div>
+      <div class="riquadro"><small>Campi</small>
+        <label>Nome evento</label><input value="Sagra di paese">
+        <label>Referente</label><input placeholder="Inizia a scrivere…"></div>
+    </div>
+  </div>
+</section>
+
+<section class="sez" id="s5">
+  <div class="wrap">
+    <div class="etichetta">5 · Prova app</div>
+    <h2>Così sul telefono</h2>
+    <p>Stesse funzioni di oggi, vestito nuovo. Icone vere al posto delle emoji nella barra in basso, "+" sempre a portata di pollice. (Dati inventati.)</p>
+    <div class="telefoni">
+      <div class="telefono"><div class="schermo">
+        <div class="app-testa"><img src="logo-bianco.png" alt=""><span class="io">Galva ▾</span></div>
+        <div class="app-corpo">
+          <h2>Eventi</h2>
+          <div class="filtri"><span class="chip on">Da fare</span><span class="chip">Da completare</span><span class="chip">Da incassare</span></div>
+          <div class="ev"><div class="data"><b>21</b><span>NOV</span></div><div><div class="t">Serata al pub</div><div class="s">🍺 Locale · Verona · 21:30</div></div><div class="soldi">€ 450<div><span class="pill ok">ok</span></div></div></div>
+          <div class="ev"><div class="data"><b>06</b><span>DIC</span></div><div><div class="t">Festa aziendale</div><div class="s">🎉 Privato · Bussolengo</div></div><div class="soldi">€ 950<div><span class="pill att">?</span></div></div></div>
+          <div class="ev"><div class="data"><b>31</b><span>DIC</span></div><div><div class="t">Capodanno in piazza</div><div class="s">🎪 Sagra · 22:00</div></div><div class="soldi">€ 1.800<div><span class="pill ok">ok</span></div></div></div>
+          <div class="ev"><div class="data"><b>15</b><span>MAG</span></div><div><div class="t">Laura e Paolo</div><div class="s">💍 Matrimonio · Villa Rosa</div></div><div class="soldi">€ 1.950<div><span class="pill ok">ok</span></div></div></div>
+        </div>
+        <div class="fab">+</div>
+        <nav class="barra">
+          <a class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Eventi</a>
+          <a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>Preventivi</a>
+          <a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5h16v11H8l-4 4z"/></svg><span class="num">3</span>Messaggi</a>
+          <a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14.8c1.6.8 2.6 2.5 3 5.2"/></svg>Contatti</a>
+          <a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7h7l2 2h9v10H3z"/></svg>Progetti</a>
+          <a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 20V11M12 20V5M19 20v-7"/></svg>Numeri</a>
+        </nav>
+      </div></div>
+
+      <div class="telefono"><div class="schermo">
+        <div class="app-testa"><span style="font-weight:700;color:var(--pesca)">‹ Eventi</span><span class="io">✏️ Modifica</span></div>
+        <div class="app-corpo">
+          <div class="copertina-ev"><span class="tipo">MATRIMONIO</span><h2>Laura e Paolo</h2><div style="font-weight:600">Sabato 15 maggio 2027 · Villa Rosa</div></div>
+          <div class="dati">
+            <div class="dato"><small>Arrivo</small><b>15:00</b></div>
+            <div class="dato"><small>Show</small><b>21:30</b></div>
+            <div class="dato"><small>Compenso</small><b>€ 1.950</b></div>
+            <div class="dato"><small>Da incassare</small><b style="color:var(--pesca)">€ 1.365</b></div>
+          </div>
+          <div class="azioni-ev"><a class="btn pieno">💬 Sposi</a><a class="btn contorno">📍 Mappa</a><a class="btn contorno">🗓️ PDF</a></div>
+          <div class="dato" style="margin-bottom:8px"><small>Checklist</small><b style="font-size:14px">✓ Preventivo accettato · ✓ Acconto · ○ Scaletta</b></div>
+          <div class="dato"><small>Contatti</small><b style="font-size:14px">💍 Sposi · 🏛️ Villa Rosa (Anna) · 📋 Wedding planner</b></div>
+        </div>
+        <nav class="barra">
+          <a class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Eventi</a>
+          <a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>Preventivi</a>
+          <a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5h16v11H8l-4 4z"/></svg><span class="num">3</span>Messaggi</a>
+          <a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14.8c1.6.8 2.6 2.5 3 5.2"/></svg>Contatti</a>
+          <a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7h7l2 2h9v10H3z"/></svg>Progetti</a>
+          <a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 20V11M12 20V5M19 20v-7"/></svg>Numeri</a>
+        </nav>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<section class="sez" id="s6">
+  <div class="wrap">
+    <div class="etichetta">6 · Prova sito</div>
+    <h2>Apertura scura, sezioni chiare</h2>
+    <p>Si apre col fumo come il roll-up, poi si alternano sezioni chiare in stile post 2026 (foto in bianco e nero, titoli fiamma e arancio) e sezioni scure per video e contatti.</p>
+    <div class="sito">
+      <div class="sito-hero"><div>
+        <img src="logo-bianco.png" alt="Tribute-A">
+        <div class="etichetta">Party band · Verona</div>
+        <h3>Un medley per <em>ogni decennio</em></h3>
+        <p>Dagli anni '60 alle hit di oggi, due ore senza fermarsi. Vi facciamo ballare dal primo all'ultimo pezzo, nonne comprese.</p>
+        <div class="riga-btn" style="margin-top:20px"><a class="btn pieno">Chiedi un preventivo</a><a class="btn contorno">▶︎ Guarda lo show</a></div>
+      </div></div>
+      <div class="sito-chiaro">
+        <div>
+          <div class="sopra">Questi 3 bravi ragazzi</div>
+          <h3>Vi aspettano</h3>
+          <div class="date">
+            <div><span>Venerdì 21</span><b>Serata al pub</b></div>
+            <div><span>Sabato 6</span><b>Festa aziendale</b></div>
+            <div><span>Giovedì 31</span><b>Capodanno in piazza</b></div>
+          </div>
+          <a class="btn pieno">Tutte le date</a>
+        </div>
+        <img src="../foto/img031.jpg" alt="I Tribute-A">
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap">Bozza della guida di stile · font Montserrat e Montserrat Alternates (Google Fonts) · sfondi dal roll-up 2026 · dati delle prove inventati</div></footer>
+</body>
+</html>
