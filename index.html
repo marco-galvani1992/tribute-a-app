@@ -6,7 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gestionale Tribute-A</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@700;800&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   /* Colori presi dalle grafiche 2026: fondo scuro, arancio e blu petrolio */
   :root {
@@ -238,8 +239,64 @@
   .contatto .btn-link { text-align: left; color: var(--testo); padding: 8px 0; }
   .contatto a { text-decoration: none; font-size: 20px; margin-left: 6px; }
   .btn-x { background: none; color: var(--tenue); font-size: 22px; padding: 4px 8px; min-height: 36px; }
+
+  /* ═══ Tema 2026 (v0.50): i colori del fumo del roll-up, la grana da pellicola e i font dei listini (design/guida.html) ═══ */
+  :root {
+    --inchiostro: #141419; --notte: #0f2127; --petrolio-s: #15373b; --petrolio-2: #1e4a4f;
+    --pesca: #ea9a57; --fiamma: #d94c1a; --crema: #f5efe7;
+    --sfondo: var(--notte); --carta: #132d32; --carta2: #1a3d42; --testo: #f4efe8; --tenue: #9fb3b5;
+    --bordo: #22474c; --arancio: #f08a3c; --arancio-testo: #1b0f06; --petrolio: #2f6f73;
+    --verde: #5fbf8f; --giallo: #f2c94c; --rosso: #ef6b5b; --raggio: 16px;
+    --titoli: "Montserrat Alternates", "Montserrat", -apple-system, sans-serif;
+    --corpo: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  html { background: var(--notte); }
+  body { font: 16px/1.5 var(--corpo); min-height: 100vh;
+    background: radial-gradient(110% 38% at 100% 0%, rgba(234,154,87,.22), transparent 62%),
+                radial-gradient(90% 32% at 0% 0%, rgba(21,55,59,.95), transparent 70%), var(--notte) no-repeat; }
+  /* grana sopra tutto (non si tocca: pointer-events none) */
+  body::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 30; opacity: .08; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"); }
+  h1, h2, h3 { font-family: var(--titoli); font-weight: 800; letter-spacing: .01em; }
+  h1 { font-size: 28px; line-height: 1.05; text-transform: uppercase; }
+  h2 { font-family: var(--corpo); font-weight: 700; font-size: 12px; letter-spacing: .16em; color: var(--pesca); }
+  .modale h2 { font-family: var(--titoli); font-size: 20px; letter-spacing: .01em; text-transform: none; }
+  #testa { background: linear-gradient(180deg, rgba(15,33,39,.88), rgba(15,33,39,.72)); border-bottom: 1px solid rgba(255,255,255,.06);
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+  .marchio { font-family: var(--titoli); font-weight: 800; }
+  .marchio small, .badge { font-family: var(--corpo); }
+  .chi { background: rgba(255,255,255,.08); border: 0; border-radius: 999px; font-weight: 700; color: var(--testo); }
+  .carta, .tessera { background: rgba(21,55,59,.72); border-color: var(--petrolio-2); border-radius: 18px; }
+  .ev { background: rgba(21,55,59,.72); border-color: var(--petrolio-2); border-radius: 18px; padding: 12px; }
+  .ev-data { background: var(--inchiostro); border-radius: 12px; }
+  .ev-data b { font-family: var(--titoli); font-weight: 800; font-size: 22px; }
+  .ev-data span { color: var(--pesca); font-weight: 700; letter-spacing: .08em; font-size: 11px; }
+  .ev-tit { font-weight: 700; }
+  .ev-dx, .tessera .n, .totali .grande { font-weight: 700; }
+  .tessera .n, .totali .grande { font-family: var(--titoli); font-weight: 800; }
+  .tessera.forte { background: linear-gradient(135deg, rgba(217,76,26,.35), rgba(234,154,87,.18) 55%, rgba(21,55,59,.8)); }
+  button, input, select, textarea { font-family: var(--corpo); }
+  .btn { background: var(--arancio); color: var(--arancio-testo); border-radius: 12px; box-shadow: 0 10px 26px -14px rgba(240,138,60,.9); }
+  .btn-sec, a.btn-sec { background: rgba(255,255,255,.06); border: 1px solid var(--petrolio-2); border-radius: 12px; }
+  input, select, textarea { background: rgba(10,22,26,.75); border-color: var(--petrolio-2); border-radius: 12px; }
+  .chip { background: rgba(21,55,59,.6); border-color: var(--petrolio-2); }
+  .chip.attivo { background: var(--arancio); border-color: var(--arancio); }
+  .badge { background: var(--fiamma); }
+  #nav { background: rgba(10,16,19,.92); border-top-color: var(--petrolio-2); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+  #nav button { font-weight: 600; }
+  @media (min-width: 800px) { #nav { border-right-color: var(--petrolio-2); } #nav button.attiva { background: rgba(240,138,60,.12); } }
+  .modale .finestra { background: linear-gradient(180deg, #17393e, #102a2f); border: 1px solid var(--petrolio-2); }
+  .modale .ev { background: rgba(255,255,255,.05); }
+  .pill.neutra { background: rgba(255,255,255,.07); }
+  .avvertenza { border-radius: 16px; }
+  .mese i { background: linear-gradient(180deg, var(--pesca), var(--fiamma)); }
+  .login .marchio { font-size: 34px; }
+  #testa .marchio { white-space: nowrap; font-size: 19px; }
+  @media (max-width: 400px) { #testa .marchio { font-size: 17px; } #testa .marchio small { display: none; } }
+  .avviso-pag { border-color: var(--fiamma); background: linear-gradient(90deg, rgba(217,76,26,.22), rgba(21,55,59,.72)); }
+  .richiesta-nuova { border-color: var(--arancio); }
 </style>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-SGt6ctRr9FVdrE7+IUJumhhukNcyYajtqhVNFH5s+JE='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-ZbFk+6kkADsOKP3Dek2Mnp8h0wSEHaXecRhBO/o9eSY='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -259,8 +316,9 @@
 
 <script>
 // ─── Versione e changelog: VERSIONE deve essere uguale alla prima voce (lo controlla il test)
-var VERSIONE = '0.49';
+var VERSIONE = '0.50';
 var CHANGELOG = [
+  { v: '0.50', data: '2026-11-16', testo: 'Nuova grafica, come il sito: i colori del fumo delle grafiche 2026, la grana da pellicola e i font dei listini (Montserrat). Entrata molto più veloce: i dati arrivano compressi dalla memoria veloce di Google invece di rileggere il foglio scheda per scheda, e chi entra non aspetta più i lavori in sottofondo.' },
   { v: '0.49', data: '2026-11-16', testo: 'Le richieste di preventivo dal sito www.tribute-a.it arrivano qui: Preventivi → 📥 Dal sito (con il numero rosso sulla barra) e una mail a tutti e tre; "Fai preventivo" compila già data, tipo, luogo e telefono. Face ID più veloce: il telefono si ricorda chi sei e prepara il Face ID appena apri l\'app. Più sicurezza: dopo 5 PIN sbagliati il blocco raddoppia ogni volta (fino a 24 ore) e arriva una mail di avviso a tutti; nuovo "Cambia PIN" in Altro (6-8 cifre, chiude gli altri dispositivi); l\'app sul sito esegue solo il suo codice.' },
   { v: '0.48', data: '2026-11-16', testo: 'Nuova sezione Pagamenti (Numeri → 💳 Pagamenti): dominio, abbonamenti e tutto quello da pagare, con scadenza, importo, chi paga e se si ripete ogni mese o ogni anno. Ogni scadenza finisce nel calendario della band e arriva una mail a tutti e tre qualche giorno prima e il giorno stesso. Con "✓ Pagato" passa da sola all\'anno (o mese) dopo e, se volete, finisce anche nelle Spese. Quando una scadenza è vicina compare un avviso in cima a Eventi.' },
   { v: '0.47', data: '2026-11-12', testo: 'Apertura istantanea dal link di Google: si vedono subito gli ultimi dati e si aggiornano da soli (sul sito col Face ID no, per riservatezza). Copia di sicurezza automatica del foglio dati ogni lunedì notte nella cartella Backup sul Drive della band (restano le ultime 8), più il pulsante "Fai una copia adesso" in Altro.' },
