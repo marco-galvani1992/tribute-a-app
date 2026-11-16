@@ -89,6 +89,7 @@
   .pill.ok { background: rgba(92,194,138,.16); color: var(--verde); }
   .pill.att { background: rgba(242,193,78,.16); color: var(--giallo); }
   .pill.no { background: rgba(239,107,91,.16); color: var(--rosso); }
+  .avviso-pag { display: block; width: 100%; text-align: left; color: inherit; font: inherit; cursor: pointer; border-color: var(--rosso); margin-top: 8px; }
   .pill.neutra { background: var(--carta2); color: var(--tenue); }
   .riassunto { font-size: 13px; color: var(--tenue); margin: 2px 0 10px; }
 
@@ -257,8 +258,9 @@
 
 <script>
 // ─── Versione e changelog: VERSIONE deve essere uguale alla prima voce (lo controlla il test)
-var VERSIONE = '0.47';
+var VERSIONE = '0.48';
 var CHANGELOG = [
+  { v: '0.48', data: '2026-11-16', testo: 'Nuova sezione Pagamenti (Numeri → 💳 Pagamenti): dominio, abbonamenti e tutto quello da pagare, con scadenza, importo, chi paga e se si ripete ogni mese o ogni anno. Ogni scadenza finisce nel calendario della band e arriva una mail a tutti e tre qualche giorno prima e il giorno stesso. Con "✓ Pagato" passa da sola all\'anno (o mese) dopo e, se volete, finisce anche nelle Spese. Quando una scadenza è vicina compare un avviso in cima a Eventi.' },
   { v: '0.47', data: '2026-11-12', testo: 'Apertura istantanea dal link di Google: si vedono subito gli ultimi dati e si aggiornano da soli (sul sito col Face ID no, per riservatezza). Copia di sicurezza automatica del foglio dati ogni lunedì notte nella cartella Backup sul Drive della band (restano le ultime 8), più il pulsante "Fai una copia adesso" in Altro.' },
   { v: '0.46', data: '2026-11-12', testo: 'Face ID: se su un dispositivo non è ancora attivo (es. attivato solo col dito sul Mac), l\'app lo dice chiaramente e ti porta al PIN; poi lo attivi anche lì da Altro → Face ID. Nell\'elenco dei dispositivi compare anche "Mac".' },
   { v: '0.45', data: '2026-11-12', testo: 'Accesso con Face ID, come nell\'app delle finanze: funziona dall\'app fuori da Google (link in Altro → Face ID). Ognuno entra col suo PIN, attiva il Face ID sul suo telefono e da lì in poi entra guardando lo schermo. I dati restano nel foglio della band: online c\'è solo la pagina.' },
@@ -375,7 +377,7 @@ var LISTINO_V = 'Matrimonio';       // listino mostrato in Altro > Listino
 var VOCE_L = null;                  // voce di listino nel popup
 var SEL_P = '';                     // progetto aperto
 var FILTRO_PR = 'attivo';
-var NUM_TAB = 'incassi';            // Numeri: incassi | spese
+var NUM_TAB = 'incassi';            // Numeri: incassi | spese | pagamenti
 var CHAT_TG = [];                   // gruppi Telegram trovati
 var DOMANDE = [];                   // popup "Chiedi le info": [{ testo, on }]
 var occupato = false;               // una scrittura in corso
@@ -675,6 +677,11 @@ function vistaEventi() {
     }).join('') + '</div>' +
     '<div class="barra"><button class="btn-link" data-az="apriCalendario">📅 Solo nel calendario ›</button>' +
     '<button class="btn-link" data-vai="recap">📣 Recap prossime date ›</button></div>';
+  var pv = pagamentiVicini();
+  if (pv.length) h += '<button class="carta avviso-pag" data-az="vaiPagamenti">💳 ' + pv.map(function (p) {
+    var g = fraGiorni(p);
+    return '<b>' + esc(p.nome) + '</b> ' + (g < 0 ? 'scaduto da ' + (-g) + ' gg' : g === 0 ? 'scade oggi' : 'fra ' + g + ' gg');
+  }).join(' · ') + ' ›</button>';
   return h + '<div id="lista">' + listaHtml() + '</div>';
 }
 
@@ -1438,6 +1445,61 @@ function vistaSpese(anno) {
   return h;
 }
 
+// ─── Pagamenti e scadenze (dominio, abbonamenti…): nel calendario + mail ai tre prima e il giorno stesso
+function pagamenti() { return (DATI && DATI.pagamenti) || []; }
+function pagamentoAperto(p) { return !(p.ripeti === 'una volta' && p.pagatoIl); }
+function fraGiorni(p) { return giorniTra(DATI.oggi, p.scadenza); }
+function quandoPagamento(p) {
+  var g = fraGiorni(p);
+  if (!pagamentoAperto(p)) return '<span class="pill ok">pagato il ' + esc(dataIt(p.pagatoIl)) + '</span>';
+  if (g < 0) return '<span class="pill no">scaduto da ' + (-g) + (g === -1 ? ' giorno' : ' giorni') + '</span>';
+  if (g === 0) return '<span class="pill no">scade oggi</span>';
+  return '<span class="pill' + (g <= Math.max(7, Number(p.avviso || 0)) ? ' no' : '') + '">fra ' + g + (g === 1 ? ' giorno' : ' giorni') + '</span>';
+}
+/** Pagamenti da fare a breve (o già scaduti): l'avviso in cima a Eventi. */
+function pagamentiVicini() {
+  return pagamenti().filter(function (p) { return pagamentoAperto(p) && fraGiorni(p) <= Math.max(7, Number(p.avviso || 0)); })
+    .sort(function (a, b) { return a.scadenza < b.scadenza ? -1 : 1; });
+}
+function vistaPagamenti() {
+  var l = pagamenti().slice().sort(function (a, b) {
+    var x = pagamentoAperto(a), y = pagamentoAperto(b);
+    return x !== y ? (x ? -1 : 1) : (a.scadenza < b.scadenza ? -1 : 1);
+  });
+  var h = '<div class="barra"><h2>Da pagare</h2><button class="btn" data-az="nuovoPagamento">+ Pagamento</button></div>' +
+    '<p class="tenue" style="margin-top:0">Ogni scadenza va nel calendario della band e arriva una mail a tutti e tre qualche giorno prima e il giorno stesso.</p>';
+  h += l.length ? l.map(function (p) {
+    var aperto = pagamentoAperto(p);
+    return '<div class="carta"><button class="ev" style="border:0;padding:0;background:none;width:100%" data-az="apriPagamento" data-id="' + esc(p.id) + '">' +
+      '<div class="ev-corpo"><div class="ev-tit">' + esc(p.nome) + '</div>' +
+      '<div class="ev-sotto">' + esc([dataIt(p.scadenza), p.ripeti !== 'una volta' && p.ripeti, p.chi && 'paga ' + p.chi].filter(Boolean).join(' · ')) + '</div>' +
+      '<div style="margin-top:4px">' + quandoPagamento(p) + '</div></div>' +
+      '<div class="ev-dx">' + (p.importo ? euro(p.importo) : '') + '</div></button>' +
+      (aperto ? '<div class="bottoni" style="margin-top:8px">' + (p.link ? '<a class="btn-sec" href="' + esc(p.link) + '" target="_blank" rel="noopener">Vai a pagare ›</a>' : '') +
+        '<button class="btn" data-az="pagato" data-id="' + esc(p.id) + '">✓ Pagato</button></div>' : '') + '</div>';
+  }).join('') : '<p class="vuoto">Nessun pagamento. Premi <b>+ Pagamento</b> per aggiungere, per esempio, il rinnovo del dominio.</p>';
+  return h;
+}
+function apriFormPagamento(x) {
+  var p = x || { id: '', nome: '', importo: '', scadenza: '', ripeti: 'ogni anno', chi: '', avviso: '7', link: '', note: '' };
+  var opz = function (lista, val, testo) { return lista.map(function (v) { return '<option value="' + esc(v) + '"' + (String(v) === String(val) ? ' selected' : '') + '>' + esc(testo ? testo(v) : (v || '—')) + '</option>'; }).join(''); };
+  apriModale('<h2>' + (p.id ? 'Modifica pagamento' : 'Nuovo pagamento') + '</h2>' +
+    '<label for="pg-nome">Cosa c\'è da pagare</label><input id="pg-nome" value="' + esc(p.nome) + '" placeholder="es. Rinnovo dominio">' +
+    '<div class="campi" style="grid-template-columns:1fr 1fr">' +
+    '<div><label for="pg-scadenza">Scadenza</label><input id="pg-scadenza" type="date" value="' + esc(p.scadenza) + '"></div>' +
+    '<div><label for="pg-importo">Importo € (se lo sai)</label><input id="pg-importo" inputmode="decimal" value="' + esc(p.importo) + '"></div></div>' +
+    '<div class="campi" style="grid-template-columns:1fr 1fr">' +
+    '<div><label for="pg-ripeti">Si ripete</label><select id="pg-ripeti">' + opz(DATI.liste.ripeti, p.ripeti) + '</select></div>' +
+    '<div><label for="pg-chi">Chi paga</label><select id="pg-chi">' + opz([''].concat(DATI.liste.membri, ['Cassa band']), p.chi) + '</select></div></div>' +
+    '<label for="pg-avviso">Mail di promemoria</label><select id="pg-avviso">' + opz(DATI.liste.avvisi, p.avviso, function (n) {
+      return n ? n + ' giorni prima e il giorno stesso' : 'solo il giorno stesso';
+    }) + '</select>' +
+    '<label for="pg-link">Link dove si paga (facoltativo)</label><input id="pg-link" inputmode="url" value="' + esc(p.link) + '" placeholder="https://…">' +
+    '<label for="pg-note">Note</label><textarea id="pg-note" rows="2">' + esc(p.note) + '</textarea>' +
+    '<div class="bottoni"><button class="btn-sec" data-az="annulla">Annulla</button>' + (p.id ? '<button class="btn-pericolo" data-az="eliminaPagamento" data-id="' + esc(p.id) + '">Elimina</button>' : '') +
+    '<button class="btn" data-az="salvaPagamento" data-id="' + esc(p.id) + '">Salva</button></div>', 'pagamento');
+}
+
 function apriFormSpesa(x) {
   var s = x || { id: '', data: DATI.oggi, importo: '', piattaforma: '', categoria: 'Pubblicità e piattaforme', descrizione: '', pagatoDa: '' };
   apriModale('<h2>' + (s.id ? 'Modifica spesa' : 'Nuova spesa') + '</h2><div class="campi" style="grid-template-columns:1fr 1fr">' +
@@ -1831,9 +1893,11 @@ function vistaRiepilogo() {
   var r = calcolaRiepilogo(ANNO_RIEP);
   var maxMese = Math.max.apply(null, r.mesi.map(function (m) { return m.fatto + m.futuro; }).concat([1]));
   var tessera = function (n, l, forte) { return '<div class="tessera' + (forte ? ' forte' : '') + '"><div class="n">' + n + '</div><div class="l">' + l + '</div></div>'; };
-  var testa = '<h1>Numeri</h1><div class="chips">' + [['incassi', '💶 Incassi'], ['spese', '📉 Spese e ROI']].map(function (t) {
+  var schede = '<h1>Numeri</h1><div class="chips">' + [['incassi', '💶 Incassi'], ['spese', '📉 Spese e ROI'], ['pagamenti', '💳 Pagamenti']].map(function (t) {
       return '<button class="chip' + (NUM_TAB === t[0] ? ' attivo' : '') + '" data-az="numTab" data-v="' + t[0] + '">' + t[1] + '</button>';
-    }).join('') + '</div><div class="chips">' + a.map(function (x) {
+    }).join('') + '</div>';
+  if (NUM_TAB === 'pagamenti') return schede + vistaPagamenti();
+  var testa = schede + '<div class="chips">' + a.map(function (x) {
       return '<button class="chip' + (x === ANNO_RIEP ? ' attivo' : '') + '" data-az="annoRiep" data-v="' + x + '">' + x + '</button>';
     }).join('') + '</div>';
   if (NUM_TAB === 'spese') return testa + vistaSpese(ANNO_RIEP);
@@ -2341,6 +2405,32 @@ var COMANDI = {
   eliminaCompito: function (d) { chiudiModale(); scrivi('eliminaCompito', { id: d.id }, function () { disegna(); }); },
   // spese
   numTab: function (d) { NUM_TAB = d.v; disegna(); },
+  vaiPagamenti: function () { NUM_TAB = 'pagamenti'; vai('riepilogo'); },
+  nuovoPagamento: function () { apriFormPagamento(null); },
+  apriPagamento: function (d) { var p = pagamenti().filter(function (y) { return y.id === d.id; })[0]; if (p) apriFormPagamento(p); },
+  salvaPagamento: function (d) {
+    var p = { id: d.id || '' };
+    ['nome', 'scadenza', 'importo', 'ripeti', 'chi', 'avviso', 'link', 'note'].forEach(function (k) { p[k] = String($('pg-' + k).value || '').trim(); });
+    if (!p.nome) return avviso('Scrivi cosa c\'è da pagare.', true);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(p.scadenza)) return avviso('Metti la data della scadenza.', true);
+    p.importo = p.importo.replace(/[€\s]/g, '').replace(',', '.');
+    if (p.importo && !/^\d+(\.\d{1,2})?$/.test(p.importo)) return avviso('Importo non valido.', true);
+    if (p.link && !/^https?:\/\//i.test(p.link)) p.link = 'https://' + p.link;
+    chiudiModale();
+    scrivi('salvaPagamento', { pagamento: p }, function () { disegna(); });
+  },
+  eliminaPagamento: function (d) {
+    chiedi('Eliminare questo pagamento? Sparisce anche dal calendario.', 'Elimina', function () { scrivi('eliminaPagamento', { id: d.id }, function () { disegna(); }); });
+  },
+  pagato: function (d) {
+    var p = pagamenti().filter(function (y) { return y.id === d.id; })[0];
+    if (!p) return;
+    var dopo = p.ripeti !== 'una volta' ? ' La scadenza passa ' + (p.ripeti === 'ogni mese' ? 'al mese dopo.' : 'all\'anno prossimo.') : '';
+    if (!p.importo) return chiedi('Segnare "' + p.nome + '" come pagato?' + dopo, '✓ Pagato', function () { scrivi('segnaPagato', { id: d.id }, function () { disegna(); }); });
+    chiedi2('Segnare "' + p.nome + '" (' + euro(p.importo) + ') come pagato?' + dopo + ' Lo metto anche nelle Spese?', 'Sì, anche nelle spese', 'Solo pagato',
+      function () { scrivi('segnaPagato', { id: d.id, spesa: true }, function () { disegna(); }); },
+      function () { scrivi('segnaPagato', { id: d.id }, function () { disegna(); }); });
+  },
   nuovaSpesa: function () { apriFormSpesa(null); },
   apriSpesa: function (d) { var x = spese().filter(function (y) { return y.id === d.id; })[0]; if (x) apriFormSpesa(x); },
   salvaSpesa: function (d) {
