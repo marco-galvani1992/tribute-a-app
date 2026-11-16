@@ -89,6 +89,7 @@
   .pill.ok { background: rgba(92,194,138,.16); color: var(--verde); }
   .pill.att { background: rgba(242,193,78,.16); color: var(--giallo); }
   .pill.no { background: rgba(239,107,91,.16); color: var(--rosso); }
+  .richiesta-nuova { border-color: var(--arancio, #f08a3c); }
   .avviso-pag { display: block; width: 100%; text-align: left; color: inherit; font: inherit; cursor: pointer; border-color: var(--rosso); margin-top: 8px; }
   .pill.neutra { background: var(--carta2); color: var(--tenue); }
   .riassunto { font-size: 13px; color: var(--tenue); margin: 2px 0 10px; }
@@ -238,7 +239,7 @@
   .contatto a { text-decoration: none; font-size: 20px; margin-left: 6px; }
   .btn-x { background: none; color: var(--tenue); font-size: 22px; padding: 4px 8px; min-height: 36px; }
 </style>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; base-uri 'self'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-SGt6ctRr9FVdrE7+IUJumhhukNcyYajtqhVNFH5s+JE='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -258,8 +259,9 @@
 
 <script>
 // ─── Versione e changelog: VERSIONE deve essere uguale alla prima voce (lo controlla il test)
-var VERSIONE = '0.48';
+var VERSIONE = '0.49';
 var CHANGELOG = [
+  { v: '0.49', data: '2026-11-16', testo: 'Le richieste di preventivo dal sito www.tribute-a.it arrivano qui: Preventivi → 📥 Dal sito (con il numero rosso sulla barra) e una mail a tutti e tre; "Fai preventivo" compila già data, tipo, luogo e telefono. Face ID più veloce: il telefono si ricorda chi sei e prepara il Face ID appena apri l\'app. Più sicurezza: dopo 5 PIN sbagliati il blocco raddoppia ogni volta (fino a 24 ore) e arriva una mail di avviso a tutti; nuovo "Cambia PIN" in Altro (6-8 cifre, chiude gli altri dispositivi); l\'app sul sito esegue solo il suo codice.' },
   { v: '0.48', data: '2026-11-16', testo: 'Nuova sezione Pagamenti (Numeri → 💳 Pagamenti): dominio, abbonamenti e tutto quello da pagare, con scadenza, importo, chi paga e se si ripete ogni mese o ogni anno. Ogni scadenza finisce nel calendario della band e arriva una mail a tutti e tre qualche giorno prima e il giorno stesso. Con "✓ Pagato" passa da sola all\'anno (o mese) dopo e, se volete, finisce anche nelle Spese. Quando una scadenza è vicina compare un avviso in cima a Eventi.' },
   { v: '0.47', data: '2026-11-12', testo: 'Apertura istantanea dal link di Google: si vedono subito gli ultimi dati e si aggiornano da soli (sul sito col Face ID no, per riservatezza). Copia di sicurezza automatica del foglio dati ogni lunedì notte nella cartella Backup sul Drive della band (restano le ultime 8), più il pulsante "Fai una copia adesso" in Altro.' },
   { v: '0.46', data: '2026-11-12', testo: 'Face ID: se su un dispositivo non è ancora attivo (es. attivato solo col dito sul Mac), l\'app lo dice chiaramente e ti porta al PIN; poi lo attivi anche lì da Altro → Face ID. Nell\'elenco dei dispositivi compare anche "Mac".' },
@@ -459,10 +461,24 @@ function nomeDispositivo() {
   return /iPad/.test(u) ? 'iPad' : /iPhone/.test(u) ? 'iPhone' : /Android/.test(u) ? 'Android' : /Macintosh|Mac OS/.test(u) ? 'Mac' : /Windows/.test(u) ? 'PC' : 'questo dispositivo';
 }
 var PUO_FACEID = FUORI && typeof window !== 'undefined' && !!window.PublicKeyCredential && !!(navigator.credentials && navigator.credentials.get);
-function caricaSfida(nome) {
-  SFIDA = null;
-  google.script.run.withSuccessHandler(function (x) { SFIDA = x; SFIDA.nome = nome; }).withFailureHandler(function () { SFIDA = null; }).sfidaPasskey(nome);
+// La "sfida" del Face ID (codice usa e getta del server, vale 5 minuti) si chiede subito all'apertura per il nome usato
+// l'ultima volta su questo dispositivo, e si rinnova ogni 4 minuti: così al tocco è già pronta e non si aspetta.
+var SFIDA_IN_ARRIVO = '', SFIDA_ORA = 0, SFIDA_KO = 0;
+function caricaSfida(nome, subito) {
+  if (!PUO_FACEID || !nome || SFIDA_IN_ARRIVO === nome) return;
+  if (!subito && Date.now() - SFIDA_KO < 10000) return; // dopo un errore si riprova con calma (o al tocco)
+  SFIDA = null; SFIDA_IN_ARRIVO = nome;
+  google.script.run.withSuccessHandler(function (x) {
+    SFIDA_IN_ARRIVO = '';
+    if (nome !== LOGIN_NOME) return;
+    SFIDA = x; SFIDA.nome = nome; SFIDA_ORA = Date.now();
+    if (DATI && DATI.login && $('btn-faceid')) disegna(); // il bottone da "Preparo…" diventa pronto
+  }).withFailureHandler(function () { SFIDA_IN_ARRIVO = ''; SFIDA = null; SFIDA_KO = Date.now(); if (DATI && DATI.login) disegna(); }).sfidaPasskey(nome);
 }
+function sfidaPronta() { return SFIDA && SFIDA.nome === LOGIN_NOME && Date.now() - SFIDA_ORA < 4 * 60000; }
+if (typeof setInterval === 'function') setInterval(function () {
+  if (DATI && DATI.login && LOGIN_NOME && !sfidaPronta()) caricaSfida(LOGIN_NOME);
+}, 30000);
 function faceIdHtml() {
   var h = '<h2>🔐 Face ID</h2><div class="carta">';
   if (!FUORI) {
@@ -551,7 +567,7 @@ function disegna() {
   $('testa').innerHTML = inLogin ? '' : testaHtml();
   $('nav').innerHTML = inLogin ? '' : VISTE.map(function (x) {
     var attiva = x.id === V || PADRE[V] === x.id;
-    var n = x.id === 'messaggi' ? daMandare().length : 0;
+    var n = x.id === 'messaggi' ? daMandare().length : x.id === 'preventivi' ? richiesteNuove() : 0;
     return '<button data-vai="' + x.id + '" class="' + (attiva ? 'attiva' : '') + '">' +
       '<span class="ico">' + x.ico + (n ? '<span class="badge">' + n + '</span>' : '') + '</span><span>' + x.nome + '</span></button>';
   }).join('');
@@ -621,14 +637,16 @@ function vistaLogin() {
   }
   h += '<p>Ciao <b>' + esc(m.nome) + '</b></p>';
   if (PUO_FACEID && m.faceId && m.haPin) {
-    if (!SFIDA || SFIDA.nome !== m.nome) caricaSfida(m.nome);
-    h += '<button class="btn btn-largo" style="font-size:20px;padding:16px" data-az="faceId">🔓 Entra con Face ID</button>' +
-      '<p class="tenue" style="margin:16px 0 4px">oppure con il PIN</p>';
+    if (!sfidaPronta()) caricaSfida(m.nome);
+    h += sfidaPronta() ? '<button id="btn-faceid" class="btn btn-largo" style="font-size:20px;padding:16px" data-az="faceId">🔓 Entra con Face ID</button>' :
+      (Date.now() - SFIDA_KO < 10000 ? '<button id="btn-faceid" class="btn btn-largo" style="font-size:20px;padding:16px" data-az="faceId">🔄 Riprova il Face ID</button>' :
+      '<button id="btn-faceid" class="btn btn-largo" style="font-size:20px;padding:16px;opacity:.6" disabled>⏳ Preparo il Face ID…</button>');
+    h += '<p class="tenue" style="margin:16px 0 4px">oppure con il PIN</p>';
   }
   if (m.haPin) {
     h += '<label for="pin">Il tuo PIN</label><input id="pin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="8">';
   } else {
-    h += '<p class="tenue">Primo accesso: scegli un PIN di 4-8 cifre. Ti servirà solo ogni 30 giorni.</p>' +
+    h += '<p class="tenue">Primo accesso: scegli un PIN di 6-8 cifre (non 123456 o 111111).</p>' +
       '<label for="pin">Nuovo PIN</label><input id="pin" type="password" inputmode="numeric" autocomplete="new-password" maxlength="8">' +
       '<label for="pin2">Ripeti il PIN</label><input id="pin2" type="password" inputmode="numeric" autocomplete="new-password" maxlength="8">';
   }
@@ -1670,10 +1688,31 @@ function leggiModuloPrev() {
   });
 }
 
+// ─── Richieste dal modulo del sito (www.tribute-a.it)
+function richiesteSito() { return ((DATI && DATI.richiesteSito) || []).slice().sort(function (a, b) { return a.creato < b.creato ? 1 : -1; }); }
+function richiesteNuove() { return richiesteSito().filter(function (x) { return x.stato === 'nuova'; }).length; }
+var TIPO_DA_SITO = { 'Matrimonio': 'Matrimonio', 'Festa privata': 'Privato', 'Locale o pub': 'Locale', 'Sagra o piazza': 'Sagra', 'Azienda': 'Altro' };
+function richiesteSitoHtml() {
+  var l = richiesteSito();
+  if (!l.length) return '';
+  return '<h2>📥 Dal sito' + (richiesteNuove() ? ' <span class="pill no">' + richiesteNuove() + (richiesteNuove() === 1 ? ' nuova' : ' nuove') + '</span>' : '') + '</h2>' + l.map(function (x) {
+    var tel = soloCifre(x.telefono);
+    return '<div class="carta' + (x.stato === 'nuova' ? ' richiesta-nuova' : '') + '"><div class="riga"><b>' + esc(x.nome) + '</b><span class="tenue">' + esc(dataIt(String(x.creato).slice(0, 10))) + '</span></div>' +
+      '<div>' + esc(x.tipo) + ' · <b>' + esc(dataIt(x.data)) + '</b> · ' + esc(x.dove) + '</div>' +
+      '<div class="tenue">' + esc([numeroLeggibile(tel) || x.telefono, x.email].filter(Boolean).join(' · ')) + '</div>' +
+      (x.messaggio ? '<p style="margin:6px 0 0;white-space:pre-wrap">' + esc(x.messaggio) + '</p>' : '') +
+      '<div class="bottoni" style="margin-top:10px">' +
+      (tel ? '<a class="btn-sec" href="https://wa.me/' + esc(tel) + '" target="_blank" rel="noopener">💬 WhatsApp</a>' : '') +
+      (x.stato === 'nuova' ? '<button class="btn" data-az="prevDaSito" data-id="' + esc(x.id) + '">📝 Fai preventivo</button>' : '<span class="pill ok">gestita' + (x.gestitoDa ? ' da ' + esc(x.gestitoDa) : '') + '</span>') +
+      '<button class="btn-link" data-az="archiviaSito" data-id="' + esc(x.id) + '">Archivia</button></div></div>';
+  }).join('');
+}
+
 function vistaPreventivi() {
   var l = preventivi().filter(function (p) { return !FILTRO_P || p.stato === FILTRO_P; })
     .sort(function (a, b) { return a.numero < b.numero ? 1 : -1; });
-  return '<div class="barra"><h1>Preventivi</h1><button class="btn" data-az="nuovoPrev">+ Nuovo</button></div>' +
+  return '<div class="barra"><h1>Preventivi</h1><button class="btn" data-az="nuovoPrev">+ Nuovo</button></div>' + richiesteSitoHtml() +
+    (richiesteSito().length ? '<h2>I vostri preventivi</h2>' : '') +
     '<div class="chips">' + [''].concat(DATI.liste.statiPreventivo).map(function (x) {
       return '<button class="chip' + (FILTRO_P === x ? ' attivo' : '') + '" data-az="filtroP" data-v="' + x + '">' + (x || 'Tutti') + '</button>';
     }).join('') + '</div>' +
@@ -1995,6 +2034,8 @@ function vistaAltro() {
       return '<button class="voce" data-az="scegliChat" data-i="' + i + '">' + esc(c.nome) + '</button>';
     }).join('') : '') + '</div>' +
     faceIdHtml() +
+    '<h2>🔑 PIN</h2><div class="carta"><p style="margin-top:0">Il PIN serve se il Face ID non c\'è. Cambiandolo, gli altri tuoi dispositivi dovranno rientrare: ' +
+    'utile se pensi che qualcuno lo conosca.</p><button class="btn-sec btn-largo" data-az="apriCambiaPin">Cambia PIN</button></div>' +
     '<h2>Preventivi</h2><div class="carta"><button class="btn-sec btn-largo" style="margin-top:0" data-vai="listino">💶 Listino prezzi ›</button></div>' +
     '<h2>Rubrica</h2><div class="carta"><p style="margin-top:0">Ogni evento salvato mette da solo in rubrica referente e location. ' +
     'Per le date già importate, premi qui una volta: un referente che compare in più matrimoni diventa "Wedding planner".</p>' +
@@ -2218,9 +2259,14 @@ function esci() {
 
 // ─── Comandi dei bottoni (data-az="nome")
 var COMANDI = {
-  scegliNome: function (d) { LOGIN_NOME = d.nome || ''; disegna(); },
+  scegliNome: function (d) {
+    LOGIN_NOME = d.nome || '';
+    try { if (LOGIN_NOME) localStorage.setItem('ultimoNome', LOGIN_NOME); else localStorage.removeItem('ultimoNome'); } catch (e) { /* niente */ }
+    if (LOGIN_NOME) caricaSfida(LOGIN_NOME);
+    disegna();
+  },
   faceId: function () {
-    if (!SFIDA || SFIDA.nome !== LOGIN_NOME) { caricaSfida(LOGIN_NOME); return avviso('Un attimo, riprova fra un secondo…'); }
+    if (!sfidaPronta()) { SFIDA_KO = 0; caricaSfida(LOGIN_NOME, true); return disegna(); }
     var sf = SFIDA; SFIDA = null;
     navigator.credentials.get({ publicKey: { challenge: deb64u(sf.challenge), rpId: sf.rpId, userVerification: 'required', timeout: 60000,
       allowCredentials: sf.ids.map(function (id) { return { type: 'public-key', id: deb64u(id) }; }) } })
@@ -2268,6 +2314,7 @@ var COMANDI = {
     if (!m || occupato) return;
     var pin = $('pin').value.trim();
     if (!/^\d{4,8}$/.test(pin)) return avviso('Il PIN deve avere da 4 a 8 cifre.', true);
+    if (!m.haPin && pin.length < 6) return avviso('Scegli un PIN di almeno 6 cifre.', true);
     if (!m.haPin && $('pin2').value.trim() !== pin) return avviso('I due PIN non sono uguali.', true);
     occupato = true;
     avviso('Accesso…');
@@ -2432,6 +2479,22 @@ var COMANDI = {
       function () { scrivi('segnaPagato', { id: d.id }, function () { disegna(); }); });
   },
   nuovaSpesa: function () { apriFormSpesa(null); },
+  apriCambiaPin: function () {
+    apriModale('<h2>Cambia PIN</h2><label for="cp-vecchio">PIN attuale</label><input id="cp-vecchio" type="password" inputmode="numeric" autocomplete="current-password" maxlength="8">' +
+      '<label for="cp-nuovo">Nuovo PIN (6-8 cifre, non 123456 o 111111)</label><input id="cp-nuovo" type="password" inputmode="numeric" autocomplete="new-password" maxlength="8">' +
+      '<label for="cp-nuovo2">Ripeti il nuovo PIN</label><input id="cp-nuovo2" type="password" inputmode="numeric" autocomplete="new-password" maxlength="8">' +
+      '<div class="bottoni"><button class="btn-sec" data-az="annulla">Annulla</button><button class="btn" data-az="cambiaPin">Cambia</button></div>', 'pin');
+  },
+  cambiaPin: function () {
+    var v = $('cp-vecchio').value.trim(), n = $('cp-nuovo').value.trim();
+    if (!/^\d{6,8}$/.test(n)) return avviso('Il nuovo PIN deve avere da 6 a 8 cifre.', true);
+    if (n !== $('cp-nuovo2').value.trim()) return avviso('I due PIN nuovi non sono uguali.', true);
+    chiudiModale();
+    scrivi('cambiaPin', { vecchio: v, nuovo: n }, function (d) {
+      if (d && d.token) { SESS = d.token; ricorda('tok', SESS); }
+      disegna();
+    });
+  },
   apriSpesa: function (d) { var x = spese().filter(function (y) { return y.id === d.id; })[0]; if (x) apriFormSpesa(x); },
   salvaSpesa: function (d) {
     var x = { id: d.id || '' };
@@ -2499,6 +2562,26 @@ var COMANDI = {
   // preventivi
   filtroP: function (d) { FILTRO_P = d.v; disegna(); },
   nuovoPrev: function () { PREV = nuovoPrev(); SEL = ''; vai('preventivo'); },
+  prevDaSito: function (d) {
+    var x = richiesteSito().filter(function (y) { return y.id === d.id; })[0];
+    if (!x) return;
+    var tipo = TIPO_DA_SITO[x.tipo] || 'Altro', mese = Number(String(x.data).slice(5, 7));
+    PREV = nuovoPrev();
+    PREV.listino = tipo === 'Matrimonio' ? 'Matrimonio' : (mese >= 5 && mese <= 9 ? 'Estate' : 'Inverno');
+    PREV.evento = { tipo: tipo, data: x.data, titolo: x.nome, luogo: x.dove, referente: x.nome, telefono: x.telefono, tramite: 'Sito',
+      note: ['Richiesta dal sito il ' + dataIt(String(x.creato).slice(0, 10)), x.email && 'Email: ' + x.email, x.messaggio].filter(Boolean).join('\n') };
+    SEL = '';
+    scrivi('statoRichiestaSito', { id: x.id, stato: 'gestita' }, function () { vai('preventivo'); }, function () {
+      DATI.richiesteSito.forEach(function (y) { if (y.id === x.id) y.stato = 'gestita'; });
+    });
+  },
+  archiviaSito: function (d) {
+    chiedi('Archiviare questa richiesta? Sparisce dall\'elenco (resta nel foglio dati).', 'Archivia', function () {
+      scrivi('statoRichiestaSito', { id: d.id, stato: 'archiviata' }, function () { disegna(); }, function () {
+        DATI.richiesteSito = DATI.richiesteSito.filter(function (y) { return y.id !== d.id; });
+      });
+    });
+  },
   apriPrev: function (d) { var p = preventivi().filter(function (x) { return x.id === d.id; })[0]; if (p) apriPrev(p); },
   chiudiPrev: function () { PREV = null; vai('preventivi'); },
   prevListino: function (d) {
@@ -2847,6 +2930,13 @@ setInterval(function () {
 
 // Avvio: con un token salvato si chiedono i dati veri, altrimenti basta il login
 // Avvio istantaneo: con un token si mostrano subito gli ultimi dati salvati su questo dispositivo, poi arrivano quelli veri
+// Sito col Face ID: il nome usato l'ultima volta su questo dispositivo (solo il nome, nessun dato) per preparare subito il Face ID
+if (FUORI && !SESS) {
+  try { LOGIN_NOME = localStorage.getItem('ultimoNome') || ''; } catch (e) { LOGIN_NOME = ''; }
+  if (LOGIN_NOME) caricaSfida(LOGIN_NOME);
+}
+// Il sito non si apre dentro le pagine di altri (contro chi lo mette in una cornice per rubare i tocchi)
+if (FUORI && typeof window !== 'undefined' && window.top && window.top !== window.self) { try { window.top.location = window.self.location.href; } catch (e) { document.body.innerHTML = ''; } }
 if (SESS || !DATI) {
   var COPIA = SESS ? copiaDati() : null;
   DATI = COPIA || (SESS ? null : DATI);
