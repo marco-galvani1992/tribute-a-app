@@ -296,7 +296,7 @@
   .avviso-pag { border-color: var(--fiamma); background: linear-gradient(90deg, rgba(217,76,26,.22), rgba(21,55,59,.72)); }
   .richiesta-nuova { border-color: var(--arancio); }
 </style>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-ZbFk+6kkADsOKP3Dek2Mnp8h0wSEHaXecRhBO/o9eSY='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-+TZ9fqm/ioPiRcpUrkF4sqgIYUghcmd3X7K89leo95c='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -316,8 +316,9 @@
 
 <script>
 // ─── Versione e changelog: VERSIONE deve essere uguale alla prima voce (lo controlla il test)
-var VERSIONE = '0.50';
+var VERSIONE = '0.51';
 var CHANGELOG = [
+  { v: '0.51', data: '2026-11-17', testo: 'I prossimi concerti pubblici arrivano da soli su www.tribute-a.it: solo locali e sagre confermati, mai matrimoni, feste private o aziende, e solo data, nome del posto, paese e ora. Nella scheda di un locale o di una sagra si può nascondere la data dal sito (🌐 Nascondi).' },
   { v: '0.50', data: '2026-11-16', testo: 'Nuova grafica, come il sito: i colori del fumo delle grafiche 2026, la grana da pellicola e i font dei listini (Montserrat). Entrata molto più veloce: i dati arrivano compressi dalla memoria veloce di Google invece di rileggere il foglio scheda per scheda, e chi entra non aspetta più i lavori in sottofondo.' },
   { v: '0.49', data: '2026-11-16', testo: 'Le richieste di preventivo dal sito www.tribute-a.it arrivano qui: Preventivi → 📥 Dal sito (con il numero rosso sulla barra) e una mail a tutti e tre; "Fai preventivo" compila già data, tipo, luogo e telefono. Face ID più veloce: il telefono si ricorda chi sei e prepara il Face ID appena apri l\'app. Più sicurezza: dopo 5 PIN sbagliati il blocco raddoppia ogni volta (fino a 24 ore) e arriva una mail di avviso a tutti; nuovo "Cambia PIN" in Altro (6-8 cifre, chiude gli altri dispositivi); l\'app sul sito esegue solo il suo codice.' },
   { v: '0.48', data: '2026-11-16', testo: 'Nuova sezione Pagamenti (Numeri → 💳 Pagamenti): dominio, abbonamenti e tutto quello da pagare, con scadenza, importo, chi paga e se si ripete ogni mese o ogni anno. Ogni scadenza finisce nel calendario della band e arriva una mail a tutti e tre qualche giorno prima e il giorno stesso. Con "✓ Pagato" passa da sola all\'anno (o mese) dopo e, se volete, finisce anche nelle Spese. Quando una scadenza è vicina compare un avviso in cima a Eventi.' },
@@ -806,6 +807,11 @@ function vistaEvento() {
       '<div><button class="btn-link" data-az="completa" data-id="' + esc(e.id) + '">Completa adesso ›</button></div></div>';
   }
   h += bloccoChiediInfo(e);
+  // Locali e sagre confermati: escono da soli tra i "prossimi concerti" di www.tribute-a.it (si possono nascondere)
+  if (futuro && e.stato === 'confermato' && (e.tipo === 'Locale' || e.tipo === 'Sagra')) {
+    h += '<div class="carta riga" style="align-items:center"><span>' + (e.nascondiSito === 'Sì' ? '🙈 Nascosto dal sito' : '🌐 Sul sito tra i prossimi concerti') + '</span>' +
+      '<button class="btn-link" data-az="sitoEvento" data-id="' + esc(e.id) + '">' + (e.nascondiSito === 'Sì' ? 'Mostra' : 'Nascondi') + '</button></div>';
+  }
   h += '<div class="azioni">' +
     (tel ? '<a class="btn-sec" target="_blank" rel="noopener" href="https://wa.me/' + tel + '">💬 WhatsApp</a>' +
       '<a class="btn-sec" href="tel:+' + tel + '">📞 Chiama</a>' : '') +
@@ -2535,6 +2541,12 @@ var COMANDI = {
     chiedi2('Segnare "' + p.nome + '" (' + euro(p.importo) + ') come pagato?' + dopo + ' Lo metto anche nelle Spese?', 'Sì, anche nelle spese', 'Solo pagato',
       function () { scrivi('segnaPagato', { id: d.id, spesa: true }, function () { disegna(); }); },
       function () { scrivi('segnaPagato', { id: d.id }, function () { disegna(); }); });
+  },
+  sitoEvento: function (d) {
+    var e = trova(d.id);
+    if (!e) return;
+    var v = e.nascondiSito === 'Sì' ? '' : 'Sì';
+    scrivi('salvaEvento', { evento: { id: e.id, nascondiSito: v } }, function () { disegna(); }, function () { e.nascondiSito = v; });
   },
   nuovaSpesa: function () { apriFormSpesa(null); },
   apriCambiaPin: function () {
