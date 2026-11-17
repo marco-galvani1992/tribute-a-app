@@ -139,12 +139,14 @@
   #nav:empty { display: none; }
   #nav button { flex: 1; min-width: 0; background: none; color: var(--tenue); border-radius: 0; height: var(--nav-h); padding: 0 1px;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 10px; letter-spacing: -.01em; }
-  #nav button .ico { font-size: 20px; }
+  #nav button .ico { font-size: 20px; display: inline-flex; }
+  #nav .ico svg { width: 23px; height: 23px; }
+  #nav button.attiva .ico svg { stroke-width: 2.4; }
   #nav button.attiva { color: var(--arancio); font-weight: 700; }
   @media (min-width: 800px) {
     #nav { top: 0; right: auto; width: 210px; flex-direction: column; justify-content: flex-start;
       border-top: 0; border-right: 1px solid var(--bordo); padding: 76px 8px 16px; gap: 4px; }
-    #nav button { flex: 0 0 auto; flex-direction: row; justify-content: flex-start; gap: 10px;
+    #nav button { flex: 0 0 auto; flex-direction: row; justify-content: flex-start; gap: 18px;
       height: 44px; padding: 0 12px; border-radius: 10px; font-size: 15px; }
     #nav button.attiva { background: var(--carta); }
     #testa { z-index: 11; }
@@ -296,7 +298,7 @@
   .avviso-pag { border-color: var(--fiamma); background: linear-gradient(90deg, rgba(217,76,26,.22), rgba(21,55,59,.72)); }
   .richiesta-nuova { border-color: var(--arancio); }
 </style>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-+TZ9fqm/ioPiRcpUrkF4sqgIYUghcmd3X7K89leo95c='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-zcJocX9QvtY5dUYLZY4m9ANLgro87LOVSGtL77p3nBM='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -316,8 +318,9 @@
 
 <script>
 // ─── Versione e changelog: VERSIONE deve essere uguale alla prima voce (lo controlla il test)
-var VERSIONE = '0.51';
+var VERSIONE = '0.52';
 var CHANGELOG = [
+  { v: '0.52', data: '2026-11-17', testo: 'Barra in basso con icone disegnate al posto delle emoji (Eventi, Preventivi, Messaggi, Contatti, Progetti, Numeri), più pulite e leggibili.' },
   { v: '0.51', data: '2026-11-17', testo: 'I prossimi concerti pubblici arrivano da soli su www.tribute-a.it: solo locali e sagre confermati, mai matrimoni, feste private o aziende, e solo data, nome del posto, paese e ora. Nella scheda di un locale o di una sagra si può nascondere la data dal sito (🌐 Nascondi).' },
   { v: '0.50', data: '2026-11-16', testo: 'Nuova grafica, come il sito: i colori del fumo delle grafiche 2026, la grana da pellicola e i font dei listini (Montserrat). Entrata molto più veloce: i dati arrivano compressi dalla memoria veloce di Google invece di rileggere il foglio scheda per scheda, e chi entra non aspetta più i lavori in sottofondo.' },
   { v: '0.49', data: '2026-11-16', testo: 'Le richieste di preventivo dal sito www.tribute-a.it arrivano qui: Preventivi → 📥 Dal sito (con il numero rosso sulla barra) e una mail a tutti e tre; "Fai preventivo" compila già data, tipo, luogo e telefono. Face ID più veloce: il telefono si ricorda chi sei e prepara il Face ID appena apri l\'app. Più sicurezza: dopo 5 PIN sbagliati il blocco raddoppia ogni volta (fino a 24 ore) e arriva una mail di avviso a tutti; nuovo "Cambia PIN" in Altro (6-8 cifre, chiude gli altri dispositivi); l\'app sul sito esegue solo il suo codice.' },
@@ -450,12 +453,12 @@ var DA_LISTA = false;               // il popup "completa" è partito dall'elenc
 var LISTA_MOSTRATA = false;         // l'elenco "da completare" si mostra una volta per apertura
 
 var VISTE = [
-  { id: 'eventi',    ico: '📅', nome: 'Eventi' },
-  { id: 'preventivi', ico: '💶', nome: 'Preventivi' },
-  { id: 'messaggi',  ico: '✉️', nome: 'Messaggi' },
-  { id: 'contatti',  ico: '👥', nome: 'Contatti' },
-  { id: 'progetti',  ico: '🗂️', nome: 'Progetti' },
-  { id: 'riepilogo', ico: '📊', nome: 'Numeri' }
+  { id: 'eventi',    ico: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>', nome: 'Eventi' },
+  { id: 'preventivi', ico: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>', nome: 'Preventivi' },
+  { id: 'messaggi',  ico: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H8l-4 4z"/></svg>', nome: 'Messaggi' },
+  { id: 'contatti',  ico: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14.8c1.6.8 2.6 2.5 3 5.2"/></svg>', nome: 'Contatti' },
+  { id: 'progetti',  ico: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h7l2 2h9v10H3z"/></svg>', nome: 'Progetti' },
+  { id: 'riepilogo', ico: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11M12 20V5M19 20v-7"/></svg>', nome: 'Numeri' }
 ]; // "Altro" è sul nome in alto a destra
 // vista "figlia" -> voce della barra da accendere
 var PADRE = { evento: 'eventi', modifica: 'eventi', calendario: 'eventi', confronto: 'altro', doppioni: 'contatti', contatto: 'contatti', modello: 'messaggi',
