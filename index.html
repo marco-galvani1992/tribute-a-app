@@ -298,7 +298,7 @@
   .avviso-pag { border-color: var(--fiamma); background: linear-gradient(90deg, rgba(217,76,26,.22), rgba(21,55,59,.72)); }
   .richiesta-nuova { border-color: var(--arancio); }
 </style>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-zcJocX9QvtY5dUYLZY4m9ANLgro87LOVSGtL77p3nBM='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-Z/srtsskkcweQYWgvQ8+OOkruh9JySf2As/gUb8KO/8='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -318,8 +318,9 @@
 
 <script>
 // ─── Versione e changelog: VERSIONE deve essere uguale alla prima voce (lo controlla il test)
-var VERSIONE = '0.52';
+var VERSIONE = '0.53';
 var CHANGELOG = [
+  { v: '0.53', data: '2026-11-18', testo: 'Nuova scheda Numeri → 🏦 Cassa: quanto deve la cassa della band a Galva, Pope e Tuzzi per le spese pagate di tasca propria. "+ Spesa" sotto il nome di ognuno, "✓ Rimborsata" per una spesa o "Rimborsato tutto", e l\'elenco degli ultimi rimborsi (con ↩︎ Rimetti se si sbaglia).' },
   { v: '0.52', data: '2026-11-17', testo: 'Barra in basso con icone disegnate al posto delle emoji (Eventi, Preventivi, Messaggi, Contatti, Progetti, Numeri), più pulite e leggibili.' },
   { v: '0.51', data: '2026-11-17', testo: 'I prossimi concerti pubblici arrivano da soli su www.tribute-a.it: solo locali e sagre confermati, mai matrimoni, feste private o aziende, e solo data, nome del posto, paese e ora. Nella scheda di un locale o di una sagra si può nascondere la data dal sito (🌐 Nascondi).' },
   { v: '0.50', data: '2026-11-16', testo: 'Nuova grafica, come il sito: i colori del fumo delle grafiche 2026, la grana da pellicola e i font dei listini (Montserrat). Entrata molto più veloce: i dati arrivano compressi dalla memoria veloce di Google invece di rileggere il foglio scheda per scheda, e chi entra non aspetta più i lavori in sottofondo.' },
@@ -441,7 +442,7 @@ var LISTINO_V = 'Matrimonio';       // listino mostrato in Altro > Listino
 var VOCE_L = null;                  // voce di listino nel popup
 var SEL_P = '';                     // progetto aperto
 var FILTRO_PR = 'attivo';
-var NUM_TAB = 'incassi';            // Numeri: incassi | spese | pagamenti
+var NUM_TAB = 'incassi';            // Numeri: incassi | spese | cassa | pagamenti
 var CHAT_TG = [];                   // gruppi Telegram trovati
 var DOMANDE = [];                   // popup "Chiedi le info": [{ testo, on }]
 var occupato = false;               // una scrittura in corso
@@ -1585,6 +1586,43 @@ function apriFormPagamento(x) {
     '<button class="btn" data-az="salvaPagamento" data-id="' + esc(p.id) + '">Salva</button></div>', 'pagamento');
 }
 
+// Fondo cassa (v0.53): chi ha pagato di tasca sua una spesa della band e non è ancora stato rimborsato.
+function daRimborsare(chi) {
+  return spese().filter(function (x) { return x.pagatoDa === chi && !x.rimborsato; })
+    .sort(function (a, b) { return a.data < b.data ? -1 : 1; });
+}
+function vistaCassa() {
+  var membri = DATI.liste.membri, tot = 0;
+  var conti = membri.map(function (m) {
+    var l = daRimborsare(m), t = l.reduce(function (s, x) { return s + (Number(x.importo) || 0); }, 0);
+    tot += t;
+    return { chi: m, lista: l, tot: t };
+  });
+  var h = '<p class="tenue" style="margin-top:0">Quanto deve la cassa della band a ognuno per le spese pagate di tasca propria. ' +
+    'Quando uno viene rimborsato, premi "Rimborsato".</p>' +
+    '<div class="tessere">' + conti.map(function (c) {
+      return '<div class="tessera' + (c.tot ? ' forte' : '') + '"><div class="n">' + euro(c.tot) + '</div><div class="l">la cassa deve a ' + esc(c.chi) + '</div></div>';
+    }).join('') + '<div class="tessera"><div class="n">' + euro(tot) + '</div><div class="l">Totale da rimborsare</div></div></div>';
+  conti.forEach(function (c) {
+    h += '<div class="barra"><h2>' + esc(c.chi) + '</h2><button class="btn-sec" data-az="nuovaSpesaDi" data-id="' + esc(c.chi) + '">+ Spesa</button></div>';
+    if (!c.lista.length) { h += '<p class="tenue">Niente da rimborsare.</p>'; return; }
+    h += c.lista.map(function (x) {
+      return '<div class="ev"><button class="btn-link ev-corpo" style="text-align:left" data-az="apriSpesa" data-id="' + esc(x.id) + '"><div class="ev-tit">' + esc(x.descrizione || x.categoria) + '</div>' +
+        '<div class="ev-sotto">' + esc(dataIt(x.data) + ' · ' + euro(x.importo)) + '</div></button>' +
+        '<button class="btn-sec" data-az="rimborsaUna" data-id="' + esc(x.id) + '">✓ Rimborsata</button></div>';
+    }).join('');
+    if (c.lista.length > 1) h += '<button class="btn btn-largo" data-az="rimborsaTutto" data-id="' + esc(c.chi) + '">Rimborsato tutto a ' + esc(c.chi) + ' (' + euro(c.tot) + ')</button>';
+  });
+  var fatti = spese().filter(function (x) { return x.rimborsato && membri.indexOf(x.pagatoDa) >= 0; })
+    .sort(function (a, b) { return a.rimborsato < b.rimborsato ? 1 : -1; }).slice(0, 15);
+  if (fatti.length) h += '<h2>Ultimi rimborsi</h2>' + fatti.map(function (x) {
+    return '<div class="ev"><div class="ev-corpo"><div class="ev-tit">' + esc(x.descrizione || x.categoria) + '</div>' +
+      '<div class="ev-sotto">' + esc(x.pagatoDa + ' · ' + euro(x.importo) + ' · rimborsata il ' + dataIt(x.rimborsato)) + '</div></div>' +
+      '<button class="btn-link" data-az="annullaRimborso" data-id="' + esc(x.id) + '">↩︎ Rimetti</button></div>';
+  }).join('');
+  return h;
+}
+
 function apriFormSpesa(x) {
   var s = x || { id: '', data: DATI.oggi, importo: '', piattaforma: '', categoria: 'Pubblicità e piattaforme', descrizione: '', pagatoDa: '' };
   apriModale('<h2>' + (s.id ? 'Modifica spesa' : 'Nuova spesa') + '</h2><div class="campi" style="grid-template-columns:1fr 1fr">' +
@@ -1596,6 +1634,8 @@ function apriFormSpesa(x) {
     '<label for="sp-pagatoDa">Pagato da</label><select id="sp-pagatoDa">' + [''].concat(DATI.liste.membri, ['Cassa band']).map(function (m) {
       return '<option value="' + m + '"' + (m === s.pagatoDa ? ' selected' : '') + '>' + (m || '—') + '</option>';
     }).join('') + '</select>' +
+    (s.rimborsato && s.pagatoDa ? '<p class="tenue">Rimborsata a ' + esc(s.pagatoDa) + ' il ' + esc(dataIt(s.rimborsato)) + '.</p>' :
+      '<p class="tenue">Se l\'ha pagata uno di voi di tasca sua, la cassa gliela deve finché non la segnate rimborsata (Numeri → 🏦 Cassa).</p>') +
     '<div class="bottoni"><button class="btn-sec" data-az="annulla">Annulla</button>' + (s.id ? '<button class="btn-pericolo" data-az="eliminaSpesa" data-id="' + esc(s.id) + '">Elimina</button>' : '') +
     '<button class="btn" data-az="salvaSpesa" data-id="' + esc(s.id) + '">Salva</button></div>', 'spesa');
 }
@@ -1999,10 +2039,11 @@ function vistaRiepilogo() {
   var r = calcolaRiepilogo(ANNO_RIEP);
   var maxMese = Math.max.apply(null, r.mesi.map(function (m) { return m.fatto + m.futuro; }).concat([1]));
   var tessera = function (n, l, forte) { return '<div class="tessera' + (forte ? ' forte' : '') + '"><div class="n">' + n + '</div><div class="l">' + l + '</div></div>'; };
-  var schede = '<h1>Numeri</h1><div class="chips">' + [['incassi', '💶 Incassi'], ['spese', '📉 Spese e ROI'], ['pagamenti', '💳 Pagamenti']].map(function (t) {
+  var schede = '<h1>Numeri</h1><div class="chips">' + [['incassi', '💶 Incassi'], ['spese', '📉 Spese e ROI'], ['cassa', '🏦 Cassa'], ['pagamenti', '💳 Pagamenti']].map(function (t) {
       return '<button class="chip' + (NUM_TAB === t[0] ? ' attivo' : '') + '" data-az="numTab" data-v="' + t[0] + '">' + t[1] + '</button>';
     }).join('') + '</div>';
   if (NUM_TAB === 'pagamenti') return schede + vistaPagamenti();
+  if (NUM_TAB === 'cassa') return schede + vistaCassa();
   var testa = schede + '<div class="chips">' + a.map(function (x) {
       return '<button class="chip' + (x === ANNO_RIEP ? ' attivo' : '') + '" data-az="annoRiep" data-v="' + x + '">' + x + '</button>';
     }).join('') + '</div>';
@@ -2552,6 +2593,18 @@ var COMANDI = {
     scrivi('salvaEvento', { evento: { id: e.id, nascondiSito: v } }, function () { disegna(); }, function () { e.nascondiSito = v; });
   },
   nuovaSpesa: function () { apriFormSpesa(null); },
+  nuovaSpesaDi: function (d) {
+    if (DATI.liste.membri.indexOf(d.id) < 0) return;
+    apriFormSpesa({ id: '', data: DATI.oggi, importo: '', piattaforma: '', categoria: 'Altro', descrizione: '', pagatoDa: d.id });
+  },
+  rimborsaUna: function (d) { scrivi('rimborsaSpese', { ids: [d.id] }, function () { disegna(); }); },
+  rimborsaTutto: function (d) {
+    var l = daRimborsare(d.id), t = l.reduce(function (s, x) { return s + (Number(x.importo) || 0); }, 0);
+    if (!l.length) return;
+    chiedi('Segnare come rimborsate tutte le ' + l.length + ' spese di ' + d.id + ' (' + euro(t) + ')?', 'Sì, rimborsato',
+      function () { scrivi('rimborsaSpese', { ids: l.map(function (x) { return x.id; }) }, function () { disegna(); }); });
+  },
+  annullaRimborso: function (d) { scrivi('rimborsaSpese', { ids: [d.id], annulla: true }, function () { disegna(); }); },
   apriCambiaPin: function () {
     apriModale('<h2>Cambia PIN</h2><label for="cp-vecchio">PIN attuale</label><input id="cp-vecchio" type="password" inputmode="numeric" autocomplete="current-password" maxlength="8">' +
       '<label for="cp-nuovo">Nuovo PIN (6-8 cifre, non 123456 o 111111)</label><input id="cp-nuovo" type="password" inputmode="numeric" autocomplete="new-password" maxlength="8">' +
