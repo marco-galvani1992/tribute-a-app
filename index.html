@@ -389,7 +389,7 @@
   .riga-pf .celle { display: flex; gap: 4px; flex: 0 0 auto; }
   .riga-pf .chip { padding: 6px 9px; min-height: 40px; font-size: 13px; }
 </style>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-ERQJ1ULSgzPEOxAy7w8IrSy4nsVPodlchcuT/VKE78Y='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'self'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-ku3BGfikEyhFLeWTyPZ4yFHhSRGketjIlZP7/2vpGmg='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'self'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -409,8 +409,9 @@
 
 <script>
 // ─── Versione e changelog: VERSIONE deve essere uguale alla prima voce (lo controlla il test)
-var VERSIONE = '0.60';
+var VERSIONE = '0.61';
 var CHANGELOG = [
+  { v: '0.61', data: '2026-11-25', testo: 'Domande fra noi: se qualcuno deve confermare una cosa (per esempio un anticipo ricevuto), entrando trova la domanda e risponde con un tocco. Resta in cima a Eventi finché non risponde.' },
   { v: '0.60', data: '2026-11-25', testo: 'Numeri rifatti: totale sicuro con barra (incassato, da incassare, in forse a parte), cosa c\'è da incassare adesso, da dove arrivano i clienti (Passaparola, Instagram/Sito, Musiqua, Showgroup, Matrimonio.com) per anno del concerto o di arrivo, fattura e contanti. Negli eventi si sceglie come pagano e l\'app calcola da sola il netto (in fattura resta l\'89%). Cassa: c\'è il saldo, lo scrive Pope; rimborsi e spese della cassa si scalano da soli. Notifiche sul telefono (Altro → 🔔). Nei sondaggi chi ha scritto "No" nel calendario Disponibilità parte già segnato.' },
   { v: '0.59', data: '2026-11-25', testo: 'Tabella delle date (Eventi → Tabella): tutte le date come nel file, con ricerca, filtri, ordine toccando le colonne, totali per mese e soldi da incassare in evidenza; si segna l\'incasso toccando la casella. Progetti nuovi: Gantt a settimane o mesi con progetti e compiti, colori per persona, concerti e prove sulla stessa riga del tempo, e la lista "Da fare" divisa per urgenza. I progetti scritti nel calendario al posto delle prove sono già dentro.' },
   { v: '0.58', data: '2026-11-25', testo: 'Sondaggi per le prove (Eventi → 🥁 Prove): scegli il periodo, i giorni e le fasce (mattina, pomeriggio, sera) e l\'app prepara da sola tutte le date, saltando i giorni in cui si suona. Ognuno vota Sì, Forse o No con un tocco, si vedono le date migliori e con "Fissa" la prova va nel calendario della band. C\'è anche il pulsante per avvisare il gruppo WhatsApp.' },
@@ -872,7 +873,7 @@ function anni() {
 }
 
 function vistaEventi() {
-  var h = '<div class="barra"><h1>Eventi</h1><span class="due-btn"><button class="btn-sec" data-vai="tabella">▦ Tabella</button><button class="btn" data-az="nuovo">+ Nuovo</button></span></div>' + cartaCassa() +
+  var h = '<div class="barra"><h1>Eventi</h1><span class="due-btn"><button class="btn-sec" data-vai="tabella">▦ Tabella</button><button class="btn" data-az="nuovo">+ Nuovo</button></span></div>' + carteDomande() + cartaCassa() +
     '<input id="cerca" type="search" placeholder="Cerca nome, luogo, referente…" value="' + esc(FILTRO.q) + '">' +
     '<div class="chips">' + FILTRI_STATO.map(function (x) {
       return '<button class="chip' + (FILTRO.stato === x[0] ? ' attivo' : '') + '" data-az="filtro" data-k="stato" data-v="' + x[0] + '">' + x[1] + '</button>';
@@ -2216,6 +2217,30 @@ function saldoCassaHtml() {
   }).join('') + '</div>';
   return h;
 }
+// Domande a un membro: popup entrando e carta in cima a Eventi finché non risponde
+function domandeMie() {
+  return ((DATI && DATI.domande) || []).filter(function (x) {
+    if (x.a !== DATI.utente || x.stato !== 'aperta') return false;
+    var e = x.eventoId ? trova(x.eventoId) : null; // nel frattempo l'ha segnato qualcun altro, o l'evento non c'è più: niente domanda
+    return !x.eventoId || !!(e && e.stato !== 'annullato' && e[x.campo] !== 'Sì');
+  });
+}
+function domandaHtml(x) {
+  return '<div class="carta avviso-pag" style="cursor:default"><b>' + esc(x.testo) + '</b><div class="azioni">' + ['Sì', 'No', 'Non lo so'].map(function (v) {
+    return '<button class="' + (v === 'Sì' ? 'btn' : 'btn-sec') + '" data-az="rispondiDomanda" data-id="' + esc(x.id) + '" data-v="' + v + '">' + v + '</button>';
+  }).join('') + '</div></div>';
+}
+function carteDomande() {
+  return domandeMie().map(domandaHtml).join('') + ((DATI && DATI.domande) || []).filter(function (x) { return x.da === DATI.utente && x.stato === 'risposta'; }).map(function (x) {
+    return '<div class="carta"><div class="tenue">' + esc(x.testo) + '</div><div class="riga"><span><b>' + esc(x.a) + ':</b> ' + esc(x.risposta) + '</span><button class="btn-link" data-az="domandaVista" data-id="' + esc(x.id) + '">Ok, visto</button></div></div>';
+  }).join('');
+}
+function mostraDomande() {
+  var l = domandeMie();
+  if (!l.length) { if (MODALE === 'domande') chiudiModale(); return; }
+  apriModale('<h2>' + (l.length === 1 ? 'Una domanda per te' : l.length + ' domande per te') + '</h2>' + l.map(domandaHtml).join('') +
+    '<div class="bottoni"><button class="btn-sec" data-az="annulla">Dopo</button></div>', 'domande');
+}
 /** In cima a Eventi per il cassiere, finché non risponde. */
 function cartaCassa() {
   if (!sonoCassiere() || !statoCassa().aperta) return '';
@@ -3041,6 +3066,7 @@ function apriCompleta(id, daLista) {
 function forseListaDaCompletare() {
   if (LISTA_MOSTRATA || !DATI || DATI.login || MODALE || V === 'modifica') return;
   LISTA_MOSTRATA = true;
+  if (domandeMie().length) return mostraDomande();
   if (daCompletare().length) mostraListaDaCompletare();
 }
 
@@ -3389,6 +3415,20 @@ var COMANDI = {
   },
   // spese
   numTab: function (d) { NUM_TAB = d.v; disegna(); },
+  rispondiDomanda: function (d) {
+    var x = domandeMie().filter(function (y) { return y.id === d.id; })[0];
+    if (!x) return;
+    var v = d.v, eraPopup = MODALE === 'domande';
+    scrivi('rispondiDomanda', { id: x.id, risposta: v }, function () { ridisegnaSePuo(); }, function () {
+      (DATI.domande || []).forEach(function (y) { if (y.id === x.id && y.stato === 'aperta') y.stato = 'fatta'; });
+      var e = trova(x.eventoId);
+      if (e && v !== 'Non lo so' && ['anticipoRicevuto', 'saldoRicevuto'].indexOf(x.campo) >= 0) e[x.campo] = v;
+    });
+    if (eraPopup) mostraDomande();
+  },
+  domandaVista: function (d) {
+    scrivi('domandaVista', { id: d.id }, function () { ridisegnaSePuo(); }, function () { DATI.domande = (DATI.domande || []).filter(function (y) { return y.id !== d.id; }); });
+  },
   riepPer: function (d) { RIEP_PER = d.v; disegna(); },
   sistema: function (d) { SISTEMA = SISTEMA === d.v ? '' : d.v; disegna(); },
   sistemaData: function (d) {
