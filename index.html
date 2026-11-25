@@ -298,7 +298,7 @@
   .avviso-pag { border-color: var(--fiamma); background: linear-gradient(90deg, rgba(217,76,26,.22), rgba(21,55,59,.72)); }
   .richiesta-nuova { border-color: var(--arancio); }
 </style>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-jVAdnfbGRk3eh3TF299QOA6dbCvGP7NOk4F67jLIXHU='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-A+/Ya9YYuuXyiZ/lR53TV43Y5fAkf7wRIPTFr0G0RWc='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -318,8 +318,9 @@
 
 <script>
 // ─── Versione e changelog: VERSIONE deve essere uguale alla prima voce (lo controlla il test)
-var VERSIONE = '0.55';
+var VERSIONE = '0.56';
 var CHANGELOG = [
+  { v: '0.56', data: '2026-11-25', testo: 'Preventivi più veloci: premi Salva e lo vedi subito, il server conferma dietro e puoi andare avanti. Il calendario si controlla già mentre scrivi e si aggiorna un attimo dopo il salvataggio. Foglio leggibile e Google Contatti non fanno più aspettare chi salva in quel momento. Un PDF premuto mentre si salva si mette in fila.' },
   { v: '0.55', data: '2026-11-25', testo: 'Richieste dal sito: il preventivo si può lasciare a metà e riprendere (✏️ Riprendi preventivo, anche da un altro telefono). La richiesta diventa gestita solo quando premi Salva, e da lì lo riapri con 📄 Apri preventivo. Anche le richieste già gestite tornano utilizzabili.' },
   { v: '0.54', data: '2026-11-18', testo: 'Più veloce: dopo un salvataggio il server rilegge solo la parte che è cambiata (prima rileggeva tutto il foglio), e la copia veloce dei dati dura 6 ore invece di una; anche i lavori automatici (contatti, recap, backup) non la buttano più via. Spese, rimborsi, compiti e voci della checklist si vedono salvati subito, mentre il server conferma dietro.' },
   { v: '0.53', data: '2026-11-18', testo: 'Nuova scheda Numeri → 🏦 Cassa: quanto deve la cassa della band a Galva, Pope e Tuzzi per le spese pagate di tasca propria. "+ Spesa" sotto il nome di ognuno, "✓ Rimborsata" per una spesa o "Rimborsato tutto", e l\'elenco degli ultimi rimborsi (con ↩︎ Rimetti se si sbaglia).' },
@@ -1806,6 +1807,39 @@ function leggiModuloPrev() {
 
 // ─── Richieste dal modulo del sito (www.tribute-a.it)
 function richiesteSito() { return ((DATI && DATI.richiesteSito) || []).slice().sort(function (a, b) { return a.creato < b.creato ? 1 : -1; }); }
+// v0.56: il calendario si controlla appena ci sono data e nome, così quando si preme Salva la risposta c'è già (vale 2 minuti)
+var SIMILI_CAL = null;
+function similiPronti(data, titolo) {
+  var c = SIMILI_CAL;
+  return !!c && c.chiave === data + '|' + titolo && c.lista !== null && Date.now() - c.ora < 120000;
+}
+function similiDelGiorno(data, titolo, fn) {
+  var chiave = data + '|' + titolo, c = SIMILI_CAL;
+  if (similiPronti(data, titolo)) return fn && fn(c.lista);
+  if (c && c.chiave === chiave && c.lista === null && Date.now() - c.ora < 30000) { if (fn) c.attesa.push(fn); return; }
+  c = SIMILI_CAL = { chiave: chiave, lista: null, ora: Date.now(), attesa: fn ? [fn] : [] };
+  var arrivata = function (l) {
+    c.lista = l; c.ora = Date.now();
+    c.attesa.splice(0).forEach(function (f) { f(l); });
+  };
+  google.script.run.withSuccessHandler(function (l) { arrivata(l || []); })
+    .withFailureHandler(function () { arrivata([]); if (SIMILI_CAL === c) SIMILI_CAL = null; })
+    .similiCalendario(SESS, data, titolo);
+}
+function anticipaSimili(daPrev) {
+  if (V !== 'preventivo' || !PREV || PREV.id || PREV.eventoId || PREV.inInvio) return;
+  var d = daPrev ? PREV.evento.data : String($('f-data').value || ''), t = daPrev ? PREV.evento.titolo : String($('f-titolo').value || '').trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(d || '') && t) similiDelGiorno(d, t);
+}
+// preventivo salvato: il server lo porta nel calendario adesso, senza far aspettare nessuno
+function svegliaCalendario() {
+  if (!SESS) return;
+  if (occupato || CODA.length) { setTimeout(svegliaCalendario, 3000); return; }
+  google.script.run.withSuccessHandler(function (d) {
+    if (d && d.avviso) avviso(d.avviso, /^⚠/.test(d.avviso), 9000);
+    if (!occupato && !CODA.length && d && !d.login) riceviDati(d); // niente ridisegno: magari si sta scrivendo
+  }).withFailureHandler(function () { /* ci pensa la sveglia fra un minuto */ }).azione(SESS, 'calendarioInSospeso', {});
+}
 // v0.55: preventivo iniziato da una richiesta del sito e non ancora salvato. Resta sulla richiesta (colonna bozza);
 // BOZZE_SITO = quelle di questa apertura, così si riprendono subito anche se il server non ha ancora risposto.
 var BOZZE_SITO = {};
@@ -1920,7 +1954,8 @@ function vistaPreventivo() {
   var scelto = P.righe.filter(function (r) { return r.tipo === 'pacchetto'; })[0];
   var h = '<button class="btn-link" data-az="chiudiPrev">‹ Preventivi</button>' +
     '<h1>' + (P.id ? 'Preventivo ' + esc(P.numero) : 'Nuovo preventivo') + '</h1>' +
-    (!P.id && P.richiestaId ? '<p class="tenue" style="margin-top:0">Se esci senza salvare resta come bozza in "Dal sito": la riprendi quando vuoi. Con Salva passa tra i preventivi.</p>' +
+    (!P.id && P.inInvio ? '<p class="tenue" style="margin-top:0">☁️ Lo sto salvando: fra qualche secondo arrivano il numero e i PDF. Puoi anche andare altrove.</p>' :
+      !P.id && P.richiestaId ? '<p class="tenue" style="margin-top:0">Se esci senza salvare resta come bozza in "Dal sito": la riprendi quando vuoi. Con Salva passa tra i preventivi.</p>' +
       (P.evento.note ? '<div class="carta tenue" style="white-space:pre-wrap">' + esc(P.evento.note) + '</div>' : '') : '');
   if (P.id) {
     h += '<div class="stati">' + DATI.liste.statiPreventivo.map(function (x) {
@@ -2367,9 +2402,11 @@ function riceviDati(d) {
   if (d.login && SESS) { SESS = ''; ricorda('tok', null); }
 }
 
+// ridisegna senza cancellare quello che si sta scrivendo in un altro modulo
+function ridisegnaSePuo() { if (['modifica', 'modello', 'listino', 'preventivo'].indexOf(V) < 0) disegna(); }
 function ricarica() {
   google.script.run
-    .withSuccessHandler(function (d) { riceviDati(d); disegna(); forseListaDaCompletare(); })
+    .withSuccessHandler(function (d) { riceviDati(d); if (V === 'preventivo' && PREV && $('p-sconto')) leggiModuloPrev(); disegna(); forseListaDaCompletare(); })
     .withFailureHandler(suErrore)
     .getDati(SESS);
 }
@@ -2383,8 +2420,11 @@ var CODA = [];
 function scrivi(nome, args, dopo, ottimista, seErrore) {
   var x = { nome: nome, args: args, dopo: dopo, ottimista: ottimista, seErrore: seErrore };
   if (occupato) {
-    if (!ottimista) return; // doppio tocco su un salvataggio "normale": si ignora come prima
-    CODA.push(x); ottimista(); disegna();
+    // il PDF premuto mentre si salva si mette in fila; gli altri si ignorano (doppio tocco), ma si dice perché
+    if (!ottimista && nome !== 'creaPdf') { avviso('Un attimo: sto finendo di salvare.'); return; }
+    if (!ottimista && CODA.some(function (y) { return y.nome === nome && JSON.stringify(y.args) === JSON.stringify(args); })) return;
+    CODA.push(x);
+    if (ottimista) { ottimista(); disegna(); } else avviso('☁️ Salvo, poi preparo il PDF…');
     return;
   }
   if (ottimista) { ottimista(); disegna(); }
@@ -2786,6 +2826,7 @@ var COMANDI = {
     PREV.richiestaId = x.id;
     SEL = '';
     vai('preventivo');
+    anticipaSimili(true);
   },
   archiviaSito: function (d) {
     chiedi('Archiviare questa richiesta? Sparisce dall\'elenco (resta nel foglio dati).', 'Archivia', function () {
@@ -2794,7 +2835,10 @@ var COMANDI = {
       });
     });
   },
-  apriPrev: function (d) { var p = preventivi().filter(function (x) { return x.id === d.id; })[0]; if (p) apriPrev(p); },
+  apriPrev: function (d) {
+    if (/^tmp/.test(d.id)) return avviso('Si sta ancora salvando: un attimo.');
+    var p = preventivi().filter(function (x) { return x.id === d.id; })[0]; if (p) apriPrev(p);
+  },
   chiudiPrev: function () { vai('preventivi'); PREV = null; },
   prevListino: function (d) {
     leggiModuloPrev();
@@ -2830,6 +2874,7 @@ var COMANDI = {
     else salva();
   },
   salvaPrev: function () {
+    if (PREV && PREV.inInvio && !PREV.id) return avviso('Lo sto già salvando…');
     leggiModuloPrev();
     var P = PREV, ev = {};
     CAMPI_PREV_EV.forEach(function (k) { ev[k] = P.evento[k] || ''; });
@@ -2840,36 +2885,65 @@ var COMANDI = {
     var scheda = Object.assign({}, P.scheda);
     if (ev.tipo !== 'Matrimonio') SOLO_MATRIMONIO.forEach(function (k) { delete scheda[k]; });
     var manda = function (extra) {
-      if (!occupato) P.inInvio = true;
       // dal sito: il messaggio e l'email del cliente vanno nelle note dell'evento (aggiunti, se l'evento c'era già)
       if (!P.id && P.richiestaId && P.evento.note) {
         var giaNote = String((trova(P.eventoId) || {}).note || '');
         ev.note = giaNote.indexOf(P.evento.note) >= 0 ? giaNote : [giaNote, P.evento.note].filter(Boolean).join('\n');
       }
+      // si vede subito (nell'elenco e qui); il server conferma dietro
+      var nuovo = !P.id, idP = P.id || idTemporaneo(), idE = P.eventoId || idTemporaneo();
+      var foto = function () { var c = Object.assign({}, P); delete c.inInvio; return JSON.stringify(c); }, prima = foto();
+      SIMILI_CAL = null; // dopo questo salvataggio il calendario cambia
+      var t = { sub: righe.reduce(function (n, r) { return n + num(r.prezzo) * num(r.qta); }, 0) };
+      t.tot = Math.max(0, Math.round((t.sub - num(P.sconto)) * 100) / 100);
+      var riga = { id: idP, eventoId: idE, stato: P.stato, listino: P.listino, righe: JSON.stringify(righe), sconto: String(P.sconto), totale: String(t.tot),
+        acconto: String(Math.round(t.tot * 0.3)), validita: P.validita, noteCliente: P.noteCliente, scheda: JSON.stringify(scheda) };
+      if (nuovo) { riga.numero = '…'; riga.pdfId = ''; riga.pdfProgrammaId = ''; }
+      P.inInvio = true;
       scrivi('salvaPreventivo', Object.assign({ preventivo: { id: P.id, eventoId: P.eventoId || '', stato: P.stato, listino: P.listino, righe: righe,
         sconto: P.sconto, validita: P.validita, noteCliente: P.noteCliente, scheda: scheda, evento: ev },
         persone: ev.tipo === 'Matrimonio' ? (P.persone || {}) : null, richiestaId: P.richiestaId || '' }, extra || {}), function (d) {
+        P.inInvio = false;
         if (P.richiestaId) delete BOZZE_SITO[P.richiestaId];
-        var p = (d.preventivi || []).filter(function (x) { return x.id === (d.ultimoId || P.id); })[0];
-        if (p) apriPrev(p); else disegna();
-      }, null, function () { P.inInvio = false; if (V !== 'preventivo') salvaBozzaSito(P); });
+        var p = (d.preventivi || []).filter(function (x) { return x.id === (nuovo ? d.ultimoId : idP); })[0];
+        setTimeout(svegliaCalendario, 400);
+        if (PREV !== P || V !== 'preventivo') return ridisegnaSePuo(); // nel frattempo è andato altrove: non lo si riporta qui
+        leggiModuloPrev();
+        if (p && foto() === prima) return apriPrev(p);
+        // ha continuato a scrivere: quello che ha scritto resta, si aggiunge solo il numero
+        if (p) { P.id = p.id; P.numero = p.numero; P.eventoId = p.eventoId; SEL = p.eventoId; delete P.richiestaId; }
+        disegna();
+      }, function () {
+        var metti = function (l, x) {
+          for (var k = 0; k < l.length; k++) if (l[k].id === x.id) { l[k] = Object.assign({}, l[k], x); return; }
+          l.push(x);
+        };
+        DATI.preventivi = DATI.preventivi || [];
+        metti(DATI.preventivi, Object.assign({}, riga));
+        var e0 = trova(idE);
+        metti(DATI.eventi, Object.assign({}, e0 ? {} : { stato: 'da confermare', totale: String(t.tot), contatti: '[]' }, ev, { id: idE }));
+      }, function () { // errore: si torna al modulo con quello che c'era scritto
+        P.inInvio = false;
+        if (V === 'preventivo' && PREV === P) leggiModuloPrev();
+        else if (P.richiestaId && !P.id) { salvaBozzaSito(P); return ridisegnaSePuo(); } // resta tra le richieste del sito
+        else if (['modifica', 'modello', 'listino', 'preventivo'].indexOf(V) >= 0) return; // sta scrivendo altro: resta il messaggio d'errore
+        else { PREV = P; SEL = P.eventoId || ''; V = 'preventivo'; }
+        disegna();
+      });
     };
     if (P.id || P.eventoId) return manda();
     // Preventivo nuovo: prima di creare un altro evento, controlla se c'è già (nell'app o scritto a mano nel calendario)
     var gia = eventi().filter(function (x) { return x.data === ev.data && x.stato !== 'annullato' && simili(x.titolo, ev.titolo); })[0];
     var calendario = function () {
-      avviso('Controllo il calendario…');
-      google.script.run
-        .withSuccessHandler(function (l) {
-          avviso('');
-          if (!l || !l.length) return manda();
-          var x = l[0];
-          chiedi2('Nel calendario il ' + dataLunga(ev.data) + ' c\'è già "' + x.titolo + '"' + (x.ora ? ' (' + x.ora + ')' : '') +
-            '. È lo stesso evento? Se sì lo aggiorno io e ne resta uno solo.', 'Sì, è lo stesso', 'No, è un altro',
-            function () { manda({ calId: x.calId }); }, function () { manda({ nuovoNelCalendario: true }); });
-        })
-        .withFailureHandler(function () { avviso(''); manda(); })
-        .similiCalendario(SESS, ev.data, ev.titolo);
+      if (!similiPronti(ev.data, ev.titolo)) avviso('Controllo il calendario…');
+      similiDelGiorno(ev.data, ev.titolo, function (l) {
+        avviso('');
+        if (!l || !l.length) return manda();
+        var x = l[0];
+        chiedi2('Nel calendario il ' + dataLunga(ev.data) + ' c\'è già "' + x.titolo + '"' + (x.ora ? ' (' + x.ora + ')' : '') +
+          '. È lo stesso evento? Se sì lo aggiorno io e ne resta uno solo.', 'Sì, è lo stesso', 'No, è un altro',
+          function () { manda({ calId: x.calId }); }, function () { manda({ nuovoNelCalendario: true }); });
+      });
     };
     if (gia) {
       return chiedi2('Il ' + dataLunga(ev.data) + ' c\'è già l\'evento "' + gia.titolo + '". È lo stesso (un\'altra proposta per loro)? ' +
@@ -2889,7 +2963,13 @@ var COMANDI = {
   creaPdf: function (d) {
     if (!PREV || !PREV.id) return;
     var id = PREV.id;
-    scrivi('creaPdf', { id: id, tipo: d.v === 'programma' ? 'programma' : 'preventivo' }, function (d) { var p = (d.preventivi || []).filter(function (x) { return x.id === id; })[0]; if (p) apriPrev(p); });
+    scrivi('creaPdf', { id: id, tipo: d.v === 'programma' ? 'programma' : 'preventivo' }, function (d) {
+      var p = (d.preventivi || []).filter(function (x) { return x.id === id; })[0];
+      if (!p || V !== 'preventivo' || !PREV || PREV.id !== id) return ridisegnaSePuo(); // è andato altrove
+      leggiModuloPrev();
+      PREV.pdfId = p.pdfId; PREV.pdfProgrammaId = p.pdfProgrammaId || '';
+      disegna();
+    });
   },
   chiediEliminaPrev: function () {
     if (!PREV) return;
@@ -3131,6 +3211,7 @@ document.addEventListener('input', function (e) {
   if (e.target && e.target.id === 'm-testo' && MSG && $('m-wa')) $('m-wa').innerHTML = bottoniWa(MSG, e.target.value);
 });
 document.addEventListener('change', function (e) {
+  if (e.target && (e.target.id === 'f-data' || e.target.id === 'f-titolo')) anticipaSimili();
   if (e.target && e.target.id === 'c-ruolo' && K_EVENTO && BOZZA_K && !BOZZA_K.id) $('c-rubrica').innerHTML = rubricaHtml(e.target.value);
   if (e.target && e.target.id === 'c-ruolo' && $('c-box-referente')) $('c-box-referente').style.display = CON_REFERENTE.indexOf(e.target.value) < 0 ? 'none' : '';
   if (e.target && e.target.id === 'c-ruolo' && $('c-box-sposi')) $('c-box-sposi').style.display = e.target.value === 'Sposi' ? '' : 'none';
