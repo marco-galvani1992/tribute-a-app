@@ -297,8 +297,40 @@
   @media (max-width: 400px) { #testa .marchio { font-size: 17px; } #testa .marchio small { display: none; } }
   .avviso-pag { border-color: var(--fiamma); background: linear-gradient(90deg, rgba(217,76,26,.22), rgba(21,55,59,.72)); }
   .richiesta-nuova { border-color: var(--arancio); }
+  /* Prove: sondaggi */
+  .campi > * { min-width: 0; }
+  .carta-prove { display: block; width: 100%; text-align: left; font: inherit; color: inherit; margin-top: 8px; }
+  .carta.gg { padding: 12px 14px; }
+  .carta.gg.passata { opacity: .5; }
+  .slot { display: flex; align-items: center; gap: 8px; padding: 8px 0 0; margin-top: 8px; border-top: 1px solid var(--bordo); }
+  .slot-nome { flex: 1 1 auto; min-width: 0; text-align: left; background: none; padding: 0; min-height: 44px; color: var(--testo); font-weight: 600; font-size: 15px; }
+  .slot-nome small { color: var(--tenue); font-weight: 400; white-space: nowrap; }
+  .slot-nome > span { display: block; }
+  .chi-vota { display: flex !important; gap: 4px; margin-top: 4px; }
+  .chi-vota i { font-style: normal; font-size: 11px; font-weight: 700; border-radius: 999px; padding: 1px 7px; background: rgba(255,255,255,.07); color: var(--tenue); }
+  .chi-vota .v-si { background: var(--verde); color: #0c1a14; }
+  .chi-vota .v-forse { background: var(--giallo); color: #1b1505; }
+  .chi-vota .v-no { background: var(--rosso); color: #23090a; }
+  .voto { flex: 0 0 auto; display: flex; gap: 5px; }
+  .voto button { width: 40px; height: 44px; padding: 0; font-size: 18px; font-weight: 700; border-radius: 10px; background: rgba(255,255,255,.06); border: 1px solid var(--petrolio-2); color: var(--tenue); }
+  .voto .v-si.on { background: var(--verde); color: #0c1a14; border-color: var(--verde); }
+  .voto .v-forse.on { background: var(--giallo); color: #1b1505; border-color: var(--giallo); }
+  .voto .v-no.on { background: var(--rosso); color: #23090a; border-color: var(--rosso); }
+  .azioni.riempi { align-items: center; margin: 0 0 12px; }
+  .azioni.riempi .tenue { flex: 1 1 100%; }
+  .giorni-pf { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .giorni-pf .chip { padding: 7px 0; min-height: 40px; font-size: 13px; }
+  .fascia-pf { display: grid; grid-template-columns: minmax(104px, 1fr) 1fr 1fr; gap: 6px; align-items: center; margin-bottom: 6px; }
+  .fascia-pf .chip { min-height: 44px; padding: 7px 8px; }
+  .fascia-pf input { padding: 8px; min-width: 0; }
+  .riga-pf { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--bordo); }
+  .riga-pf:last-child { border-bottom: 0; }
+  .riga-pf > div:first-child { min-width: 0; }
+  .riga-pf .tenue { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 130px; }
+  .riga-pf .celle { display: flex; gap: 4px; flex: 0 0 auto; }
+  .riga-pf .chip { padding: 6px 9px; min-height: 40px; font-size: 13px; }
 </style>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-+dwDef6x++2t9vowe46CEEx8XLtyaBjQkAzcjo0spK8='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-ijmSNgERAPHv+PRr1HyZKEtf8jciVj/pFDUNnGCC5Fo='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -318,8 +350,9 @@
 
 <script>
 // ─── Versione e changelog: VERSIONE deve essere uguale alla prima voce (lo controlla il test)
-var VERSIONE = '0.57';
+var VERSIONE = '0.58';
 var CHANGELOG = [
+  { v: '0.58', data: '2026-11-25', testo: 'Sondaggi per le prove (Eventi → 🥁 Prove): scegli il periodo, i giorni e le fasce (mattina, pomeriggio, sera) e l\'app prepara da sola tutte le date, saltando i giorni in cui si suona. Ognuno vota Sì, Forse o No con un tocco, si vedono le date migliori e con "Fissa" la prova va nel calendario della band. C\'è anche il pulsante per avvisare il gruppo WhatsApp.' },
   { v: '0.57', data: '2026-11-25', testo: 'Listino allineato ai PDF nuovi (Matrimoni 2026-2027, Estate 2027, Inverno 2026-2027): prezzi, orari di allestimento e trasferte. Aggiunte le ore extra di DJ Set e Service per party, i pacchetti Social (Estate e Inverno) e i km extra in tutti i listini. I preventivi già fatti non cambiano.' },
   { v: '0.56', data: '2026-11-25', testo: 'Preventivi più veloci: premi Salva e lo vedi subito, il server conferma dietro e puoi andare avanti. Il calendario si controlla già mentre scrivi e si aggiorna un attimo dopo il salvataggio. Foglio leggibile e Google Contatti non fanno più aspettare chi salva in quel momento. Un PDF premuto mentre si salva si mette in fila.' },
   { v: '0.55', data: '2026-11-25', testo: 'Richieste dal sito: il preventivo si può lasciare a metà e riprendere (✏️ Riprendi preventivo, anche da un altro telefono). La richiesta diventa gestita solo quando premi Salva, e da lì lo riapri con 📄 Apri preventivo. Anche le richieste già gestite tornano utilizzabili.' },
@@ -447,6 +480,9 @@ var VOCE_L = null;                  // voce di listino nel popup
 var SEL_P = '';                     // progetto aperto
 var FILTRO_PR = 'attivo';
 var NUM_TAB = 'incassi';            // Numeri: incassi | spese | cassa | pagamenti
+var SEL_PV = '';                    // sondaggio prove aperto
+var PF = null;                      // sondaggio prove in scrittura
+var VOTI_ATTESA = {}, TIMER_VOTI = 0; // voti toccati e non ancora mandati: { sondaggio: { giorno: voto } }
 var CHAT_TG = [];                   // gruppi Telegram trovati
 var DOMANDE = [];                   // popup "Chiedi le info": [{ testo, on }]
 var occupato = false;               // una scrittura in corso
@@ -467,7 +503,7 @@ var VISTE = [
 ]; // "Altro" è sul nome in alto a destra
 // vista "figlia" -> voce della barra da accendere
 var PADRE = { evento: 'eventi', modifica: 'eventi', calendario: 'eventi', confronto: 'altro', doppioni: 'contatti', contatto: 'contatti', modello: 'messaggi',
-  preventivo: 'preventivi', recap: 'eventi', progetto: 'progetti' };
+  preventivo: 'preventivi', recap: 'eventi', prove: 'eventi', prova: 'eventi', provaform: 'eventi', progetto: 'progetti' };
 var COLORE_STATO_P = { bozza: 'neutra', inviato: 'att', accettato: 'ok', rifiutato: 'no' };
 var EMOJI_RUOLO = { Sposi: '💍', 'Wedding planner': '📋', Location: '🏛️', Fotografo: '📷', Videomaker: '🎥', Catering: '🍽️', Organizzatore: '🎤', Altro: '👤' };
 var ETICHETTA_CANALE = { mail: '📧 mail', whatsapp: '💬 WhatsApp', fatto: '✓ a mano', saltato: '⏭ saltato' };
@@ -626,7 +662,7 @@ function linkMappa(e) {
 }
 
 // ─── Disegno
-function vai(v) { if (V === 'preventivo' && v !== 'preventivo') lasciaPrev(); V = v; disegna(); if (window.scrollTo) window.scrollTo(0, 0); }
+function vai(v) { mandaVoti(); if (V === 'preventivo' && v !== 'preventivo') lasciaPrev(); V = v; disegna(); if (window.scrollTo) window.scrollTo(0, 0); }
 
 function disegna() {
   var inLogin = !DATI || !!DATI.login;
@@ -634,7 +670,7 @@ function disegna() {
   $('testa').innerHTML = inLogin ? '' : testaHtml();
   $('nav').innerHTML = inLogin ? '' : VISTE.map(function (x) {
     var attiva = x.id === V || PADRE[V] === x.id;
-    var n = x.id === 'messaggi' ? daMandare().length : x.id === 'preventivi' ? richiesteNuove() : 0;
+    var n = x.id === 'messaggi' ? daMandare().length : x.id === 'preventivi' ? richiesteNuove() : x.id === 'eventi' ? daVotare().length : 0;
     return '<button data-vai="' + x.id + '" class="' + (attiva ? 'attiva' : '') + '">' +
       '<span class="ico">' + x.ico + (n ? '<span class="badge">' + n + '</span>' : '') + '</span><span>' + x.nome + '</span></button>';
   }).join('');
@@ -656,6 +692,9 @@ function disegna() {
   else if (V === 'preventivo') h = vistaPreventivo();
   else if (V === 'listino') h = vistaListino();
   else if (V === 'recap') h = vistaRecap();
+  else if (V === 'prove') h = vistaProve();
+  else if (V === 'prova') h = vistaProva();
+  else if (V === 'provaform') h = vistaProvaForm();
   else if (V === 'progetti') h = vistaProgetti();
   else if (V === 'progetto') h = vistaProgetto();
   else h = vistaEventi();
@@ -762,6 +801,7 @@ function vistaEventi() {
     }).join('') + '</div>' +
     '<div class="barra"><button class="btn-link" data-az="apriCalendario">📅 Solo nel calendario ›</button>' +
     '<button class="btn-link" data-vai="recap">📣 Recap prossime date ›</button></div>';
+  h += cartaProve();
   var pv = pagamentiVicini();
   if (pv.length) h += '<button class="carta avviso-pag" data-az="vaiPagamenti">💳 ' + pv.map(function (p) {
     var g = fraGiorni(p);
@@ -1533,6 +1573,263 @@ function vistaSpese(anno) {
   }).join('') : '<p class="tenue">Nessuna spesa registrata per il ' + esc(anno) + '.</p>';
   if (!spese().length) h += '<button class="btn-sec btn-largo" data-az="importaSpese">Importa gli investimenti dalle Dashboard del foglio Date</button>';
   return h;
+}
+
+// ─── Prove: sondaggi sulle date (Eventi → 🥁 Prove)
+var FASCE = { m: 'Mattina', p: 'Pomeriggio', s: 'Sera' };
+var VOTI = [['si', '✓', 'Sì'], ['forse', '?', 'Forse'], ['no', '✗', 'No']];
+var GIORNI_BREVI = ['dom', 'lun', 'mar', 'mer', 'gio', 'ven', 'sab'];
+function prove() { return (DATI && DATI.prove) || []; }
+function provaDi(id) { return prove().filter(function (p) { return p.id === id; })[0] || null; }
+function leggiJson(t, vuoto) { try { return JSON.parse(t || '') || vuoto; } catch (e) { return vuoto; } }
+function slotDi(p) { return leggiJson(p.slot, []); }
+function votiDi(p) { return leggiJson(p.voti, {}); }
+function sceltiDi(p) { return leggiJson(p.scelti, {}); }
+function giornoSett(d) { var p = parti(d); return new Date(p.a, p.m - 1, p.g).getDay(); }
+function dataBreve(d) { var p = parti(d); return GIORNI_BREVI[giornoSett(d)] + ' ' + p.g + ' ' + MESI[p.m - 1]; }
+function dataMedia(d) { var p = parti(d), g = GIORNI[giornoSett(d)]; return g.charAt(0).toUpperCase() + g.slice(1) + ' ' + p.g + ' ' + MESI_LUNGHI[p.m - 1]; }
+function slotFuturi(p) { return slotDi(p).filter(function (y) { return y.data >= DATI.oggi; }); }
+function provaAperta(p) { return p.stato === 'aperto' && slotFuturi(p).length > 0; }
+/** Quante date future mancano da votare a quella persona (le date già fissate non contano). */
+function mancaVoto(p, chi) {
+  var v = votiDi(p)[chi] || {}, f = sceltiDi(p);
+  return slotFuturi(p).filter(function (y) { return !v[y.id] && !f[y.id]; }).length;
+}
+function daVotare() { return prove().filter(function (p) { return provaAperta(p) && mancaVoto(p, DATI.utente); }); }
+/** Prove fissate da oggi in poi, in ordine. */
+function proveFissate() {
+  var l = [];
+  prove().forEach(function (p) {
+    var f = sceltiDi(p);
+    slotFuturi(p).forEach(function (y) { if (f[y.id]) l.push({ p: p, y: y, x: f[y.id] }); });
+  });
+  return l.sort(function (a, b) { return a.y.data + a.x.da < b.y.data + b.x.da ? -1 : 1; });
+}
+function cartaProve() {
+  var f = proveFissate()[0], v = daVotare(), t = [];
+  if (v.length) t.push('<b>vota il sondaggio' + (v.length > 1 ? ' (' + v.length + ')' : '') + '</b>');
+  if (f) t.push('prossima ' + esc(dataBreve(f.y.data) + ' ' + f.x.da));
+  return '<button class="carta' + (v.length ? ' avviso-pag' : ' carta-prove') + '" data-vai="prove">🥁 Prove' +
+    (t.length ? ': ' + t.join(' · ') : ': sondaggi e date') + ' ›</button>';
+}
+function concertiDel(d) { return eventi().filter(function (e) { return e.data === d && e.stato !== 'annullato'; }); }
+/** Conteggio dei voti di un giorno. */
+function contaVoti(p, y) {
+  var v = votiDi(p), c = { si: [], forse: [], no: [], vuoti: [] };
+  DATI.liste.membri.forEach(function (m) { c[(v[m] || {})[y.id] || 'vuoti'].push(m); });
+  return c;
+}
+function miglioriDate(p) {
+  var f = sceltiDi(p);
+  return slotFuturi(p).filter(function (y) { return !f[y.id]; }).map(function (y) { return { y: y, c: contaVoti(p, y) }; })
+    .filter(function (x) { return x.c.si.length + x.c.forse.length >= 2 && !x.c.no.length; })
+    .sort(function (a, b) {
+      return b.c.si.length - a.c.si.length || b.c.forse.length - a.c.forse.length || (a.y.id < b.y.id ? -1 : 1);
+    }).slice(0, 3);
+}
+function riassuntoVoti(c) {
+  if (c.si.length === DATI.liste.membri.length) return '<span class="pill ok">ci siamo tutti ✓</span>';
+  var h = '';
+  if (c.si.length) h += '<span class="pill ok">sì ' + esc(c.si.join(', ')) + '</span>';
+  if (c.forse.length) h += '<span class="pill att">forse ' + esc(c.forse.join(', ')) + '</span>';
+  if (c.vuoti.length) h += '<span class="pill neutra">manca ' + esc(c.vuoti.join(', ')) + '</span>';
+  return h;
+}
+function periodoProva(p) { var l = slotDi(p); if (!l.length) return ''; var a = dataBreve(l[0].data), b = dataBreve(l[l.length - 1].data); return a === b ? a : a + ' – ' + b; }
+function testoSondaggio(p) {
+  return '🥁 ' + p.titolo + ': votate le date!\n' + periodoProva(p) + (p.luogo ? '\n📍 ' + p.luogo : '') + (p.note ? '\n' + p.note : '') +
+    '\n\nSi vota nel Gestionale → Eventi → Prove:\n' + (DATI.sitoUrl || '');
+}
+function testoFissata(p, y, x) {
+  return '🥁 Prova fissata!\n' + dataMedia(y.data) + ', ' + x.da + '–' + x.a + (x.luogo ? '\n📍 ' + x.luogo : '') + (p.note ? '\n' + p.note : '');
+}
+function bottoneWa(testo, etichetta) {
+  return '<a class="btn-sec" target="_blank" rel="noopener" href="' + esc(linkWa('', testo)) + '">💬 ' + esc(etichetta) + '</a>';
+}
+function cartaFissata(z) {
+  return '<div class="carta"><div class="riga"><b>' + esc(dataMedia(z.y.data)) + '</b><b>' + esc(z.x.da + '–' + z.x.a) + '</b></div>' +
+    '<div class="tenue">' + esc([z.x.luogo, z.p.titolo].filter(Boolean).join(' · ')) + '</div>' +
+    '<div class="azioni">' + bottoneWa(testoFissata(z.p, z.y, z.x), 'Avvisa') +
+    '<button class="btn-sec" data-az="apriFissa" data-id="' + esc(z.p.id) + '" data-s="' + esc(z.y.id) + '">Modifica</button>' +
+    '<button class="btn-pericolo" data-az="togliProva" data-id="' + esc(z.p.id) + '" data-s="' + esc(z.y.id) + '">Togli</button></div></div>';
+}
+function vistaProve() {
+  var h = '<button class="btn-link" data-vai="eventi">‹ Eventi</button><div class="barra"><h1>Prove</h1><button class="btn" data-az="nuovaProva">+ Sondaggio</button></div>';
+  var f = proveFissate(), aperti = prove().filter(provaAperta), chiusi = prove().filter(function (p) { return !provaAperta(p); });
+  if (f.length) h += '<h2>Prossime prove</h2>' + f.map(cartaFissata).join('');
+  if (aperti.length) h += '<h2>Sondaggi aperti</h2>' + aperti.map(function (p) {
+    var io = mancaVoto(p, DATI.utente);
+    return '<button class="ev" data-az="apriProva" data-id="' + esc(p.id) + '"><div class="ev-corpo"><div class="ev-tit">🗳️ ' + esc(p.titolo) + '</div>' +
+      '<div class="ev-sotto">' + esc(periodoProva(p)) + '</div><div class="ev-pill">' + (io ? '<span class="pill no">' + (votiDi(p)[DATI.utente] ? 'ti mancano ' + io : 'devi votare') + '</span>' : '') +
+      DATI.liste.membri.filter(function (m) { return m !== DATI.utente; }).map(function (m) {
+        return mancaVoto(p, m) ? '<span class="pill neutra">manca ' + esc(m) + '</span>' : '<span class="pill ok">' + esc(m) + ' ✓</span>';
+      }).join('') + '</div></div><div class="ev-dx">›</div></button>';
+  }).join('');
+  if (chiusi.length) h += '<h2>Sondaggi chiusi</h2>' + chiusi.sort(function (a, b) { return a.creato < b.creato ? 1 : -1; }).slice(0, 10).map(function (p) {
+    return '<button class="ev" data-az="apriProva" data-id="' + esc(p.id) + '"><div class="ev-corpo"><div class="ev-tit">' + esc(p.titolo) + '</div>' +
+      '<div class="ev-sotto">' + esc(periodoProva(p)) + '</div></div><div class="ev-dx">›</div></button>';
+  }).join('');
+  if (!prove().length) h += '<p class="vuoto">Nessun sondaggio. Premi <b>+ Sondaggio</b>: scegli il periodo e le fasce, le date le scrive l\'app.</p>';
+  return h;
+}
+function vistaProva() {
+  var p = provaDi(SEL_PV);
+  if (!p) { V = 'prove'; return vistaProve(); }
+  var aperta = provaAperta(p), voti = votiDi(p), miei = voti[DATI.utente] || {}, scelti = sceltiDi(p), membri = DATI.liste.membri;
+  var h = '<button class="btn-link" data-vai="prove">‹ Prove</button><h1>' + esc(p.titolo) + '</h1>' +
+    '<p class="tenue" style="margin-top:-6px">' + esc([periodoProva(p), p.luogo, 'creato da ' + p.creatoDa].filter(Boolean).join(' · ')) + '</p>' +
+    (p.note ? '<p class="testo-lungo" style="margin-bottom:12px">' + esc(p.note) + '</p>' : '');
+  if (aperta) h += '<div class="azioni" style="margin-top:0">' + bottoneWa(testoSondaggio(p), 'Avvisa il gruppo WhatsApp') + '</div>';
+  else h += '<div class="avvertenza">' + (p.stato === 'aperto' ? 'Le date di questo sondaggio sono passate.' : 'Sondaggio chiuso.') + '</div>';
+  var fiss = proveFissate().filter(function (z) { return z.p.id === p.id; });
+  if (fiss.length) h += '<h2>Prove fissate</h2>' + fiss.map(cartaFissata).join('');
+  var mig = aperta ? miglioriDate(p) : [];
+  if (mig.length) h += '<h2>Date migliori</h2><div class="carta">' + mig.map(function (x) {
+    return '<div class="extra"><div class="nome"><b>' + esc(dataMedia(x.y.data)) + '</b><div class="tenue">' + esc(FASCE[x.y.f] + ' ' + x.y.da + '–' + x.y.a) + '</div>' +
+      '<div class="ev-pill">' + riassuntoVoti(x.c) + '</div></div>' +
+      '<button class="btn" data-az="apriFissa" data-id="' + esc(p.id) + '" data-s="' + esc(x.y.id) + '">Fissa</button></div>';
+  }).join('') + '</div>';
+  var manca = membri.filter(function (m) { return mancaVoto(p, m); });
+  h += '<h2>' + (aperta ? 'Il tuo voto' : 'Voti') + '</h2>';
+  if (aperta) h += '<p class="tenue" style="margin-top:-4px">' + (manca.length ? 'Non hanno finito di votare: <b>' + esc(manca.join(', ')) + '</b>. ' : '<b>Hanno votato tutti ✓</b> ') +
+    'Tocca il nome di una fascia per fissare lì la prova.</p>' +
+    (mancaVoto(p, DATI.utente) ? '<div class="azioni riempi"><span class="tenue">Metti a tutte le vuote:</span>' + VOTI.map(function (x) {
+      return '<button class="btn-sec btn-piccolo-sec" data-az="votaVuoti" data-id="' + esc(p.id) + '" data-v="' + x[0] + '">' + x[1] + ' ' + x[2] + '</button>';
+    }).join('') + '</div>' : '');
+  var giorno = '';
+  slotDi(p).forEach(function (y) {
+    var passata = y.data < DATI.oggi, si = aperta && !passata;
+    if (y.data !== giorno) {
+      h += (giorno ? '</div>' : '') + '<div class="carta gg' + (passata ? ' passata' : '') + '"><b>' + esc(dataMedia(y.data)) + '</b>' +
+        concertiDel(y.data).map(function (e) { return ' <span class="pill att">' + esc((EMOJI_TIPO[e.tipo] || '🎸') + ' ' + e.titolo) + '</span>'; }).join('');
+      giorno = y.data;
+    }
+    h += '<div class="slot"><button class="slot-nome"' + (si ? ' data-az="apriFissa" data-id="' + esc(p.id) + '" data-s="' + esc(y.id) + '"' : ' disabled') + '>' +
+      '<span>' + (scelti[y.id] ? '📌 ' : '') + esc(FASCE[y.f]) + ' <small>' + esc(y.da + '–' + y.a) + '</small></span><span class="chi-vota">' + membri.map(function (m) {
+        return '<i class="v-' + ((voti[m] || {})[y.id] || 'vuoto') + '" title="' + esc(m) + '">' + esc(m) + '</i>';
+      }).join('') + '</span></button>' + (si ? '<span class="voto">' + VOTI.map(function (x) {
+        return '<button class="v-' + x[0] + (miei[y.id] === x[0] ? ' on' : '') + '" data-az="vota" data-id="' + esc(p.id) + '" data-s="' + esc(y.id) + '" data-v="' + x[0] + '" aria-label="' + x[2] + '">' + x[1] + '</button>';
+      }).join('') + '</span>' : '') + '</div>';
+  });
+  return h + (giorno ? '</div>' : '') + '<div class="azioni">' +
+    (aperta ? '<button class="btn-sec" data-az="modificaProva" data-id="' + esc(p.id) + '">✏️ Cambia le date</button>' : '') +
+    (p.stato === 'aperto' ? '<button class="btn-sec" data-az="statoProva" data-id="' + esc(p.id) + '" data-v="chiuso">🏁 Chiudi sondaggio</button>' :
+      '<button class="btn-sec" data-az="statoProva" data-id="' + esc(p.id) + '" data-v="aperto">↩︎ Riapri</button>') +
+    '<button class="btn-pericolo" data-az="eliminaProva" data-id="' + esc(p.id) + '">Elimina</button></div>';
+}
+/** Segna i voti toccati (subito sullo schermo) e li manda tutti insieme un attimo dopo: 20 tocchi = una chiamata. */
+function applicaVoti(id, v) {
+  var p = provaDi(id);
+  if (!p) return;
+  var tutti = votiDi(p), miei = tutti[DATI.utente] || {};
+  Object.keys(v).forEach(function (s) { if (v[s]) miei[s] = v[s]; else delete miei[s]; });
+  tutti[DATI.utente] = miei;
+  p.voti = JSON.stringify(tutti);
+}
+function segnaVoti(id, v) {
+  applicaVoti(id, v);
+  VOTI_ATTESA[id] = Object.assign(VOTI_ATTESA[id] || {}, v);
+  clearTimeout(TIMER_VOTI);
+  TIMER_VOTI = setTimeout(mandaVoti, 1200);
+  // se sopra compaiono o spariscono righe ("Date migliori"…) la lista non deve saltare sotto il dito
+  var altezza = document.body.scrollHeight || 0;
+  disegna();
+  var salto = (document.body.scrollHeight || 0) - altezza;
+  if (salto && window.scrollBy) window.scrollBy(0, salto);
+}
+function mandaVoti() {
+  clearTimeout(TIMER_VOTI);
+  var l = VOTI_ATTESA;
+  VOTI_ATTESA = {};
+  Object.keys(l).forEach(function (id) {
+    scrivi('votaProva', { id: id, voti: l[id] }, function () { ridisegnaSePuo(); }, function () { applicaVoti(id, l[id]); });
+  });
+}
+// — il modulo del sondaggio
+function nuovaPF(p) {
+  var base = p || prove().slice().sort(function (a, b) { return a.creato < b.creato ? 1 : -1; })[0]; // orari e luogo dell'ultima volta
+  var f = { m: { on: true, da: '10:00', a: '13:00' }, p: { on: true, da: '15:00', a: '18:00' }, s: { on: false, da: '20:30', a: '23:00' } };
+  if (base) {
+    Object.keys(f).forEach(function (k) { f[k].on = false; });
+    slotDi(base).forEach(function (y) { f[y.f] = { on: true, da: y.da, a: y.a }; });
+  }
+  var x = { id: p ? p.id : '', titolo: p ? p.titolo : 'Prove', luogo: base ? base.luogo : '', note: p ? p.note : '', giorni: [true, true, true, true, true, true, true], fasce: f, scelta: {} };
+  var g = giornoSett(DATI.oggi), lun = piuGiorni(DATI.oggi, (8 - g) % 7 || 7); // dal prossimo lunedì, una settimana
+  x.da = lun; x.a = piuGiorni(lun, 6);
+  if (p) {
+    var l = slotFuturi(p);
+    x.da = l[0].data; x.a = l[l.length - 1].data;
+    // si parte dalle date di adesso: il resto del periodo resta spento (si accende toccandolo)
+    grigliaPF(x).forEach(function (r) { r.celle.forEach(function (c) { x.scelta[c.id] = false; }); });
+    l.forEach(function (y) { x.scelta[y.id] = true; });
+  }
+  return x;
+}
+/** I giorni del periodo con le loro fasce: accesa = tra le scelte del sondaggio. I giorni in cui si suona partono spenti. */
+function grigliaPF(x) {
+  var righe = [];
+  if (!x.da || !x.a || x.a < x.da) return righe;
+  for (var d = x.da, n = 0; d <= x.a && n < 62; d = piuGiorni(d, 1), n++) {
+    if (!x.giorni[giornoSett(d)] || d < DATI.oggi) continue;
+    var conc = concertiDel(d);
+    righe.push({ data: d, concerti: conc, celle: Object.keys(FASCE).filter(function (k) { return x.fasce[k].on; }).map(function (k) {
+      var id = d.replace(/-/g, '') + k;
+      return { id: id, f: k, on: x.scelta[id] == null ? !conc.length : x.scelta[id] };
+    }) });
+  }
+  return righe;
+}
+function slotPF() {
+  var l = [];
+  grigliaPF(PF).forEach(function (r) { r.celle.forEach(function (c) {
+    if (c.on) l.push({ data: r.data, f: c.f, da: PF.fasce[c.f].da, a: PF.fasce[c.f].a });
+  }); });
+  return l;
+}
+function leggiPF() {
+  if (!PF || !$('pf-da')) return;
+  ['titolo', 'luogo', 'note', 'da', 'a'].forEach(function (k) { PF[k] = String($('pf-' + k).value || '').trim(); });
+  Object.keys(FASCE).forEach(function (k) {
+    if (!PF.fasce[k].on || !$('pf-da-' + k)) return;
+    PF.fasce[k].da = $('pf-da-' + k).value || PF.fasce[k].da; PF.fasce[k].a = $('pf-a-' + k).value || PF.fasce[k].a;
+  });
+}
+function vistaProvaForm() {
+  if (!PF) { V = 'prove'; return vistaProve(); }
+  var righe = grigliaPF(PF), n = slotPF().length;
+  var h = '<button class="btn-link" data-vai="' + (PF.id ? 'prova' : 'prove') + '">‹ Annulla</button><h1>' + (PF.id ? 'Cambia le date' : 'Nuovo sondaggio') + '</h1>' +
+    '<label for="pf-titolo">Nome</label><input id="pf-titolo" maxlength="80" value="' + esc(PF.titolo) + '">' +
+    '<div class="campi" style="grid-template-columns:1fr 1fr"><div><label for="pf-da">Dal</label><input id="pf-da" type="date" value="' + esc(PF.da) + '"></div>' +
+    '<div><label for="pf-a">Al</label><input id="pf-a" type="date" value="' + esc(PF.a) + '"></div></div>' +
+    '<label>Giorni</label><div class="giorni-pf">' + [1, 2, 3, 4, 5, 6, 0].map(function (g) {
+      return '<button class="chip' + (PF.giorni[g] ? ' attivo' : '') + '" data-az="pfGiorno" data-i="' + g + '">' + GIORNI_BREVI[g] + '</button>';
+    }).join('') + '</div><label>Fasce e orari</label>' + Object.keys(FASCE).map(function (k) {
+      var f = PF.fasce[k];
+      return '<div class="fascia-pf"><button class="chip' + (f.on ? ' attivo' : '') + '" data-az="pfFascia" data-k="' + k + '">' + FASCE[k] + '</button>' +
+        (f.on ? '<input id="pf-da-' + k + '" type="time" aria-label="' + FASCE[k] + ' dalle" value="' + esc(f.da) + '"><input id="pf-a-' + k + '" type="time" aria-label="' + FASCE[k] + ' alle" value="' + esc(f.a) + '">' : '') + '</div>';
+    }).join('') +
+    '<label for="pf-luogo">Dove (facoltativo)</label><input id="pf-luogo" maxlength="150" value="' + esc(PF.luogo) + '" placeholder="es. sala prove">' +
+    '<label for="pf-note">Note (facoltative)</label><input id="pf-note" maxlength="500" value="' + esc(PF.note) + '" placeholder="es. portare la scaletta nuova">' +
+    '<h2>Date del sondaggio: ' + n + '</h2><p class="tenue" style="margin-top:-4px">Tocca una fascia per toglierla o rimetterla. I giorni in cui si suona partono spenti.</p>';
+  h += righe.length ? '<div class="carta">' + righe.map(function (r) {
+    return '<div class="riga-pf"><div><b>' + esc(dataBreve(r.data)) + '</b>' + (r.concerti.length ? '<div class="tenue">🎸 ' + esc(r.concerti[0].titolo) + '</div>' : '') + '</div><div class="celle">' +
+      r.celle.map(function (c) { return '<button class="chip' + (c.on ? ' attivo' : '') + '" data-az="pfCella" data-s="' + c.id + '" data-v="' + (c.on ? '' : '1') + '" aria-label="' + FASCE[c.f] + ' ' + esc(dataBreve(r.data)) + '">' + { m: 'Matt.', p: 'Pom.', s: 'Sera' }[c.f] + '</button>'; }).join('') + '</div></div>';
+  }).join('') + '</div>' : '<p class="vuoto">Scegli le due date (fino a due mesi), almeno un giorno e una fascia.</p>';
+  return h + '<button class="btn btn-largo" data-az="salvaProva">' + (PF.id ? 'Salva le date' : 'Crea il sondaggio') + (n ? ' (' + n + ')' : '') + '</button>';
+}
+function apriFissa(p, y) {
+  var x = sceltiDi(p)[y.id] || { da: y.da, a: y.a, luogo: p.luogo };
+  var fissa = !!sceltiDi(p)[y.id], k = ' data-id="' + esc(p.id) + '" data-s="' + esc(y.id) + '"';
+  apriModale('<h2>🥁 ' + esc(dataMedia(y.data)) + '</h2><div class="ev-pill" style="margin-bottom:4px">' + riassuntoVoti(contaVoti(p, y)) +
+    (contaVoti(p, y).no.length ? '<span class="pill no">no ' + esc(contaVoti(p, y).no.join(', ')) + '</span>' : '') + '</div>' +
+    '<div class="campi" style="grid-template-columns:1fr 1fr"><div><label for="fp-da">Dalle</label><input id="fp-da" type="time" value="' + esc(x.da) + '"></div>' +
+    '<div><label for="fp-a">Alle</label><input id="fp-a" type="time" value="' + esc(x.a) + '"></div></div>' +
+    '<label for="fp-luogo">Dove</label><input id="fp-luogo" maxlength="150" value="' + esc(x.luogo || '') + '">' +
+    '<p class="tenue">Va nel calendario "' + esc(DATI.calendario) + '".' + (p.stato === 'aperto' && !fissa ? ' Se vi serve più di una prova, lascia aperto il sondaggio.' : '') + '</p>' +
+    (p.stato === 'aperto' && !fissa ? '<button class="btn btn-largo" data-az="fissaProva" data-v="chiudi"' + k + '>📌 Fissa e chiudi il sondaggio</button>' +
+      '<button class="btn-sec btn-largo" data-az="fissaProva"' + k + '>Fissa e lascia aperto</button>' :
+      '<button class="btn btn-largo" data-az="fissaProva"' + k + '>Salva</button>') +
+    '<button class="btn-sec btn-largo" data-az="annulla">Annulla</button>', 'prova');
 }
 
 // ─── Pagamenti e scadenze (dominio, abbonamenti…): nel calendario + mail ai tre prima e il giorno stesso
@@ -2395,6 +2692,7 @@ function copiaDati() {
 
 function riceviDati(d) {
   DATI = d;
+  Object.keys(VOTI_ATTESA).forEach(function (id) { applicaVoti(id, VOTI_ATTESA[id]); }); // tocchi non ancora mandati
   if (d && !d.login && SESS) salvaCopia(d);
   if (d.logo && !LOGO) LOGO = d.logo;
   if (d.calendarioExtra) EXTRA = d.calendarioExtra;
@@ -2404,10 +2702,10 @@ function riceviDati(d) {
 }
 
 // ridisegna senza cancellare quello che si sta scrivendo in un altro modulo
-function ridisegnaSePuo() { if (['modifica', 'modello', 'listino', 'preventivo'].indexOf(V) < 0) disegna(); }
+function ridisegnaSePuo() { if (['modifica', 'modello', 'listino', 'preventivo', 'provaform'].indexOf(V) < 0) disegna(); }
 function ricarica() {
   google.script.run
-    .withSuccessHandler(function (d) { riceviDati(d); if (V === 'preventivo' && PREV && $('p-sconto')) leggiModuloPrev(); disegna(); forseListaDaCompletare(); })
+    .withSuccessHandler(function (d) { riceviDati(d); if (V === 'preventivo' && PREV && $('p-sconto')) leggiModuloPrev(); if (V === 'provaform') leggiPF(); disegna(); forseListaDaCompletare(); })
     .withFailureHandler(suErrore)
     .getDati(SESS);
 }
@@ -2458,7 +2756,7 @@ var N_TEMP = 0;
 function idTemporaneo() { return 'tmp' + Date.now().toString(36) + (++N_TEMP); }
 
 function esci() {
-  SESS = ''; ricorda('tok', null); salvaCopia(null); LOGIN_NOME = ''; BOZZA = null; PREV = null; BOZZE_SITO = {}; V = 'eventi'; LISTA_MOSTRATA = false;
+  SESS = ''; ricorda('tok', null); salvaCopia(null); LOGIN_NOME = ''; BOZZA = null; PREV = null; PF = null; VOTI_ATTESA = {}; BOZZE_SITO = {}; V = 'eventi'; LISTA_MOSTRATA = false;
   if (MODALE) chiudiModale();
   DATI = { app: DATI && DATI.app, login: true, membri: (DATI && DATI.membri) || [] };
   disegna();
@@ -2677,6 +2975,66 @@ var COMANDI = {
   },
   // spese
   numTab: function (d) { NUM_TAB = d.v; disegna(); },
+  nuovaProva: function () { PF = nuovaPF(null); vai('provaform'); },
+  apriProva: function (d) { SEL_PV = d.id; vai('prova'); },
+  modificaProva: function (d) { var p = provaDi(d.id); if (p && slotFuturi(p).length) { PF = nuovaPF(p); vai('provaform'); } },
+  pfGiorno: function (d) { leggiPF(); PF.giorni[Number(d.i)] = !PF.giorni[Number(d.i)]; disegna(); },
+  pfFascia: function (d) { leggiPF(); PF.fasce[d.k].on = !PF.fasce[d.k].on; disegna(); },
+  pfCella: function (d) { leggiPF(); PF.scelta[d.s] = !!d.v; disegna(); },
+  salvaProva: function () {
+    leggiPF();
+    var l = slotPF();
+    if (!l.length) return avviso('Scegli almeno un giorno.', true);
+    if (l.length > 90) return avviso('Troppe scelte (' + l.length + '): al massimo 90. Accorcia il periodo.', true);
+    scrivi('salvaProva', { prova: { id: PF.id, titolo: PF.titolo, luogo: PF.luogo, note: PF.note, slot: l } }, function (d) {
+      SEL_PV = d.ultimoId || SEL_PV; PF = null; vai('prova');
+    });
+  },
+  vota: function (d) {
+    var p = provaDi(d.id);
+    if (!p) return;
+    var v = {}, miei = votiDi(p)[DATI.utente] || {};
+    v[d.s] = miei[d.s] === d.v ? '' : d.v; // ritoccando lo stesso si toglie
+    segnaVoti(d.id, v);
+  },
+  votaVuoti: function (d) {
+    var p = provaDi(d.id);
+    if (!p) return;
+    var v = {}, miei = votiDi(p)[DATI.utente] || {};
+    slotFuturi(p).forEach(function (y) { if (!miei[y.id]) v[y.id] = d.v; });
+    segnaVoti(d.id, v);
+  },
+  apriFissa: function (d) {
+    mandaVoti();
+    var p = provaDi(d.id), y = p && slotDi(p).filter(function (z) { return z.id === d.s; })[0];
+    if (y) apriFissa(p, y);
+  },
+  fissaProva: function (d) {
+    var a = { id: d.id, slot: d.s, da: $('fp-da').value, a: $('fp-a').value, luogo: $('fp-luogo').value.trim(), chiudi: d.v === 'chiudi' };
+    if (!/^\d{2}:\d{2}$/.test(a.da) || !/^\d{2}:\d{2}$/.test(a.a)) return avviso('Metti gli orari.', true);
+    chiudiModale();
+    scrivi('fissaProva', a, function () { ridisegnaSePuo(); }, function () { // si vede subito; il calendario lo fa il server
+      var p = provaDi(a.id);
+      if (!p) return;
+      var f = sceltiDi(p);
+      f[a.slot] = Object.assign({}, f[a.slot], { da: a.da, a: a.a, luogo: a.luogo });
+      p.scelti = JSON.stringify(f);
+      if (a.chiudi) p.stato = 'chiuso';
+    });
+  },
+  togliProva: function (d) {
+    chiedi('Togliere questa prova? Sparisce anche dal calendario.', 'Togli', function () { scrivi('togliProva', { id: d.id, slot: d.s }, function () { disegna(); }); });
+  },
+  statoProva: function (d) {
+    mandaVoti();
+    scrivi('statoProva', { id: d.id, stato: d.v }, function () { ridisegnaSePuo(); }, function () { var p = provaDi(d.id); if (p) p.stato = d.v; });
+  },
+  eliminaProva: function (d) {
+    chiedi('Eliminare il sondaggio? Le prove future che ha fissato spariscono anche dal calendario.', 'Elimina', function () {
+      delete VOTI_ATTESA[d.id];
+      scrivi('eliminaProva', { id: d.id }, function () { vai('prove'); });
+    });
+  },
   vaiPagamenti: function () { NUM_TAB = 'pagamenti'; vai('riepilogo'); },
   nuovoPagamento: function () { apriFormPagamento(null); },
   apriPagamento: function (d) { var p = pagamenti().filter(function (y) { return y.id === d.id; })[0]; if (p) apriFormPagamento(p); },
@@ -3216,6 +3574,8 @@ document.addEventListener('change', function (e) {
   if (e.target && e.target.id === 'c-ruolo' && K_EVENTO && BOZZA_K && !BOZZA_K.id) $('c-rubrica').innerHTML = rubricaHtml(e.target.value);
   if (e.target && e.target.id === 'c-ruolo' && $('c-box-referente')) $('c-box-referente').style.display = CON_REFERENTE.indexOf(e.target.value) < 0 ? 'none' : '';
   if (e.target && e.target.id === 'c-ruolo' && $('c-box-sposi')) $('c-box-sposi').style.display = e.target.value === 'Sposi' ? '' : 'none';
+  // sondaggio prove: cambiando il periodo si rifà l'elenco dei giorni
+  if (e.target && V === 'provaform' && PF && (e.target.id === 'pf-da' || e.target.id === 'pf-a')) { leggiPF(); disegna(); }
   // nel preventivo il tipo decide quali voci mostrare (matrimonio sì/no): si ridisegna tenendo quello già scritto
   if (e.target && e.target.id === 'f-tipo' && V === 'preventivo' && PREV) { leggiModuloPrev(); disegna(); }
 });
@@ -3225,11 +3585,12 @@ document.addEventListener('keydown', function (e) {
 
 // Ricarica da sola ogni 60 s, ma non mentre si scrive, c'è il modale o si è nel login
 setInterval(function () {
-  if (occupato || MODALE || ['modifica', 'calendario', 'modello', 'preventivo', 'listino'].indexOf(V) >= 0 || !SESS || !DATI || DATI.login) return;
+  if (occupato || MODALE || ['modifica', 'calendario', 'modello', 'preventivo', 'listino', 'provaform'].indexOf(V) >= 0 || !SESS || !DATI || DATI.login) return;
   ricarica();
 }, 60000);
 // telefono bloccato o app cambiata con un preventivo del sito a metà: si salva la bozza
 document.addEventListener('visibilitychange', function () {
+  if (document.visibilityState === 'hidden') mandaVoti();
   if (document.visibilityState === 'hidden' && V === 'preventivo') lasciaPrev();
 });
 
