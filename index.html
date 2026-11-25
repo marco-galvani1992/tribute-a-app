@@ -197,14 +197,6 @@
   .compito .t { flex: 1 1 auto; min-width: 0; text-align: left; background: none; padding: 6px 0; min-height: 0; color: var(--testo); }
   .compito.fatto .t { color: var(--tenue); text-decoration: line-through; }
   .scaduto { color: var(--rosso); font-weight: 700; }
-  .gantt .r { display: grid; grid-template-columns: minmax(80px, 30%) 1fr; gap: 8px; align-items: center; margin: 10px 0; font-size: 13px; }
-  .gantt .r > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .gantt .track { position: relative; height: 18px; background: var(--carta2); border-radius: 9px; }
-  .gantt .bar { position: absolute; top: 0; height: 100%; border-radius: 9px; background: var(--petrolio); overflow: hidden; min-width: 6px; }
-  .gantt .bar i { display: block; height: 100%; background: var(--arancio); }
-  .gantt .oggi { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--rosso); }
-  .gantt .mesi-g { position: relative; height: 16px; font-size: 10px; color: var(--tenue); }
-  .gantt .mesi-g span { position: absolute; transform: translateX(-50%); }
   .voce { display: block; width: 100%; text-align: left; background: var(--carta2); border: 1px solid var(--bordo);
     border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; }
   .voce.scelta { border-color: var(--arancio); box-shadow: inset 0 0 0 1px var(--arancio); background: rgba(240,138,60,.08); }
@@ -297,6 +289,65 @@
   @media (max-width: 400px) { #testa .marchio { font-size: 17px; } #testa .marchio small { display: none; } }
   .avviso-pag { border-color: var(--fiamma); background: linear-gradient(90deg, rgba(217,76,26,.22), rgba(21,55,59,.72)); }
   .richiesta-nuova { border-color: var(--arancio); }
+  .chips .sep { flex: 0 0 1px; background: var(--petrolio-2); margin: 4px 4px; }
+  .due-btn { display: flex; gap: 6px; }
+  .due-btn .btn-sec { padding: 12px 10px; white-space: nowrap; }
+  .due-btn .btn { padding: 12px 12px; white-space: nowrap; }
+  @media (min-width: 800px) { body:not(.in-login) #app > .largo { max-width: none; } }
+  /* Gantt */
+  .gantt { padding: 0; overflow: auto; max-height: 72vh; overscroll-behavior-x: contain; --gn: 138px; }
+  @media (min-width: 800px) { .gantt { --gn: 250px; } }
+  .gz-in { position: relative; width: calc(var(--gn) + var(--gw)); min-width: 100%; }
+  .gz-sfondo { position: absolute; left: var(--gn); top: 0; bottom: 0; width: var(--gw); pointer-events: none; }
+  .gz-sfondo .oggi { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--fiamma); }
+  .gz-r { display: flex; min-height: 38px; border-bottom: 1px solid rgba(255,255,255,.05); }
+  .gz-n { position: sticky; left: 0; z-index: 3; flex: 0 0 var(--gn); width: var(--gn); display: flex; align-items: center; gap: 4px; padding: 0 6px 0 8px;
+    background: #14343a; border-right: 1px solid var(--petrolio-2); font-size: 13px; overflow: hidden; }
+  .gz-t { position: relative; flex: 0 0 var(--gw); width: var(--gw); }
+  .gz-nome { flex: 1 1 auto; min-width: 0; background: none; text-align: left; padding: 0; min-height: 38px; font-size: 13px; }
+  .gz-nome span { line-height: 1.2; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+  .gz-prog .gz-n { background: #1a444a; } .gz-prog .gz-nome { font-weight: 700; }
+  .gz-comp .gz-n { padding-left: 8px; } .gz-comp.fatto .gz-nome { color: var(--tenue); text-decoration: line-through; }
+  .gz-comp .spunta { flex: 0 0 24px; width: 24px; height: 24px; min-height: 24px; line-height: 22px; font-size: 14px; border-radius: 6px; }
+  .gz-comp .spunta.on { background: var(--verde); border-color: var(--verde); color: #0e1113; }
+  .gz-apri { flex: 0 0 22px; background: none; padding: 0; min-height: 38px; color: var(--pesca); }
+  .gz-piu { min-height: 30px; } .gz-piu .gz-nome { color: var(--tenue); min-height: 30px; padding-left: 28px; }
+  .gz-testa { position: sticky; top: 0; z-index: 5; background: #10292e; min-height: 46px; } .gz-testa .gz-n { z-index: 6; background: #10292e; }
+  .gz-mesi span, .gz-giorni span { position: absolute; font-size: 11px; white-space: nowrap; overflow: hidden; }
+  .gz-mesi span { top: 4px; font-weight: 700; color: var(--pesca); text-transform: uppercase; letter-spacing: .06em; padding-left: 5px; border-left: 1px solid var(--petrolio-2); }
+  .gz-giorni span { top: 25px; text-align: center; color: var(--tenue); } .gz-giorni .fest { opacity: .55; }
+  .gz-giorni .og { background: var(--fiamma); color: #fff; border-radius: 6px; font-weight: 700; opacity: 1; }
+  .gz-date .gz-n { color: var(--tenue); }
+  .gz-ev { position: absolute; top: 4px; height: 30px; min-height: 30px; padding: 0; background: none; font-size: 14px; text-align: center; }
+  .gz-bar { position: absolute; top: 7px; height: 24px; min-height: 24px; padding: 0; border-radius: 7px; text-align: left; font-size: 11px; font-weight: 700; z-index: 1; touch-action: pan-x pan-y; }
+  .gz-bar span { position: sticky; left: calc(var(--gn) + 2px); display: inline-block; max-width: 100%; overflow: hidden; padding: 0 7px; white-space: nowrap; line-height: 22px; }
+  .gz-bar.prog { background: rgba(255,255,255,.16); color: var(--testo); border: 1px solid rgba(255,255,255,.22); }
+  .gz-bar.prog i { position: absolute; inset: 0 auto 0 0; border-radius: 6px; background: linear-gradient(90deg, var(--fiamma), var(--pesca)); }
+  .gz-bar.fatto, .gz-punto.fatto { opacity: .35; } .gz-bar.aperto { -webkit-mask-image: linear-gradient(90deg, #000 60%, transparent); mask-image: linear-gradient(90deg, #000 60%, transparent); }
+  .gz-bar.tardi, .gz-punto.tardi { box-shadow: 0 0 0 2px var(--rosso); }
+  .gz-punto { position: absolute; top: 11px; width: 16px; height: 16px; min-height: 16px; padding: 0; transform: rotate(45deg); border-radius: 3px; z-index: 1; }
+  .gz-senza { position: absolute; top: 5px; background: none; border: 1px dashed var(--petrolio-2); color: var(--tenue); font-size: 11px; padding: 0 8px; min-height: 28px; }
+  @media (hover: hover) { .gz-bar[data-drag], .gz-punto { cursor: grab; } }
+  .legenda b { margin-left: 8px; }
+  /* Tabella delle date */
+  .tab-tot { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--tenue); margin: 2px 0 10px; } .tab-tot b { color: var(--testo); font-size: 15px; }
+  .v-ok, .tab-tot .v-ok b { color: var(--verde); } .v-att, .tab-tot .v-att b { color: var(--giallo); }
+  .tb { overflow: auto; max-height: 74vh; border: 1px solid var(--petrolio-2); border-radius: 14px; background: rgba(21,55,59,.72); overscroll-behavior-x: contain; }
+  .tb table { border-collapse: separate; border-spacing: 0; font-size: 13px; width: 100%; }
+  .tb td, .tb th { padding: 6px 10px; text-align: left; white-space: nowrap; border-bottom: 1px solid rgba(255,255,255,.06); font-weight: 400; }
+  .tb thead th { position: sticky; top: 0; z-index: 3; background: #10292e; padding: 0; } .tb thead button { background: none; width: 100%; text-align: left; padding: 8px 10px; min-height: 40px; font-size: 12px; font-weight: 700; color: var(--pesca); white-space: nowrap; }
+  .tb th:first-child { position: sticky; left: 0; z-index: 2; background: #14343a; border-right: 1px solid var(--petrolio-2); } .tb thead th:first-child { z-index: 4; background: #10292e; }
+  .tb tbody th { border-left: 4px solid #7d9497; padding: 0; } .tb tbody th button { display: block; width: 152px; text-align: left; background: none; padding: 6px 8px; min-height: 46px; font-size: 13px; }
+  @media (min-width: 800px) { .tb tbody th button { width: 270px; } }
+  .tb .t-matrimonio { border-left-color: #f3b6c4; } .tb .t-locale { border-left-color: #f2c94c; } .tb .t-sagra { border-left-color: #f08a3c; } .tb .t-privato { border-left-color: #6fb7d6; }
+  .td-data, .td-nome { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .td-data { color: var(--tenue); font-size: 12px; } .td-data b { color: var(--pesca); font-size: 14px; } .td-nome { font-weight: 700; }
+  .tb tr.passata td, .tb tr.passata th button { color: #a9babb; } .tb tr.passata .td-nome { font-weight: 600; }
+  .tb tr.annullato td, .tb tr.annullato th button { opacity: .45; } .tb tr.annullato .td-nome { text-decoration: line-through; }
+  .tb .r-mese th, .tb .r-mese td { background: #0f2429; color: var(--pesca); font-size: 12px; font-weight: 700; padding: 7px 10px; border-left: 0; text-transform: capitalize; } .tb .r-mese td { color: var(--tenue); font-weight: 400; text-transform: none; }
+  .tb .r-oggi th, .tb .r-oggi td { background: var(--fiamma) !important; color: #fff; font-weight: 700; font-size: 12px; padding: 3px 10px; border-left: 0; }
+  .cella-btn { padding: 4px 9px; min-height: 32px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; background: rgba(255,255,255,.07); }
+  .cella-btn.ok { color: var(--verde); background: rgba(95,191,143,.14); } .cella-btn.att { color: var(--giallo); background: rgba(242,201,76,.14); } .cella-btn.no { background: var(--rosso); color: #23090a; }
+  .tb .c-totale { text-align: right; } .nota-cella { color: var(--tenue); } .tb td a { text-decoration: none; margin-left: 4px; }
   /* Prove: sondaggi */
   .campi > * { min-width: 0; }
   .carta-prove { display: block; width: 100%; text-align: left; font: inherit; color: inherit; margin-top: 8px; }
@@ -330,7 +381,7 @@
   .riga-pf .celle { display: flex; gap: 4px; flex: 0 0 auto; }
   .riga-pf .chip { padding: 6px 9px; min-height: 40px; font-size: 13px; }
 </style>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-ijmSNgERAPHv+PRr1HyZKEtf8jciVj/pFDUNnGCC5Fo='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-uBL1b6hfhnaBXTRZqP1d87f6enS5OlbMlfWzMIjF2Ak='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -350,8 +401,9 @@
 
 <script>
 // ─── Versione e changelog: VERSIONE deve essere uguale alla prima voce (lo controlla il test)
-var VERSIONE = '0.58';
+var VERSIONE = '0.59';
 var CHANGELOG = [
+  { v: '0.59', data: '2026-11-25', testo: 'Tabella delle date (Eventi → Tabella): tutte le date come nel file, con ricerca, filtri, ordine toccando le colonne, totali per mese e soldi da incassare in evidenza; si segna l\'incasso toccando la casella. Progetti nuovi: Gantt a settimane o mesi con progetti e compiti, colori per persona, concerti e prove sulla stessa riga del tempo, e la lista "Da fare" divisa per urgenza. I progetti scritti nel calendario al posto delle prove sono già dentro.' },
   { v: '0.58', data: '2026-11-25', testo: 'Sondaggi per le prove (Eventi → 🥁 Prove): scegli il periodo, i giorni e le fasce (mattina, pomeriggio, sera) e l\'app prepara da sola tutte le date, saltando i giorni in cui si suona. Ognuno vota Sì, Forse o No con un tocco, si vedono le date migliori e con "Fissa" la prova va nel calendario della band. C\'è anche il pulsante per avvisare il gruppo WhatsApp.' },
   { v: '0.57', data: '2026-11-25', testo: 'Listino allineato ai PDF nuovi (Matrimoni 2026-2027, Estate 2027, Inverno 2026-2027): prezzi, orari di allestimento e trasferte. Aggiunte le ore extra di DJ Set e Service per party, i pacchetti Social (Estate e Inverno) e i km extra in tutti i listini. I preventivi già fatti non cambiano.' },
   { v: '0.56', data: '2026-11-25', testo: 'Preventivi più veloci: premi Salva e lo vedi subito, il server conferma dietro e puoi andare avanti. Il calendario si controlla già mentre scrivi e si aggiorna un attimo dopo il salvataggio. Foglio leggibile e Google Contatti non fanno più aspettare chi salva in quel momento. Un PDF premuto mentre si salva si mette in fila.' },
@@ -483,6 +535,9 @@ var NUM_TAB = 'incassi';            // Numeri: incassi | spese | cassa | pagamen
 var SEL_PV = '';                    // sondaggio prove aperto
 var PF = null;                      // sondaggio prove in scrittura
 var VOTI_ATTESA = {}, TIMER_VOTI = 0; // voti toccati e non ancora mandati: { sondaggio: { giorno: voto } }
+var PR_TAB = 'gantt', PR_CHI = '';  // Progetti: gantt | lista, e persona
+var GANTT = { zoom: 'settimane', chiusi: {}, x: null };
+var TAB = { anno: null, solo: '', tipo: '', q: '', ord: 'data', giu: false }; // tabella delle date
 var CHAT_TG = [];                   // gruppi Telegram trovati
 var DOMANDE = [];                   // popup "Chiedi le info": [{ testo, on }]
 var occupato = false;               // una scrittura in corso
@@ -503,7 +558,7 @@ var VISTE = [
 ]; // "Altro" è sul nome in alto a destra
 // vista "figlia" -> voce della barra da accendere
 var PADRE = { evento: 'eventi', modifica: 'eventi', calendario: 'eventi', confronto: 'altro', doppioni: 'contatti', contatto: 'contatti', modello: 'messaggi',
-  preventivo: 'preventivi', recap: 'eventi', prove: 'eventi', prova: 'eventi', provaform: 'eventi', progetto: 'progetti' };
+  preventivo: 'preventivi', recap: 'eventi', tabella: 'eventi', prove: 'eventi', prova: 'eventi', provaform: 'eventi', progetto: 'progetti' };
 var COLORE_STATO_P = { bozza: 'neutra', inviato: 'att', accettato: 'ok', rifiutato: 'no' };
 var EMOJI_RUOLO = { Sposi: '💍', 'Wedding planner': '📋', Location: '🏛️', Fotografo: '📷', Videomaker: '🎥', Catering: '🍽️', Organizzatore: '🎤', Altro: '👤' };
 var ETICHETTA_CANALE = { mail: '📧 mail', whatsapp: '💬 WhatsApp', fatto: '✓ a mano', saltato: '⏭ saltato' };
@@ -665,7 +720,9 @@ function linkMappa(e) {
 function vai(v) { mandaVoti(); if (V === 'preventivo' && v !== 'preventivo') lasciaPrev(); V = v; disegna(); if (window.scrollTo) window.scrollTo(0, 0); }
 
 function disegna() {
-  var inLogin = !DATI || !!DATI.login;
+  var inLogin = !DATI || !!DATI.login, gz = $('gz'), tb = $('tb');
+  if (gz) GANTT.x = gz.scrollLeft;
+  if (tb) { TAB.x = tb.scrollLeft; TAB.y = tb.scrollTop; }
   document.body.className = inLogin ? 'in-login' : '';
   $('testa').innerHTML = inLogin ? '' : testaHtml();
   $('nav').innerHTML = inLogin ? '' : VISTE.map(function (x) {
@@ -692,6 +749,7 @@ function disegna() {
   else if (V === 'preventivo') h = vistaPreventivo();
   else if (V === 'listino') h = vistaListino();
   else if (V === 'recap') h = vistaRecap();
+  else if (V === 'tabella') h = vistaTabella();
   else if (V === 'prove') h = vistaProve();
   else if (V === 'prova') h = vistaProva();
   else if (V === 'provaform') h = vistaProvaForm();
@@ -699,6 +757,17 @@ function disegna() {
   else if (V === 'progetto') h = vistaProgetto();
   else h = vistaEventi();
   $('app').innerHTML = h;
+  dopoDisegno();
+}
+/** Gantt e tabella tengono la posizione orizzontale; il Gantt la prima volta si apre su oggi. */
+function dopoDisegno() {
+  var gz = $('gz'), tb = $('tb');
+  if (V === 'progetti' && gz) gz.scrollLeft = GANTT.x == null ? GANTT.oggiX || 0 : GANTT.x;
+  if (V !== 'tabella' || !tb) return;
+  if (TAB.x) tb.scrollLeft = TAB.x;
+  var og = tb.querySelector && tb.querySelector('.r-oggi'); // la prima volta si apre su oggi
+  if (TAB.y == null && og) tb.scrollTop = Math.max(0, og.offsetTop - 110);
+  else if (TAB.y) tb.scrollTop = TAB.y;
 }
 
 function marchio() {
@@ -791,7 +860,7 @@ function anni() {
 }
 
 function vistaEventi() {
-  var h = '<div class="barra"><h1>Eventi</h1><button class="btn" data-az="nuovo">+ Nuovo</button></div>' +
+  var h = '<div class="barra"><h1>Eventi</h1><span class="due-btn"><button class="btn-sec" data-vai="tabella">▦ Tabella</button><button class="btn" data-az="nuovo">+ Nuovo</button></span></div>' +
     '<input id="cerca" type="search" placeholder="Cerca nome, luogo, referente…" value="' + esc(FILTRO.q) + '">' +
     '<div class="chips">' + FILTRI_STATO.map(function (x) {
       return '<button class="chip' + (FILTRO.stato === x[0] ? ' attivo' : '') + '" data-az="filtro" data-k="stato" data-v="' + x[0] + '">' + x[1] + '</button>';
@@ -834,6 +903,91 @@ function cartaEvento(e) {
     '<div class="ev-sotto">' + esc(sotto || e.tipo || '') + '</div>' +
     '<div class="ev-pill">' + pill + (m.length && !passato(e) ? '<span class="pill att">⚠ mancano ' + m.length + '</span>' : '') + '</div></div>' +
     '<div class="ev-dx">' + (num(e.totale) ? euro(e.totale) : '') + '</div></button>';
+}
+
+// ─── Tabella delle date (come il file "Date Tribute A", ma veloce)
+var TAB_COL = [
+  // [chiave, titolo, valore per ordinare, html]
+  ['data', 'Data e evento', function (e) { return e.data + (e.arrivo || ''); }, null],
+  ['totale', 'Compenso', function (e) { return num(e.totale); }, function (e) { return num(e.totale) ? '<b>' + euro(e.totale) + '</b>' : '<span class="manca">manca</span>'; }],
+  ['saldo', 'Da incassare', function (e) { return residuo(e); }, function (e) {
+    if (e.stato === 'annullato') return '<span class="tenue">annullato</span>';
+    if (!num(e.totale)) return '<span class="tenue">—</span>';
+    var r = residuo(e);
+    return '<button class="cella-btn ' + (!r ? 'ok' : passato(e) ? 'no' : 'att') + '" data-az="tabSegna" data-k="saldoRicevuto" data-id="' + esc(e.id) + '">' + (r ? euro(r) : '✓ incassato') + '</button>';
+  }],
+  ['anticipo', 'Anticipo', function (e) { return num(e.anticipo); }, function (e) {
+    if (!num(e.anticipo)) return '<span class="tenue">—</span>';
+    return '<button class="cella-btn ' + (e.anticipoRicevuto === 'Sì' ? 'ok' : 'att') + '" data-az="tabSegna" data-k="anticipoRicevuto" data-id="' + esc(e.id) + '">' + (e.anticipoRicevuto === 'Sì' ? '✓ ' : '○ ') + euro(e.anticipo) + '</button>';
+  }],
+  ['luogo', 'Luogo', function (e) { return e.luogo.toLowerCase(); }, function (e) { return esc(e.luogo) || '<span class="manca">manca</span>'; }],
+  ['arrivo', 'Arrivo', function (e) { return e.arrivo || '99'; }, function (e) { return esc(e.arrivo) || (passato(e) ? '' : '<span class="manca">manca</span>'); }],
+  ['inizio', 'Show', function (e) { return e.inizio || '99'; }, function (e) { return esc(e.inizio); }],
+  ['service', 'Service', function (e) { return e.service; }, function (e) { return esc(e.service); }],
+  ['referente', 'Referente', function (e) { return e.referente.toLowerCase(); }, function (e) {
+    var t = soloCifre(e.telefono);
+    return esc(e.referente) + (t ? ' <a href="tel:+' + esc(t) + '" aria-label="Chiama">📞</a> <a target="_blank" rel="noopener" href="' + esc(linkWa(t)) + '" aria-label="WhatsApp">💬</a>' : '');
+  }],
+  ['chi', 'Di chi', function (e) { return e.contattatoDa; }, function (e) { return e.contattatoDa ? '<span class="pill" style="' + coloreChi(e.contattatoDa) + '">' + esc(e.contattatoDa) + '</span>' : ''; }],
+  ['tramite', 'Canale', function (e) { return e.tramite.toLowerCase(); }, function (e) { return esc(e.tramite) || '<span class="tenue">—</span>'; }],
+  ['note', 'Note', function (e) { return e.note.toLowerCase(); }, function (e) { return '<span class="nota-cella" title="' + esc(e.note) + '">' + esc(String(e.note || '').replace(/\s+/g, ' ').slice(0, 90)) + '</span>'; }]
+];
+var TAB_FILTRI = [['', 'Tutte'], ['future', 'Da fare'], ['daincassare', 'Da incassare'], ['incompleti', 'Incomplete']];
+function righeTabella() {
+  var q = TAB.q.trim().toLowerCase(), col = TAB_COL.filter(function (c) { return c[0] === TAB.ord; })[0] || TAB_COL[0];
+  return eventi().filter(function (e) {
+    if (TAB.anno && e.data.slice(0, 4) !== TAB.anno) return false;
+    if (TAB.tipo && e.tipo !== TAB.tipo) return false;
+    if (TAB.solo && e.stato === 'annullato') return false;
+    if (TAB.solo === 'future' && passato(e)) return false;
+    if (TAB.solo === 'daincassare' && !residuo(e)) return false;
+    if (TAB.solo === 'incompleti' && (passato(e) || !mancanti(e).length)) return false;
+    return !q || [e.titolo, e.luogo, e.referente, e.telefono, e.tipo, e.note, e.tramite, e.contattatoDa, dataIt(e.data)].join(' ').toLowerCase().indexOf(q) >= 0;
+  }).sort(function (a, b) {
+    var x = col[2](a), y = col[2](b);
+    if (x === y) return a.data < b.data ? -1 : 1;
+    return (x < y ? -1 : 1) * (TAB.giu ? -1 : 1);
+  });
+}
+function rigaTabella(e) {
+  var p = parti(e.data), ann = e.stato === 'annullato';
+  return '<tr class="' + (ann ? 'annullato' : passato(e) ? 'passata' : '') + '"><th class="t-' + esc((e.tipo || 'x').toLowerCase()) + '"><button data-az="apri" data-id="' + esc(e.id) + '">' +
+    '<span class="td-data"><b>' + p.g + '</b> ' + (MESI[p.m - 1] || '') + ' <small>' + GIORNI_BREVI[giornoSett(e.data)] + '</small></span>' +
+    '<span class="td-nome">' + (e.stato === 'da confermare' ? '❓ ' : '') + (EMOJI_TIPO[e.tipo] || '🎸') + ' ' + esc(e.titolo) + '</span></button></th>' +
+    TAB_COL.slice(1).map(function (c) { return '<td class="c-' + c[0] + '">' + c[3](e) + '</td>'; }).join('') + '</tr>';
+}
+function corpoTabella() {
+  var l = righeTabella(), perData = TAB.ord === 'data', vive = l.filter(function (e) { return e.stato !== 'annullato'; });
+  var somma = function (x, f) { return x.reduce(function (t, e) { return t + f(e); }, 0); };
+  var tot = somma(vive, function (e) { return num(e.totale); }), inc = somma(vive, incassato), res = somma(vive, residuo);
+  var h = '<div class="tab-tot"><span><b>' + vive.length + '</b> date</span><span><b>' + euro(tot) + '</b> totale</span><span class="v-ok"><b>' + euro(inc) + '</b> incassati</span><span class="v-att"><b>' + euro(res) + '</b> da incassare</span></div>';
+  if (!l.length) return h + '<p class="vuoto">Nessuna data con questi filtri.</p>';
+  var mese = '', oggiFatto = false, righe = '';
+  l.forEach(function (e, i) {
+    // la riga "oggi" sta fra l'ultima fatta e la prima da fare (in ordine di data crescente)
+    if (perData && !TAB.giu && !oggiFatto && !passato(e) && i > 0 && passato(l[i - 1])) { oggiFatto = true; righe += '<tr class="r-oggi"><th>oggi · ' + esc(dataBreve(DATI.oggi)) + '</th><td colspan="' + (TAB_COL.length - 1) + '"></td></tr>'; }
+    if (perData && e.data.slice(0, 7) !== mese) {
+      mese = e.data.slice(0, 7);
+      var del = vive.filter(function (x) { return x.data.slice(0, 7) === mese; }), da = somma(del, residuo);
+      righe += '<tr class="r-mese"><th colspan="1">' + esc(MESI_LUNGHI[Number(mese.slice(5)) - 1] + ' ' + mese.slice(0, 4)) + '</th><td colspan="' + (TAB_COL.length - 1) + '">' +
+        del.length + (del.length === 1 ? ' data' : ' date') + ' · ' + euro(somma(del, function (x) { return num(x.totale); })) + (da ? ' · <span class="v-att">da incassare ' + euro(da) + '</span>' : '') + '</td></tr>';
+    }
+    righe += rigaTabella(e);
+  });
+  return h + '<div id="tb" class="tb largo"><table><thead><tr>' + TAB_COL.map(function (c) {
+    return '<th><button data-az="tabOrdina" data-k="' + c[0] + '">' + c[1] + (TAB.ord === c[0] ? (TAB.giu ? ' ▾' : ' ▴') : '') + '</button></th>';
+  }).join('') + '</tr></thead><tbody>' + righe + '</tbody></table></div>';
+}
+function vistaTabella() {
+  var a = anni();
+  if (TAB.anno == null) TAB.anno = a.indexOf(DATI.oggi.slice(0, 4)) >= 0 ? DATI.oggi.slice(0, 4) : '';
+  var chip = function (attivo, k, v, testo) { return '<button class="chip' + (attivo ? ' attivo' : '') + '" data-az="tabFiltro" data-k="' + k + '" data-v="' + esc(v) + '">' + esc(testo) + '</button>'; };
+  return '<button class="btn-link" data-vai="eventi">‹ Eventi</button><h1>Tabella date</h1>' +
+    '<input id="cerca-t" type="search" placeholder="Cerca qualsiasi cosa…" value="' + esc(TAB.q) + '">' +
+    '<div class="chips">' + a.concat(['']).map(function (x) { return chip(TAB.anno === x, 'anno', x, x || 'Tutti'); }).join('') + '<span class="sep"></span>' +
+    TAB_FILTRI.map(function (x) { return chip(TAB.solo === x[0], 'solo', x[0], x[1]); }).join('') + '<span class="sep"></span>' +
+    [''].concat(DATI.liste.tipi).map(function (x) { return chip(TAB.tipo === x, 'tipo', x, x ? (EMOJI_TIPO[x] || '') + ' ' + x : 'Ogni tipo'); }).join('') + '</div>' +
+    '<div id="corpo-t" class="largo">' + corpoTabella() + '</div>';
 }
 
 // ─── Scheda evento
@@ -1449,38 +1603,147 @@ function rigaCompito(c, conProgetto) {
     (c.scadenza ? '<span class="tenue' + (scad ? ' scaduto' : '') + '" style="font-size:12px">' + esc(dataIt(c.scadenza).slice(0, 5)) + '</span>' : '') + '</div>';
 }
 
+// — Gantt: una riga per progetto e una per compito, tempo in orizzontale, nomi fermi a sinistra
+var COLORI_CHI = { Galva: '#f08a3c', Pope: '#5fbf8f', Tuzzi: '#6fb7d6', Tutti: '#c3a5ee' };
+function coloreChi(chi) { var c = COLORI_CHI[chi] || '#7d9497'; return 'background:' + c + ';color:#10191c'; }
+var ZOOM_GANTT = { settimane: 22, mesi: 8, anno: 3 };
+/** Inizio e fine di una riga del Gantt (stima se manca una delle due). punto = si vede come un rombo (solo una scadenza). */
+function tempiCompito(c) {
+  if (c.inizio && c.scadenza) return { da: c.inizio, a: c.scadenza };
+  if (c.scadenza) return { da: c.scadenza, a: c.scadenza, punto: true };
+  if (c.inizio) return { da: c.inizio, a: piuGiorni(c.inizio, 7), aperto: true };
+  return null;
+}
+function tempiProgetto(p) {
+  var da = p.inizio || '', a = p.scadenza || '';
+  compitiDi(p.id).forEach(function (c) {
+    var t = tempiCompito(c);
+    if (!t) return;
+    if (!da || t.da < da) da = t.da;
+    if (!p.scadenza && t.a > a) a = t.a;
+  });
+  da = da || DATI.oggi;
+  return { da: da, a: a && a >= da ? a : piuGiorni(da, 30) };
+}
 function ganttHtml(lista) {
   if (!lista.length) return '';
-  var oggi = DATI.oggi, da = oggi, a = piuGiorni(oggi, 30);
-  lista.forEach(function (p) { if (p.inizio && p.inizio < da) da = p.inizio; var f = p.scadenza || piuGiorni(p.inizio || oggi, 30); if (f > a) a = f; });
-  var tot = Math.max(1, giorniTra(da, a)), pos = function (d) { return Math.max(0, Math.min(100, giorniTra(da, d) / tot * 100)); };
-  var mesi = [], p0 = parti(da);
-  for (var m = new Date(p0.a, p0.m, 1); m <= new Date(parti(a).a, parti(a).m - 1, 28); m.setMonth(m.getMonth() + 1)) {
-    var d = m.getFullYear() + '-' + ('0' + (m.getMonth() + 1)).slice(-2) + '-01';
-    mesi.push('<span style="left:' + pos(d) + '%">' + MESI[m.getMonth()] + '</span>');
+  var px = ZOOM_GANTT[GANTT.zoom], oggi = DATI.oggi, da = piuGiorni(oggi, -14), a = piuGiorni(oggi, GANTT.zoom === 'settimane' ? 42 : GANTT.zoom === 'mesi' ? 120 : 300);
+  lista.forEach(function (p) { var t = tempiProgetto(p); if (t.da < da) da = t.da; if (t.a > a) a = t.a; compitiDi(p.id).forEach(function (c) { var y = tempiCompito(c); if (y && y.a > a) a = y.a; if (y && y.da < da) da = y.da; }); });
+  if (giorniTra(da, oggi) > 180) da = piuGiorni(oggi, -180);
+  da = piuGiorni(da, -((giornoSett(da) + 6) % 7)); a = piuGiorni(a, 10); // si parte da un lunedì
+  var tot = giorniTra(da, a) + 1, larg = tot * px, x = function (d) { return giorniTra(da, d) * px; };
+  GANTT.da = da; GANTT.px = px; GANTT.oggiX = Math.max(0, x(oggi) - 40);
+  // testata: mesi sopra, giorni (o lunedì) sotto
+  var mesi = '', giorni = '';
+  for (var d = da, n = 0; n < tot; d = piuGiorni(d, 1), n++) {
+    var p0 = parti(d), prima = n === 0 || p0.g === 1;
+    if (prima) {
+      var fineMese = new Date(p0.a, p0.m, 0).getDate(), w = Math.min(tot - n, fineMese - p0.g + 1) * px;
+      mesi += '<span style="left:' + n * px + 'px;width:' + w + 'px">' + (w > 60 ? MESI_LUNGHI[p0.m - 1] + ' ' + p0.a : w > 24 ? MESI[p0.m - 1] : '') + '</span>';
+    }
+    if (GANTT.zoom === 'settimane') giorni += '<span class="' + ([0, 6].indexOf(giornoSett(d)) >= 0 ? 'fest' : '') + (d === oggi ? ' og' : '') + '" style="left:' + n * px + 'px;width:' + px + 'px">' + p0.g + '</span>';
+    else if (GANTT.zoom === 'mesi' && giornoSett(d) === 1) giorni += '<span style="left:' + n * px + 'px;width:' + 7 * px + 'px">' + p0.g + '</span>';
   }
-  return '<div class="carta gantt"><div class="r"><span></span><div class="mesi-g">' + mesi.join('') + '</div></div>' + lista.map(function (p) {
-    var ini = p.inizio || oggi, fine = p.scadenza || piuGiorni(ini, 30), l = pos(ini), w = Math.max(2, pos(fine) - l);
-    return '<div class="r"><span>' + esc(p.nome) + '</span><div class="track"><div class="bar" style="left:' + l + '%;width:' + w + '%">' +
-      '<i style="width:' + Math.round(avanzamento(p) * 100) + '%"></i></div><div class="oggi" style="left:' + pos(oggi) + '%"></div></div></div>';
-  }).join('') + '<div class="legenda"><b style="background:var(--arancio)"></b>fatto<b style="background:var(--petrolio)"></b>da fare<b style="background:var(--rosso);width:2px"></b>oggi</div></div>';
+  var riga = function (cls, nome, dentro) { return '<div class="gz-r ' + cls + '"><div class="gz-n">' + nome + '</div><div class="gz-t">' + dentro + '</div></div>'; };
+  var h = riga('gz-testa', '<span class="tenue">' + esc(dataBreve(oggi)) + '</span>', '<div class="gz-mesi">' + mesi + '</div><div class="gz-giorni">' + giorni + '</div>');
+  // concerti e prove sulla stessa linea del tempo
+  var date = eventi().filter(function (e) { return e.stato !== 'annullato' && e.data >= da && e.data <= a; }).map(function (e) {
+    return '<button class="gz-ev" style="left:' + x(e.data) + 'px;width:' + Math.max(px, 14) + 'px" data-az="apri" data-id="' + esc(e.id) + '" title="' + esc(dataBreve(e.data) + ' · ' + e.titolo) + '">' + (EMOJI_TIPO[e.tipo] || '🎸') + '</button>';
+  }).join('') + proveFissate().filter(function (z) { return z.y.data <= a; }).map(function (z) {
+    return '<button class="gz-ev" style="left:' + x(z.y.data) + 'px;width:' + Math.max(px, 14) + 'px" data-vai="prove" title="' + esc(dataBreve(z.y.data) + ' · prova') + '">🥁</button>';
+  }).join('');
+  h += riga('gz-date', '<span>🎸 Date e prove</span>', date);
+  lista.forEach(function (p) {
+    var t = tempiProgetto(p), av = Math.round(avanzamento(p) * 100), chiuso = !!GANTT.chiusi[p.id], tardi = p.stato === 'attivo' && p.scadenza && p.scadenza < oggi && av < 100;
+    var l = Math.max(0, x(t.da)), w = Math.max(px, x(t.a) + px - l);
+    h += riga('gz-prog', '<button class="gz-apri" data-az="ganttChiudi" data-id="' + esc(p.id) + '" aria-label="Apri o chiudi i compiti">' + (chiuso ? '▸' : '▾') + '</button><button class="gz-nome" data-az="apriProgetto" data-id="' + esc(p.id) + '"><span>' + esc(p.nome) + '</span></button>',
+      '<button class="gz-bar prog' + (tardi ? ' tardi' : '') + '" data-az="apriProgetto" data-id="' + esc(p.id) + '" data-drag="progetto" style="left:' + l + 'px;width:' + w + 'px"><i style="width:' + av + '%"></i><span>' + av + '%</span></button>');
+    if (chiuso) return;
+    compitiDi(p.id).sort(function (a1, b1) { return (a1.fatto === 'Sì') - (b1.fatto === 'Sì') || perScadenza(a1, b1); }).forEach(function (c) {
+      var y = tempiCompito(c), fatto = c.fatto === 'Sì', ritardo = !fatto && c.scadenza && c.scadenza < oggi, barra;
+      if (!y) barra = '<button class="gz-senza" style="left:' + (x(oggi) + 6) + 'px" data-az="apriCompito" data-id="' + esc(c.id) + '">metti le date</button>';
+      else if (y.punto) barra = '<button class="gz-punto' + (fatto ? ' fatto' : '') + (ritardo ? ' tardi' : '') + '" data-az="apriCompito" data-id="' + esc(c.id) + '" data-drag="compito" style="left:' + (x(y.a) + px / 2 - 8) + 'px;' + coloreChi(c.chi) + '" aria-label="' + esc(c.titolo) + '"></button>';
+      else barra = '<button class="gz-bar' + (fatto ? ' fatto' : '') + (ritardo ? ' tardi' : '') + (y.aperto ? ' aperto' : '') + '" data-az="apriCompito" data-id="' + esc(c.id) + '" data-drag="compito" style="left:' + Math.max(0, x(y.da)) + 'px;width:' + Math.max(px, x(y.a) + px - Math.max(0, x(y.da))) + 'px;' + coloreChi(c.chi) + '"><span>' + esc(c.chi) + '</span></button>';
+      h += riga('gz-comp' + (fatto ? ' fatto' : ''), '<button class="spunta' + (fatto ? ' on' : '') + '" data-az="spuntaCompito" data-id="' + esc(c.id) + '" data-v="' + (fatto ? '' : '1') + '" aria-label="Fatto">' + (fatto ? '✓' : '') + '</button><button class="gz-nome" data-az="apriCompito" data-id="' + esc(c.id) + '"><span>' + esc(c.titolo) + '</span></button>', barra);
+    });
+    h += riga('gz-piu', '<button class="gz-nome" data-az="nuovoCompitoIn" data-id="' + esc(p.id) + '">+ compito</button>', '');
+  });
+  var ombra = GANTT.zoom === 'anno' ? '' : 'background-size:' + 7 * px + 'px 100%;background-image:linear-gradient(90deg,rgba(255,255,255,.09) 1px,transparent 1px,transparent ' + 5 * px + 'px,rgba(255,255,255,.035) ' + 5 * px + 'px);';
+  return '<div class="carta gantt largo" id="gz"><div class="gz-in" style="--gw:' + larg + 'px"><div class="gz-sfondo" style="' + ombra + '"><div class="oggi" style="left:' + (x(oggi) + px / 2) + 'px"></div></div>' + h + '</div></div>' +
+    '<p class="tenue legenda">' + DATI.liste.membri.concat(['Tutti']).map(function (m) { return '<b style="' + coloreChi(m) + '"></b>' + esc(m); }).join('') + '<b style="background:var(--rosso)"></b>in ritardo · ◆ scadenza</p>' +
+    '<p class="tenue" style="margin-top:0">Tocca una barra per aprirla; col mouse trascinala per spostarla, o tira il bordo destro per allungarla.</p>';
+}
+// trascinare le barre col mouse (col dito si scorre e si tocca)
+var TIRA = null;
+function iniziaTiro(e) {
+  var b = e.target && e.target.closest ? e.target.closest('[data-drag]') : null;
+  if (!b || e.pointerType !== 'mouse' || e.button || V !== 'progetti') return;
+  var r = b.getBoundingClientRect();
+  TIRA = { b: b, x: e.clientX, left: parseFloat(b.style.left), width: parseFloat(b.style.width) || 0, bordo: !b.classList.contains('gz-punto') && r.right - e.clientX < 10, giorni: 0 };
+  e.preventDefault();
+}
+function muoviTiro(e) {
+  if (!TIRA) return;
+  TIRA.giorni = Math.round((e.clientX - TIRA.x) / GANTT.px);
+  if (TIRA.bordo) TIRA.b.style.width = Math.max(GANTT.px, TIRA.width + TIRA.giorni * GANTT.px) + 'px';
+  else TIRA.b.style.left = TIRA.left + TIRA.giorni * GANTT.px + 'px';
+}
+var TIRATO = 0;
+function finisciTiro() {
+  var t = TIRA;
+  TIRA = null;
+  if (!t || !t.giorni) return;
+  TIRATO = Date.now(); // il clic che segue non deve aprire la scheda
+  spostaGantt(t.b.dataset.drag, t.b.dataset.id, t.giorni, t.bordo);
+}
+function spostaGantt(tipo, id, giorni, soloFine) {
+  var x = tipo === 'progetto' ? progetto(id) : (DATI.compiti || []).filter(function (c) { return c.id === id; })[0];
+  if (!x) return;
+  var t = tipo === 'progetto' ? tempiProgetto(x) : tempiCompito(x);
+  if (!t) return;
+  var da = soloFine ? t.da : piuGiorni(t.da, giorni), a = piuGiorni(t.a, giorni);
+  if (a < da) a = da;
+  var campi = t.punto ? { scadenza: a } : { inizio: da, scadenza: a }, args = {};
+  var y = { id: x.id };
+  (tipo === 'progetto' ? ['nome', 'descrizione', 'inizio', 'scadenza', 'stato'] : ['titolo', 'chi', 'inizio', 'scadenza', 'note']).forEach(function (k) { y[k] = x[k] || ''; });
+  Object.assign(y, campi);
+  args[tipo] = y;
+  scrivi(tipo === 'progetto' ? 'salvaProgetto' : 'salvaCompito', args, function () { ridisegnaSePuo(); }, function () {
+    var z = tipo === 'progetto' ? progetto(id) : (DATI.compiti || []).filter(function (c) { return c.id === id; })[0];
+    if (z) Object.assign(z, campi);
+  });
 }
 
+/** Tutti i compiti da fare, divisi per urgenza. */
+function listaCompitiHtml() {
+  var attivi = {}, oggi = DATI.oggi, sett = piuGiorni(oggi, 7);
+  progetti().forEach(function (p) { if (p.stato === 'attivo') attivi[p.id] = true; });
+  var l = (DATI.compiti || []).filter(function (c) { return c.fatto !== 'Sì' && attivi[c.progettoId] && (!PR_CHI || c.chi === PR_CHI || c.chi === 'Tutti'); }).sort(perScadenza);
+  var h = '<div class="chips">' + [''].concat(DATI.liste.membri).map(function (m) {
+    return '<button class="chip' + (PR_CHI === m ? ' attivo' : '') + '" data-az="prChi" data-v="' + esc(m) + '">' + esc(m ? (m === DATI.utente ? 'I miei' : m) : 'Tutti') + '</button>';
+  }).join('') + '</div>';
+  if (!l.length) return h + '<p class="vuoto">Niente da fare ✓</p>';
+  [['In ritardo', function (c) { return c.scadenza && c.scadenza < oggi; }], ['Prossimi 7 giorni', function (c) { return c.scadenza && c.scadenza >= oggi && c.scadenza <= sett; }],
+    ['Più avanti', function (c) { return c.scadenza && c.scadenza > sett; }], ['Senza data', function (c) { return !c.scadenza; }]].forEach(function (g) {
+    var x = l.filter(g[1]);
+    if (x.length) h += '<h2' + (g[0] === 'In ritardo' ? ' class="scaduto"' : '') + '>' + g[0] + ' (' + x.length + ')</h2><div class="carta">' + x.map(function (c) { return rigaCompito(c, true); }).join('') + '</div>';
+  });
+  return h;
+}
 function vistaProgetti() {
   var miei = ((DATI.compiti) || []).filter(function (c) { return c.fatto !== 'Sì' && (c.chi === DATI.utente || c.chi === 'Tutti'); }).sort(perScadenza);
   var l = progetti().filter(function (p) { return !FILTRO_PR || p.stato === FILTRO_PR; }).sort(function (a, b) { return (a.scadenza || '9') < (b.scadenza || '9') ? -1 : 1; });
-  var h = '<div class="barra"><h1>Progetti</h1><button class="btn" data-az="nuovoProgetto">+ Nuovo</button></div>';
-  if (miei.length) h += '<h2>I tuoi compiti</h2><div class="carta">' + miei.slice(0, 8).map(function (c) { return rigaCompito(c, true); }).join('') + '</div>';
+  var h = '<div class="barra"><h1>Progetti</h1><button class="btn" data-az="nuovoProgetto">+ Nuovo</button></div>' +
+    '<div class="chips">' + [['gantt', '📊 Gantt'], ['lista', '☑️ Da fare']].map(function (x) { return '<button class="chip' + (PR_TAB === x[0] ? ' attivo' : '') + '" data-az="prTab" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') +
+    (PR_TAB === 'gantt' ? '<span class="sep"></span>' + Object.keys(ZOOM_GANTT).map(function (z) { return '<button class="chip' + (GANTT.zoom === z ? ' attivo' : '') + '" data-az="prZoom" data-v="' + z + '">' + z + '</button>'; }).join('') + '<span class="sep"></span><button class="chip" data-az="prOggi">oggi</button>' : '') + '</div>';
+  if (PR_TAB === 'lista') return h + listaCompitiHtml();
   h += '<div class="chips">' + DATI.liste.statiProgetto.concat(['']).map(function (x) {
     return '<button class="chip' + (FILTRO_PR === x ? ' attivo' : '') + '" data-az="filtroPr" data-v="' + x + '">' + (x || 'tutti') + '</button>';
   }).join('') + '</div>';
   if (!l.length) return h + '<p class="vuoto">' + (progetti().length ? 'Nessun progetto con questo filtro.' : 'Nessun progetto: nuovo video, nuovo repertorio, sito… premi <b>+ Nuovo</b>.') + '</p>';
-  return h + ganttHtml(l) + l.map(function (p) {
-    var c = compitiDi(p.id), fatti = c.filter(function (x) { return x.fatto === 'Sì'; }).length;
-    return '<button class="ev" data-az="apriProgetto" data-id="' + esc(p.id) + '"><div class="ev-corpo"><div class="ev-tit">🗂️ ' + esc(p.nome) + '</div>' +
-      '<div class="ev-sotto">' + fatti + '/' + c.length + ' fatti' + (p.scadenza ? ' · scade ' + esc(dataIt(p.scadenza)) : '') + '</div>' +
-      '<div class="progresso"><i style="width:' + Math.round(avanzamento(p) * 100) + '%"></i></div></div><div class="ev-dx">›</div></button>';
-  }).join('');
+  h += ganttHtml(l);
+  if (miei.length) h += '<h2>I tuoi compiti</h2><div class="carta">' + miei.slice(0, 6).map(function (c) { return rigaCompito(c, true); }).join('') + '</div>';
+  return h;
 }
 
 function vistaProgetto() {
@@ -1509,12 +1772,12 @@ function apriFormProgetto(p) {
 }
 
 function apriFormCompito(c) {
-  var x = c || { id: '', titolo: '', chi: '', scadenza: '', note: '' };
+  var x = c || { id: '', titolo: '', chi: '', inizio: '', scadenza: '', note: '' };
   apriModale('<h2>' + (x.id ? 'Modifica compito' : 'Nuovo compito') + '</h2>' +
     '<label for="cp-titolo">Cosa c\'è da fare</label><input id="cp-titolo" value="' + esc(x.titolo) + '">' +
-    '<div class="campi" style="grid-template-columns:1fr 1fr"><div><label for="cp-chi">Chi</label><select id="cp-chi">' +
+    '<label for="cp-chi">Chi</label><select id="cp-chi">' +
     [''].concat(DATI.liste.membri, ['Tutti']).map(function (m) { return '<option value="' + m + '"' + (m === x.chi ? ' selected' : '') + '>' + (m || '—') + '</option>'; }).join('') +
-    '</select></div><div><label for="cp-scadenza">Entro il</label><input id="cp-scadenza" type="date" value="' + esc(x.scadenza) + '"></div></div>' +
+    '</select><div class="campi" style="grid-template-columns:1fr 1fr"><div><label for="cp-inizio">Dal (facoltativo)</label><input id="cp-inizio" type="date" value="' + esc(x.inizio) + '"></div><div><label for="cp-scadenza">Entro il</label><input id="cp-scadenza" type="date" value="' + esc(x.scadenza) + '"></div></div>' +
     '<label for="cp-note">Note</label><textarea id="cp-note">' + esc(x.note) + '</textarea>' +
     '<div class="bottoni"><button class="btn-sec" data-az="annulla">Annulla</button>' +
     (x.id ? '<button class="btn-pericolo" data-az="eliminaCompito" data-id="' + esc(x.id) + '">Elimina</button>' : '') +
@@ -2954,10 +3217,28 @@ var COMANDI = {
     });
   },
   nuovoCompito: function () { apriFormCompito(null); },
+  nuovoCompitoIn: function (d) { SEL_P = d.id; apriFormCompito(null); },
+  prTab: function (d) { PR_TAB = d.v; disegna(); },
+  prChi: function (d) { PR_CHI = d.v; disegna(); },
+  prZoom: function (d) { GANTT.zoom = d.v; disegna(); GANTT.x = null; dopoDisegno(); },
+  prOggi: function () { GANTT.x = null; dopoDisegno(); },
+  ganttChiudi: function (d) { GANTT.chiusi[d.id] = !GANTT.chiusi[d.id]; disegna(); },
+  tabFiltro: function (d) { TAB[d.k] = d.v; disegna(); TAB.y = null; dopoDisegno(); },
+  tabOrdina: function (d) { if (TAB.ord === d.k) TAB.giu = !TAB.giu; else { TAB.ord = d.k; TAB.giu = d.k === 'totale' || d.k === 'saldo'; } disegna(); },
+  tabSegna: function (d) {
+    var e = trova(d.id), k = d.k;
+    if (!e || ['saldoRicevuto', 'anticipoRicevuto'].indexOf(k) < 0) return;
+    var v = e[k] === 'Sì' ? 'No' : 'Sì', cosa = k === 'saldoRicevuto' ? 'saldo' : 'anticipo di ' + euro(e.anticipo);
+    chiedi((v === 'Sì' ? 'Segnare come ricevuto il ' : 'Segnare come NON ricevuto il ') + cosa + ' di "' + e.titolo + '"' + (k === 'saldoRicevuto' && v === 'Sì' ? ' (' + euro(residuo(e)) + ')' : '') + '?', v === 'Sì' ? 'Ricevuto' : 'Non ricevuto', function () {
+      var ev = { id: e.id }; ev[k] = v;
+      scrivi('salvaEvento', { evento: ev }, function () { ridisegnaSePuo(); }, function () { var y = trova(d.id); if (y) y[k] = v; });
+    });
+  },
   apriCompito: function (d) { var c = ((DATI.compiti) || []).filter(function (x) { return x.id === d.id; })[0]; if (c) apriFormCompito(c); },
   salvaCompito: function (d) {
     var c = { id: d.id || '', progettoId: SEL_P };
-    ['titolo', 'chi', 'scadenza', 'note'].forEach(function (k) { c[k] = String($('cp-' + k).value || '').trim(); });
+    ['titolo', 'chi', 'inizio', 'scadenza', 'note'].forEach(function (k) { c[k] = String($('cp-' + k).value || '').trim(); });
+    if (c.inizio && c.scadenza && c.scadenza < c.inizio) return avviso('La scadenza è prima dell\'inizio.', true);
     if (!c.titolo) return avviso('Scrivi cosa c\'è da fare.', true);
     if (!c.id && !c.progettoId) return avviso('Apri prima un progetto.', true);
     chiudiModale();
@@ -3539,12 +3820,17 @@ document.addEventListener('click', function (e) {
   var el = e.target && e.target.closest ? e.target.closest('[data-vai],[data-az]') : null;
   if (!el) return;
   if (el.dataset.vai) { if (V === 'modifica') BOZZA = null; return vai(el.dataset.vai); }
+  if (Date.now() - TIRATO < 300) return; // fine di un trascinamento nel Gantt
   var fn = COMANDI[el.dataset.az];
   if (fn) fn(el.dataset);
 });
+document.addEventListener('pointerdown', iniziaTiro);
+document.addEventListener('pointermove', muoviTiro);
+document.addEventListener('pointerup', finisciTiro);
 
 // La ricerca ridisegna solo l'elenco, così la tastiera resta aperta
 document.addEventListener('input', function (e) {
+  if (e.target && e.target.id === 'cerca-t') { TAB.q = e.target.value; $('corpo-t').innerHTML = corpoTabella(); }
   if (e.target && e.target.id === 'cerca') { FILTRO.q = e.target.value; $('lista').innerHTML = listaHtml(); }
   if (e.target && PREV && V === 'preventivo' && /^(q-\d+|l-prezzo-\d+|l-nome-\d+|p-sconto)$/.test(e.target.id || '')) {
     var id = e.target.id, v = e.target.value;
@@ -3585,7 +3871,7 @@ document.addEventListener('keydown', function (e) {
 
 // Ricarica da sola ogni 60 s, ma non mentre si scrive, c'è il modale o si è nel login
 setInterval(function () {
-  if (occupato || MODALE || ['modifica', 'calendario', 'modello', 'preventivo', 'listino', 'provaform'].indexOf(V) >= 0 || !SESS || !DATI || DATI.login) return;
+  if (TIRA || occupato || MODALE || ['modifica', 'calendario', 'modello', 'preventivo', 'listino', 'provaform'].indexOf(V) >= 0 || !SESS || !DATI || DATI.login) return;
   ricarica();
 }, 60000);
 // telefono bloccato o app cambiata con un preventivo del sito a metà: si salva la bozza
