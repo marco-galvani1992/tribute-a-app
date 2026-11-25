@@ -298,7 +298,7 @@
   .avviso-pag { border-color: var(--fiamma); background: linear-gradient(90deg, rgba(217,76,26,.22), rgba(21,55,59,.72)); }
   .richiesta-nuova { border-color: var(--arancio); }
 </style>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-JvcSVAbfY9XcuAMqZ4VOsRuHT6Xt/oqRH9f3UAyo5K0='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-jVAdnfbGRk3eh3TF299QOA6dbCvGP7NOk4F67jLIXHU='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -318,8 +318,9 @@
 
 <script>
 // ─── Versione e changelog: VERSIONE deve essere uguale alla prima voce (lo controlla il test)
-var VERSIONE = '0.54';
+var VERSIONE = '0.55';
 var CHANGELOG = [
+  { v: '0.55', data: '2026-11-25', testo: 'Richieste dal sito: il preventivo si può lasciare a metà e riprendere (✏️ Riprendi preventivo, anche da un altro telefono). La richiesta diventa gestita solo quando premi Salva, e da lì lo riapri con 📄 Apri preventivo. Anche le richieste già gestite tornano utilizzabili.' },
   { v: '0.54', data: '2026-11-18', testo: 'Più veloce: dopo un salvataggio il server rilegge solo la parte che è cambiata (prima rileggeva tutto il foglio), e la copia veloce dei dati dura 6 ore invece di una; anche i lavori automatici (contatti, recap, backup) non la buttano più via. Spese, rimborsi, compiti e voci della checklist si vedono salvati subito, mentre il server conferma dietro.' },
   { v: '0.53', data: '2026-11-18', testo: 'Nuova scheda Numeri → 🏦 Cassa: quanto deve la cassa della band a Galva, Pope e Tuzzi per le spese pagate di tasca propria. "+ Spesa" sotto il nome di ognuno, "✓ Rimborsata" per una spesa o "Rimborsato tutto", e l\'elenco degli ultimi rimborsi (con ↩︎ Rimetti se si sbaglia).' },
   { v: '0.52', data: '2026-11-17', testo: 'Barra in basso con icone disegnate al posto delle emoji (Eventi, Preventivi, Messaggi, Contatti, Progetti, Numeri), più pulite e leggibili.' },
@@ -623,7 +624,7 @@ function linkMappa(e) {
 }
 
 // ─── Disegno
-function vai(v) { V = v; disegna(); if (window.scrollTo) window.scrollTo(0, 0); }
+function vai(v) { if (V === 'preventivo' && v !== 'preventivo') lasciaPrev(); V = v; disegna(); if (window.scrollTo) window.scrollTo(0, 0); }
 
 function disegna() {
   var inLogin = !DATI || !!DATI.login;
@@ -1805,20 +1806,68 @@ function leggiModuloPrev() {
 
 // ─── Richieste dal modulo del sito (www.tribute-a.it)
 function richiesteSito() { return ((DATI && DATI.richiesteSito) || []).slice().sort(function (a, b) { return a.creato < b.creato ? 1 : -1; }); }
+// v0.55: preventivo iniziato da una richiesta del sito e non ancora salvato. Resta sulla richiesta (colonna bozza);
+// BOZZE_SITO = quelle di questa apertura, così si riprendono subito anche se il server non ha ancora risposto.
+var BOZZE_SITO = {};
+function bozzaSito(x) {
+  try {
+    var b = JSON.parse(BOZZE_SITO[x.id] || x.bozza || 'null');
+    return b && typeof b === 'object' && b.evento && Array.isArray(b.righe) ? b : null;
+  } catch (err) { return null; }
+}
+function salvaBozzaSito(P) {
+  if (!SESS || !P || P.id || !P.richiestaId || P.inInvio) return;
+  var b = {}, id = P.richiestaId;
+  ['stato', 'listino', 'righe', 'sconto', 'validita', 'noteCliente', 'scheda', 'persone', 'evento', 'eventoId'].forEach(function (k) { b[k] = P[k]; });
+  var testo = JSON.stringify(b);
+  var ric = richiesteSito().filter(function (y) { return y.id === id; })[0];
+  if ((BOZZE_SITO[id] || (ric && ric.bozza)) === testo) return;
+  BOZZE_SITO[id] = testo;
+  // chiamata a parte (non scrivi): non deve bloccare un Salva premuto subito dopo
+  google.script.run.withSuccessHandler(function () {
+    // sul server c'è: da qui vale quella del server (un altro può averla continuata)
+    if (BOZZE_SITO[id] !== testo) return;
+    delete BOZZE_SITO[id];
+    ((DATI && DATI.richiesteSito) || []).forEach(function (y) { if (y.id === id && y.stato === 'nuova') y.bozza = testo; });
+  })
+    .withFailureHandler(function (err) {
+      if (BOZZE_SITO[id] === testo) BOZZE_SITO[id] = testo + ' '; // la prossima volta si riprova
+      avviso('La bozza del preventivo non si è salvata sul server: ' + messaggio(err), true);
+    }).azione(SESS, 'salvaBozzaSito', { id: id, bozza: testo });
+}
+function lasciaPrev() {
+  if (!PREV || PREV.id || !PREV.richiestaId) return;
+  leggiModuloPrev();
+  salvaBozzaSito(PREV);
+}
+// il preventivo nato da questa richiesta; per quelle gestite prima della v0.55 (senza collegamento): stesso giorno e stesso telefono o nome
+function prevDiRichiesta(x) {
+  var l = preventivi();
+  if (x.preventivoId) return l.filter(function (p) { return p.id === x.preventivoId; })[0] || null;
+  if (x.stato !== 'gestita') return null;
+  var tel = soloCifre(x.telefono).slice(-9);
+  return l.filter(function (p) {
+    var e = trova(p.eventoId);
+    return e && e.data === x.data && ((tel && soloCifre(e.telefono).slice(-9) === tel) || simili(e.titolo, x.nome) || simili(e.referente || '', x.nome));
+  })[0] || null;
+}
 function richiesteNuove() { return richiesteSito().filter(function (x) { return x.stato === 'nuova'; }).length; }
 var TIPO_DA_SITO = { 'Matrimonio': 'Matrimonio', 'Festa privata': 'Privato', 'Locale o pub': 'Locale', 'Sagra o piazza': 'Sagra', 'Azienda': 'Altro' };
 function richiesteSitoHtml() {
   var l = richiesteSito();
   if (!l.length) return '';
   return '<h2>📥 Dal sito' + (richiesteNuove() ? ' <span class="pill no">' + richiesteNuove() + (richiesteNuove() === 1 ? ' nuova' : ' nuove') + '</span>' : '') + '</h2>' + l.map(function (x) {
-    var tel = soloCifre(x.telefono);
+    var tel = soloCifre(x.telefono), fatto = prevDiRichiesta(x), bozza = !fatto && bozzaSito(x);
     return '<div class="carta' + (x.stato === 'nuova' ? ' richiesta-nuova' : '') + '"><div class="riga"><b>' + esc(x.nome) + '</b><span class="tenue">' + esc(dataIt(String(x.creato).slice(0, 10))) + '</span></div>' +
       '<div>' + esc(x.tipo) + ' · <b>' + esc(dataIt(x.data)) + '</b> · ' + esc(x.dove) + '</div>' +
       '<div class="tenue">' + esc([numeroLeggibile(tel) || x.telefono, x.email].filter(Boolean).join(' · ')) + '</div>' +
       (x.messaggio ? '<p style="margin:6px 0 0;white-space:pre-wrap">' + esc(x.messaggio) + '</p>' : '') +
-      '<div class="bottoni" style="margin-top:10px">' +
+      (fatto ? '<div class="ev-pill"><span class="pill ok">preventivo n. ' + esc(fatto.numero) + (x.gestitoDa ? ' · ' + esc(x.gestitoDa) : '') + '</span></div>' :
+        bozza ? '<div class="ev-pill"><span class="pill no">preventivo da finire</span></div>' : '') +
+      '<div class="bottoni" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px">' +
       (tel ? '<a class="btn-sec" href="https://wa.me/' + esc(tel) + '" target="_blank" rel="noopener">💬 WhatsApp</a>' : '') +
-      (x.stato === 'nuova' ? '<button class="btn" data-az="prevDaSito" data-id="' + esc(x.id) + '">📝 Fai preventivo</button>' : '<span class="pill ok">gestita' + (x.gestitoDa ? ' da ' + esc(x.gestitoDa) : '') + '</span>') +
+      (fatto ? '<button class="btn" data-az="apriPrev" data-id="' + esc(fatto.id) + '">📄 Apri preventivo</button>' :
+        '<button class="btn" data-az="prevDaSito" data-id="' + esc(x.id) + '">' + (bozza ? '✏️ Riprendi preventivo' : '📝 Fai preventivo') + '</button>') +
       '<button class="btn-link" data-az="archiviaSito" data-id="' + esc(x.id) + '">Archivia</button></div></div>';
   }).join('');
 }
@@ -1870,7 +1919,9 @@ function vistaPreventivo() {
   var campoEv = function (k) { return campoHtml(tutti.filter(function (c) { return c[0] === k; })[0], P.evento); };
   var scelto = P.righe.filter(function (r) { return r.tipo === 'pacchetto'; })[0];
   var h = '<button class="btn-link" data-az="chiudiPrev">‹ Preventivi</button>' +
-    '<h1>' + (P.id ? 'Preventivo ' + esc(P.numero) : 'Nuovo preventivo') + '</h1>';
+    '<h1>' + (P.id ? 'Preventivo ' + esc(P.numero) : 'Nuovo preventivo') + '</h1>' +
+    (!P.id && P.richiestaId ? '<p class="tenue" style="margin-top:0">Se esci senza salvare resta come bozza in "Dal sito": la riprendi quando vuoi. Con Salva passa tra i preventivi.</p>' +
+      (P.evento.note ? '<div class="carta tenue" style="white-space:pre-wrap">' + esc(P.evento.note) + '</div>' : '') : '');
   if (P.id) {
     h += '<div class="stati">' + DATI.liste.statiPreventivo.map(function (x) {
       return '<button class="chip' + (P.stato === x ? ' attivo' : '') + '" data-az="prevStato" data-v="' + x + '">' + x + '</button>';
@@ -2366,7 +2417,7 @@ var N_TEMP = 0;
 function idTemporaneo() { return 'tmp' + Date.now().toString(36) + (++N_TEMP); }
 
 function esci() {
-  SESS = ''; ricorda('tok', null); salvaCopia(null); LOGIN_NOME = ''; BOZZA = null; V = 'eventi'; LISTA_MOSTRATA = false;
+  SESS = ''; ricorda('tok', null); salvaCopia(null); LOGIN_NOME = ''; BOZZA = null; PREV = null; BOZZE_SITO = {}; V = 'eventi'; LISTA_MOSTRATA = false;
   if (MODALE) chiudiModale();
   DATI = { app: DATI && DATI.app, login: true, membri: (DATI && DATI.membri) || [] };
   disegna();
@@ -2729,10 +2780,12 @@ var COMANDI = {
     PREV.listino = tipo === 'Matrimonio' ? 'Matrimonio' : (mese >= 5 && mese <= 9 ? 'Estate' : 'Inverno');
     PREV.evento = { tipo: tipo, data: x.data, titolo: x.nome, luogo: x.dove, referente: x.nome, telefono: x.telefono, tramite: 'Sito',
       note: ['Richiesta dal sito il ' + dataIt(String(x.creato).slice(0, 10)), x.email && 'Email: ' + x.email, x.messaggio].filter(Boolean).join('\n') };
+    // lasciato a metà? si riparte da lì. La richiesta diventa "gestita" solo quando il preventivo si salva
+    var b = bozzaSito(x);
+    if (b) PREV = Object.assign(nuovoPrev(), b, { id: '', numero: '' });
+    PREV.richiestaId = x.id;
     SEL = '';
-    scrivi('statoRichiestaSito', { id: x.id, stato: 'gestita' }, function () { vai('preventivo'); }, function () {
-      DATI.richiesteSito.forEach(function (y) { if (y.id === x.id) y.stato = 'gestita'; });
-    });
+    vai('preventivo');
   },
   archiviaSito: function (d) {
     chiedi('Archiviare questa richiesta? Sparisce dall\'elenco (resta nel foglio dati).', 'Archivia', function () {
@@ -2742,7 +2795,7 @@ var COMANDI = {
     });
   },
   apriPrev: function (d) { var p = preventivi().filter(function (x) { return x.id === d.id; })[0]; if (p) apriPrev(p); },
-  chiudiPrev: function () { PREV = null; vai('preventivi'); },
+  chiudiPrev: function () { vai('preventivi'); PREV = null; },
   prevListino: function (d) {
     leggiModuloPrev();
     if (d.v === PREV.listino) return;
@@ -2787,12 +2840,19 @@ var COMANDI = {
     var scheda = Object.assign({}, P.scheda);
     if (ev.tipo !== 'Matrimonio') SOLO_MATRIMONIO.forEach(function (k) { delete scheda[k]; });
     var manda = function (extra) {
+      if (!occupato) P.inInvio = true;
+      // dal sito: il messaggio e l'email del cliente vanno nelle note dell'evento (aggiunti, se l'evento c'era già)
+      if (!P.id && P.richiestaId && P.evento.note) {
+        var giaNote = String((trova(P.eventoId) || {}).note || '');
+        ev.note = giaNote.indexOf(P.evento.note) >= 0 ? giaNote : [giaNote, P.evento.note].filter(Boolean).join('\n');
+      }
       scrivi('salvaPreventivo', Object.assign({ preventivo: { id: P.id, eventoId: P.eventoId || '', stato: P.stato, listino: P.listino, righe: righe,
         sconto: P.sconto, validita: P.validita, noteCliente: P.noteCliente, scheda: scheda, evento: ev },
-        persone: ev.tipo === 'Matrimonio' ? (P.persone || {}) : null }, extra || {}), function (d) {
+        persone: ev.tipo === 'Matrimonio' ? (P.persone || {}) : null, richiestaId: P.richiestaId || '' }, extra || {}), function (d) {
+        if (P.richiestaId) delete BOZZE_SITO[P.richiestaId];
         var p = (d.preventivi || []).filter(function (x) { return x.id === (d.ultimoId || P.id); })[0];
         if (p) apriPrev(p); else disegna();
-      });
+      }, null, function () { P.inInvio = false; if (V !== 'preventivo') salvaBozzaSito(P); });
     };
     if (P.id || P.eventoId) return manda();
     // Preventivo nuovo: prima di creare un altro evento, controlla se c'è già (nell'app o scritto a mano nel calendario)
@@ -3086,6 +3146,10 @@ setInterval(function () {
   if (occupato || MODALE || ['modifica', 'calendario', 'modello', 'preventivo', 'listino'].indexOf(V) >= 0 || !SESS || !DATI || DATI.login) return;
   ricarica();
 }, 60000);
+// telefono bloccato o app cambiata con un preventivo del sito a metà: si salva la bozza
+document.addEventListener('visibilitychange', function () {
+  if (document.visibilityState === 'hidden' && V === 'preventivo') lasciaPrev();
+});
 
 // Avvio: con un token salvato si chiedono i dati veri, altrimenti basta il login
 // Avvio istantaneo: con un token si mostrano subito gli ultimi dati salvati su questo dispositivo, poi arrivano quelli veri
