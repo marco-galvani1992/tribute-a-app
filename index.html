@@ -289,6 +289,14 @@
   @media (max-width: 400px) { #testa .marchio { font-size: 17px; } #testa .marchio small { display: none; } }
   .avviso-pag { border-color: var(--fiamma); background: linear-gradient(90deg, rgba(217,76,26,.22), rgba(21,55,59,.72)); }
   .richiesta-nuova { border-color: var(--arancio); }
+  .eroe { background: linear-gradient(135deg, rgba(217,76,26,.28), rgba(234,154,87,.14) 55%, rgba(21,55,59,.8)); }
+  .eroe .grosso { font-family: var(--titoli); font-weight: 800; font-size: 34px; line-height: 1.15; }
+  .barra3 { display: flex; gap: 2px; height: 14px; border-radius: 7px; overflow: hidden; background: rgba(255,255,255,.07); margin: 8px 0; }
+  .barra3 i { display: block; height: 100%; } .barra3 .inc, .p-inc { background: var(--verde); } .barra3 .res, .p-res { background: var(--giallo); }
+  .barra3 .for, .p-for { background: repeating-linear-gradient(45deg, #7d9497, #7d9497 3px, #4b6164 3px, #4b6164 6px); }
+  .voci3 { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 14px; color: var(--tenue); } .voci3 strong { color: var(--testo); } .voci3 b { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; }
+  .btn-nudo { background: none; padding: 4px 0; text-align: left; color: var(--testo); }
+  .sistema { padding: 8px 0; border-top: 1px solid var(--bordo); } .sistema .stati { margin-top: 6px; } .sistema .chip { padding: 6px 10px; min-height: 36px; font-size: 13px; }
   .chips .sep { flex: 0 0 1px; background: var(--petrolio-2); margin: 4px 4px; }
   .due-btn { display: flex; gap: 6px; }
   .due-btn .btn-sec { padding: 12px 10px; white-space: nowrap; }
@@ -381,7 +389,7 @@
   .riga-pf .celle { display: flex; gap: 4px; flex: 0 0 auto; }
   .riga-pf .chip { padding: 6px 9px; min-height: 40px; font-size: 13px; }
 </style>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-uBL1b6hfhnaBXTRZqP1d87f6enS5OlbMlfWzMIjF2Ak='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-ERQJ1ULSgzPEOxAy7w8IrSy4nsVPodlchcuT/VKE78Y='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'self'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -401,8 +409,9 @@
 
 <script>
 // ─── Versione e changelog: VERSIONE deve essere uguale alla prima voce (lo controlla il test)
-var VERSIONE = '0.59';
+var VERSIONE = '0.60';
 var CHANGELOG = [
+  { v: '0.60', data: '2026-11-25', testo: 'Numeri rifatti: totale sicuro con barra (incassato, da incassare, in forse a parte), cosa c\'è da incassare adesso, da dove arrivano i clienti (Passaparola, Instagram/Sito, Musiqua, Showgroup, Matrimonio.com) per anno del concerto o di arrivo, fattura e contanti. Negli eventi si sceglie come pagano e l\'app calcola da sola il netto (in fattura resta l\'89%). Cassa: c\'è il saldo, lo scrive Pope; rimborsi e spese della cassa si scalano da soli. Notifiche sul telefono (Altro → 🔔). Nei sondaggi chi ha scritto "No" nel calendario Disponibilità parte già segnato.' },
   { v: '0.59', data: '2026-11-25', testo: 'Tabella delle date (Eventi → Tabella): tutte le date come nel file, con ricerca, filtri, ordine toccando le colonne, totali per mese e soldi da incassare in evidenza; si segna l\'incasso toccando la casella. Progetti nuovi: Gantt a settimane o mesi con progetti e compiti, colori per persona, concerti e prove sulla stessa riga del tempo, e la lista "Da fare" divisa per urgenza. I progetti scritti nel calendario al posto delle prove sono già dentro.' },
   { v: '0.58', data: '2026-11-25', testo: 'Sondaggi per le prove (Eventi → 🥁 Prove): scegli il periodo, i giorni e le fasce (mattina, pomeriggio, sera) e l\'app prepara da sola tutte le date, saltando i giorni in cui si suona. Ognuno vota Sì, Forse o No con un tocco, si vedono le date migliori e con "Fissa" la prova va nel calendario della band. C\'è anche il pulsante per avvisare il gruppo WhatsApp.' },
   { v: '0.57', data: '2026-11-25', testo: 'Listino allineato ai PDF nuovi (Matrimoni 2026-2027, Estate 2027, Inverno 2026-2027): prezzi, orari di allestimento e trasferte. Aggiunte le ore extra di DJ Set e Service per party, i pacchetti Social (Estate e Inverno) e i km extra in tutti i listini. I preventivi già fatti non cambiano.' },
@@ -475,7 +484,7 @@ if (FUORI) {
       withSuccessHandler: function (f) { return chiamaApi(f, ko); },
       withFailureHandler: function (f) { return chiamaApi(ok, f); }
     };
-    ['getDati', 'accedi', 'azione', 'cercaLuogo', 'similiCalendario', 'sfidaPasskey', 'accediPasskey'].forEach(function (fn) {
+    ['getDati', 'accedi', 'azione', 'cercaLuogo', 'similiCalendario', 'disponibilita', 'sfidaPasskey', 'accediPasskey'].forEach(function (fn) {
       r[fn] = function () {
         var args = Array.prototype.slice.call(arguments);
         // Google ogni tanto risponde con una sua pagina d'errore: le letture si ritentano da sole, i salvataggi
@@ -534,6 +543,8 @@ var FILTRO_PR = 'attivo';
 var NUM_TAB = 'incassi';            // Numeri: incassi | spese | cassa | pagamenti
 var SEL_PV = '';                    // sondaggio prove aperto
 var PF = null;                      // sondaggio prove in scrittura
+var DISP = {};                      // calendario Disponibilità: { data: { membro: { v, t } } }
+var RIEP_PER = 'concerto', SISTEMA = ''; // Numeri: canali per anno del concerto | arrivo; elenco da sistemare aperto
 var VOTI_ATTESA = {}, TIMER_VOTI = 0; // voti toccati e non ancora mandati: { sondaggio: { giorno: voto } }
 var PR_TAB = 'gantt', PR_CHI = '';  // Progetti: gantt | lista, e persona
 var GANTT = { zoom: 'settimane', chiusi: {}, x: null };
@@ -577,11 +588,11 @@ var FORM = [
   ['Dove', [['luogo', 'Luogo', 'text'], ['indirizzo', 'Indirizzo o link Google Maps', 'text'], ['sopralluogo', 'Sopralluogo', 'text']]],
   ['Contatto', [['referente', 'Referente', 'text'], ['telefono', 'Telefono', 'tel'],
     ['ruoloReferente', 'Il referente è… (per la rubrica)', 'sel:ruoli'],
-    ['contattatoDa', 'Contattato da', 'sel:membri'], ['tramite', 'Tramite (canale)', 'list:canali']]],
-  ['Soldi', [['totale', 'Compenso totale (netto + nero) €', 'num'], ['anticipo', 'Anticipo €', 'num'],
+    ['contattatoDa', 'Contattato da', 'sel:membri'], ['tramite', 'Da dove arriva', 'sel:canali']]],
+  ['Soldi', [['pagamento', 'Come pagano', 'sel:pagamenti'], ['totale', 'Compenso totale €', 'num'],
+    ['lordo', 'In fattura (lordo) €', 'num'], ['nero', 'In contanti €', 'num'], ['anticipo', 'Anticipo €', 'num'],
     ['anticipoRicevuto', 'Anticipo ricevuto', 'si'], ['saldoRicevuto', 'Saldo ricevuto', 'si'],
-    ['netto', 'Netto €', 'num'], ['lordo', 'Lordo €', 'num'], ['nero', 'Nero €', 'num'],
-    ['diviso', 'Diviso tra noi', 'si'], ['service', 'Service', 'si']]],
+    ['diviso', 'Diviso tra noi', 'si'], ['service', 'Service', 'si'], ['arrivato', 'Cliente arrivato nel (anno)', 'text']]],
   ['Note', [['note', 'Note', 'area'], ['richieste', 'Richieste (pezzi, scaletta…)', 'area']]]
 ];
 
@@ -671,7 +682,7 @@ function passato(e) { return e.data < DATI.oggi; }
 function incassato(e) {
   if (e.stato === 'annullato') return 0;
   if (e.saldoRicevuto === 'Sì') return num(e.totale);
-  if (e.anticipoRicevuto === 'Sì') return num(e.anticipo);
+  if (e.anticipoRicevuto === 'Sì') return Math.min(num(e.totale) || Infinity, e.pagamento === 'fattura' ? Math.round(num(e.anticipo) * RESTA_FATTURA * 100) / 100 : num(e.anticipo));
   return 0;
 }
 function residuo(e) { return e.stato === 'annullato' ? 0 : Math.max(0, num(e.totale) - incassato(e)); }
@@ -763,6 +774,7 @@ function disegna() {
 function dopoDisegno() {
   var gz = $('gz'), tb = $('tb');
   if (V === 'progetti' && gz) gz.scrollLeft = GANTT.x == null ? GANTT.oggiX || 0 : GANTT.x;
+  if (V === 'modifica') mostraSoldi();
   if (V !== 'tabella' || !tb) return;
   if (TAB.x) tb.scrollLeft = TAB.x;
   var og = tb.querySelector && tb.querySelector('.r-oggi'); // la prima volta si apre su oggi
@@ -860,7 +872,7 @@ function anni() {
 }
 
 function vistaEventi() {
-  var h = '<div class="barra"><h1>Eventi</h1><span class="due-btn"><button class="btn-sec" data-vai="tabella">▦ Tabella</button><button class="btn" data-az="nuovo">+ Nuovo</button></span></div>' +
+  var h = '<div class="barra"><h1>Eventi</h1><span class="due-btn"><button class="btn-sec" data-vai="tabella">▦ Tabella</button><button class="btn" data-az="nuovo">+ Nuovo</button></span></div>' + cartaCassa() +
     '<input id="cerca" type="search" placeholder="Cerca nome, luogo, referente…" value="' + esc(FILTRO.q) + '">' +
     '<div class="chips">' + FILTRI_STATO.map(function (x) {
       return '<button class="chip' + (FILTRO.stato === x[0] ? ' attivo' : '') + '" data-az="filtro" data-k="stato" data-v="' + x[0] + '">' + x[1] + '</button>';
@@ -1032,8 +1044,8 @@ function vistaEvento() {
     dato('Saldo', e.saldoRicevuto === 'Sì' ? '✓ ricevuto' : (num(e.totale) ? 'da ricevere' : '')) +
     dato('Incassato', num(e.totale) ? euro(incassato(e)) : '') +
     dato('Da incassare', residuo(e) ? '<b>' + euro(residuo(e)) + '</b>' : '') +
-    dato('Netto', num(e.netto) ? euro(e.netto) : '') + dato('Lordo', num(e.lordo) ? euro(e.lordo) : '') +
-    dato('Nero', num(e.nero) ? euro(e.nero) : '') + dato('Diviso', esc(e.diviso)) + dato('Service', esc(e.service)) + '</dl></div>';
+    dato('Come pagano', e.pagamento ? esc(e.pagamento) : (futuro ? '<span class="manca">da indicare</span>' : '')) +
+    dato('In fattura', num(e.lordo) ? euro(e.lordo) + ' lordi → ' + euro(e.netto) + ' a noi' : '') + dato('In contanti', num(e.nero) ? euro(e.nero) : '') + dato('Diviso', esc(e.diviso)) + dato('Service', esc(e.service)) + '</dl></div>';
   var prs = preventiviDi(e.id);
   if (prs.length) h += '<div class="carta">' + prs.map(function (pr) {
     return '<div class="riga"><span>💶 Preventivo <b>' + esc(pr.numero) + '</b> · ' + euro(pr.totale) +
@@ -1797,9 +1809,10 @@ function calcolaRoi(anno) {
     if (x.piattaforma) riga(x.piattaforma).investito += imp;
   });
   eventi().forEach(function (e) {
-    if (e.stato === 'annullato' || String(e.data).slice(0, 4) !== anno) return;
-    entrateTot += num(e.totale);
-    var r = riga(e.tramite || 'Non indicato');
+    if (e.stato === 'annullato' || e.stato === 'da confermare') return;
+    if (String(e.data).slice(0, 4) === anno) entrateTot += num(e.totale);
+    if (annoArrivo(e) !== anno) return; // una piattaforma pagata quest'anno si misura sui clienti arrivati quest'anno, anche se si suona dopo
+    var r = riga(canaleDi(e));
     r.entrate += num(e.totale); r.date++;
   });
   var righe = Object.keys(per).map(function (k) {
@@ -1815,7 +1828,7 @@ function vistaSpese(anno) {
   var r = calcolaRoi(anno);
   var h = '<div class="tessere" style="margin-top:8px"><div class="tessera forte"><div class="n">' + euro(r.utile) + '</div><div class="l">Utile ' + esc(anno) + ' (entrate − spese)</div></div>' +
     '<div class="tessera"><div class="n">' + euro(r.entrate) + '</div><div class="l">Entrate</div></div><div class="tessera"><div class="n">' + euro(r.spese) + '</div><div class="l">Spese</div></div></div>';
-  h += '<h2>Piattaforme: quanto rendono</h2>' + (r.righe.length ? r.righe.map(function (x) {
+  h += '<h2>Piattaforme: quanto rendono</h2><p class="tenue" style="margin-top:-4px">Clienti <b>arrivati</b> nel ' + esc(anno) + ', anche se si suona dopo. Solo date confermate.</p>' + (r.righe.length ? r.righe.map(function (x) {
     return '<div class="carta"><div class="riga"><b>' + esc(x.nome) + '</b><span>' + (x.roi == null ? '<span class="tenue">ROI —</span>' :
       '<span class="pill ' + (x.roi >= 0 ? 'ok' : 'no') + '">ROI ' + (x.roi >= 0 ? '+' : '') + Math.round(x.roi * 100) + '%</span>') + '</span></div>' +
       '<div class="tenue">investito ' + euro(x.investito) + ' · ' + x.date + (x.date === 1 ? ' data' : ' date') + ' · entrate ' + euro(x.entrate) +
@@ -2051,11 +2064,27 @@ function slotPF() {
 }
 function leggiPF() {
   if (!PF || !$('pf-da')) return;
-  ['titolo', 'luogo', 'note', 'da', 'a'].forEach(function (k) { PF[k] = String($('pf-' + k).value || '').trim(); });
+  ['titolo', 'luogo', 'note', 'da', 'a'].forEach(function (k) { var v = String($('pf-' + k).value || '').trim(); if (v || (k !== 'da' && k !== 'a')) PF[k] = v; });
   Object.keys(FASCE).forEach(function (k) {
     if (!PF.fasce[k].on || !$('pf-da-' + k)) return;
     PF.fasce[k].da = $('pf-da-' + k).value || PF.fasce[k].da; PF.fasce[k].a = $('pf-a-' + k).value || PF.fasce[k].a;
   });
+}
+/** Chi nel calendario "Disponibilità" ha scritto che non c'è (una richiesta per periodo, si ricorda per 5 minuti). */
+var DISP_FATTA = {};
+function caricaDisponibilita() {
+  if (!PF || !PF.da || !PF.a || PF.a < PF.da) return;
+  var k = PF.da + '|' + PF.a;
+  if (Date.now() - (DISP_FATTA[k] || 0) < 5 * 60000) return;
+  DISP_FATTA[k] = Date.now();
+  google.script.run.withSuccessHandler(function (x) {
+    Object.assign(DISP, x || {});
+    if (V === 'provaform' && PF) { leggiPF(); disegna(); }
+  }).withFailureHandler(function () { delete DISP_FATTA[k]; }).disponibilita(SESS, PF.da, PF.a);
+}
+function dispHtml(d) {
+  var x = DISP[d] || {}, m = Object.keys(x);
+  return m.length ? '<div class="ev-pill">' + m.map(function (k) { return '<span class="pill ' + (x[k].v === 'no' ? 'no' : 'att') + '" title="' + esc(x[k].t) + '">' + (x[k].v === 'no' ? 'no ' : 'forse ') + esc(k) + '</span>'; }).join('') + '</div>' : '';
 }
 function vistaProvaForm() {
   if (!PF) { V = 'prove'; return vistaProve(); }
@@ -2073,9 +2102,9 @@ function vistaProvaForm() {
     }).join('') +
     '<label for="pf-luogo">Dove (facoltativo)</label><input id="pf-luogo" maxlength="150" value="' + esc(PF.luogo) + '" placeholder="es. sala prove">' +
     '<label for="pf-note">Note (facoltative)</label><input id="pf-note" maxlength="500" value="' + esc(PF.note) + '" placeholder="es. portare la scaletta nuova">' +
-    '<h2>Date del sondaggio: ' + n + '</h2><p class="tenue" style="margin-top:-4px">Tocca una fascia per toglierla o rimetterla. I giorni in cui si suona partono spenti.</p>';
+    '<h2>Date del sondaggio: ' + n + '</h2><p class="tenue" style="margin-top:-4px">Tocca una fascia per toglierla o rimetterla. I giorni in cui si suona partono spenti; chi nel calendario Disponibilità ha scritto che non c\'è parte già con "no" (o "forse").</p>';
   h += righe.length ? '<div class="carta">' + righe.map(function (r) {
-    return '<div class="riga-pf"><div><b>' + esc(dataBreve(r.data)) + '</b>' + (r.concerti.length ? '<div class="tenue">🎸 ' + esc(r.concerti[0].titolo) + '</div>' : '') + '</div><div class="celle">' +
+    return '<div class="riga-pf"><div><b>' + esc(dataBreve(r.data)) + '</b>' + (r.concerti.length ? '<div class="tenue">🎸 ' + esc(r.concerti[0].titolo) + '</div>' : '') + dispHtml(r.data) + '</div><div class="celle">' +
       r.celle.map(function (c) { return '<button class="chip' + (c.on ? ' attivo' : '') + '" data-az="pfCella" data-s="' + c.id + '" data-v="' + (c.on ? '' : '1') + '" aria-label="' + FASCE[c.f] + ' ' + esc(dataBreve(r.data)) + '">' + { m: 'Matt.', p: 'Pom.', s: 'Sera' }[c.f] + '</button>'; }).join('') + '</div></div>';
   }).join('') + '</div>' : '<p class="vuoto">Scegli le due date (fino a due mesi), almeno un giorno e una fascia.</p>';
   return h + '<button class="btn btn-largo" data-az="salvaProva">' + (PF.id ? 'Salva le date' : 'Crea il sondaggio') + (n ? ' (' + n + ')' : '') + '</button>';
@@ -2162,6 +2191,57 @@ function rimborsoOttimista(ids, annulla) {
     (DATI.spese || []).forEach(function (x) { if (ids.indexOf(x.id) >= 0) x.rimborsato = annulla ? '' : DATI.oggi; });
   });
 }
+// Soldi in cassa: ultimo conteggio del cassiere + movimenti dopo
+function cassa() { return (DATI && DATI.cassa) || []; }
+function statoCassa() {
+  var x = { saldo: null, quando: '', chi: '', aperta: false, dopo: [] };
+  cassa().forEach(function (m) {
+    if (m.tipo === 'richiesta') x.aperta = true;
+    else if (m.tipo === 'conteggio') { x.saldo = num(m.importo); x.quando = m.data; x.chi = m.creatoDa; x.aperta = false; x.dopo = [m]; }
+    else if (x.saldo != null) { x.saldo += (m.tipo === 'entrata' ? 1 : -1) * num(m.importo); x.dopo.push(m); }
+  });
+  return x;
+}
+function sonoCassiere() { return DATI.utente === DATI.cassiere; }
+function saldoCassaHtml() {
+  var c = statoCassa(), io = sonoCassiere();
+  var h = '<div class="carta eroe"><div class="tenue">Soldi in cassa (li tiene ' + esc(DATI.cassiere) + ')</div><div class="grosso">' + (c.saldo == null ? '—' : euro(c.saldo)) + '</div>' +
+    '<div class="tenue">' + (c.saldo == null ? 'Non ancora contati.' : 'Contati il ' + esc(dataIt(c.quando)) + (c.dopo.length > 1 ? ', poi ' + (c.dopo.length - 1) + (c.dopo.length === 2 ? ' movimento' : ' movimenti') : '')) +
+    (c.aperta ? ' <span class="pill att">in attesa di ' + esc(DATI.cassiere) + '</span>' : '') + '</div><div class="azioni">' +
+    (io ? '<button class="btn" data-az="apriConta">' + (c.saldo == null ? 'Scrivi quanti sono' : 'Ricontati: aggiorna') + '</button><button class="btn-sec" data-az="apriMovimento">+ Entrata o uscita</button>' :
+      (c.aperta ? '' : '<button class="btn-sec" data-az="chiediConteggio">Chiedi a ' + esc(DATI.cassiere) + ' di contarli</button>')) + '</div></div>';
+  if (c.dopo.length > 1) h += '<h2>Movimenti dopo il conteggio</h2><div class="carta">' + c.dopo.slice(1).reverse().slice(0, 30).map(function (m) {
+    return '<div class="extra"><div class="nome"><b>' + esc(m.descrizione) + '</b><div class="tenue">' + esc(dataIt(m.data)) + '</div></div><b class="' + (m.tipo === 'entrata' ? 'v-ok' : 'scaduto') + '">' + (m.tipo === 'entrata' ? '+' : '−') + ' ' + euro(m.importo) + '</b>' +
+      (io && !m.rif ? '<button class="btn-x" data-az="eliminaMovimento" data-id="' + esc(m.id) + '" aria-label="Togli">×</button>' : '') + '</div>';
+  }).join('') + '</div>';
+  return h;
+}
+/** In cima a Eventi per il cassiere, finché non risponde. */
+function cartaCassa() {
+  if (!sonoCassiere() || !statoCassa().aperta) return '';
+  return '<div class="carta avviso-pag" style="cursor:default"><b>🏦 Quanti soldi ci sono in cassa?</b><p class="tenue" style="margin:4px 0 0">La cassa la tieni tu: scrivi quanti soldi ci sono adesso. Resta qui finché non lo fai.</p>' +
+    '<div class="azioni"><button class="btn" data-az="apriConta">Scrivi quanti sono</button>' + (puoNotifiche() && !(DATI.push && DATI.push.miei.length) ? '<button class="btn-sec" data-az="attivaPush">🔔 Attiva le notifiche</button>' : '') + '</div></div>';
+}
+// ─── Notifiche sul telefono (solo app dal sito; su iPhone solo se aggiunta alla schermata Home)
+function puoNotifiche() { return FUORI && typeof navigator !== 'undefined' && 'serviceWorker' in navigator && typeof window !== 'undefined' && 'PushManager' in window && !!(DATI && DATI.push && DATI.push.chiave); }
+function notificheHtml() {
+  var miei = (DATI.push && DATI.push.miei) || [];
+  var h = '<h2>🔔 Notifiche</h2><div class="carta">';
+  if (miei.length) h += '<p style="margin-top:0">Attive su: ' + miei.map(function (x) { return esc(x.nome || 'dispositivo') + ' <button class="btn-link" style="padding:2px 4px" data-az="togliPush" data-id="' + esc(x.id) + '">togli</button>'; }).join(' · ') + '</p>';
+  if (puoNotifiche()) return h + '<button class="btn-sec btn-largo" style="margin-top:0" data-az="attivaPush">🔔 ' + (miei.length ? 'Attiva anche su questo dispositivo' : 'Attiva le notifiche qui') + '</button><p class="tenue">Dicono solo di aprire l\'app: nessun dato passa dalla notifica.</p></div>';
+  return h + '<p class="tenue" style="margin:0">Su iPhone: apri <a target="_blank" rel="noopener" href="' + esc(DATI.sitoUrl) + '">l\'app</a> in Safari, Condividi → <b>Aggiungi a Home</b>, poi aprila dalla schermata Home e torna qui.</p></div>';
+}
+function attivaPush() {
+  if (!puoNotifiche()) return avviso('Qui le notifiche non si possono attivare: guarda Altro → Notifiche.', true);
+  Notification.requestPermission().then(function (p) {
+    if (p !== 'granted') throw new Error('non hai dato il permesso');
+    return navigator.serviceWorker.register('sw.js').then(function () { return navigator.serviceWorker.ready; });
+  }).then(function (reg) {
+    return reg.pushManager.getSubscription().then(function (x) { return x || reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: deb64u(DATI.push.chiave) }); });
+  }).then(function (x) {
+    scrivi('registraPush', { endpoint: x.endpoint, nome: nomeDispositivo() }, function () { disegna(); });
+  }).catch(function (e) { avviso('Notifiche non attivate: ' + (e && e.message || e), true, 8000); });
+}
 function vistaCassa() {
   var membri = DATI.liste.membri, tot = 0;
   var conti = membri.map(function (m) {
@@ -2169,7 +2249,7 @@ function vistaCassa() {
     tot += t;
     return { chi: m, lista: l, tot: t };
   });
-  var h = '<p class="tenue" style="margin-top:0">Quanto deve la cassa della band a ognuno per le spese pagate di tasca propria. ' +
+  var h = saldoCassaHtml() + '<p class="tenue" style="margin-top:0">Quanto deve la cassa della band a ognuno per le spese pagate di tasca propria. ' +
     'Quando uno viene rimborsato, premi "Rimborsato".</p>' +
     '<div class="tessere">' + conti.map(function (c) {
       return '<div class="tessera' + (c.tot ? ' forte' : '') + '"><div class="n">' + euro(c.tot) + '</div><div class="l">la cassa deve a ' + esc(c.chi) + '</div></div>';
@@ -2216,7 +2296,7 @@ var SUGG = {};
 // Telefono messo dalla tendina (referente o evento già fatto): se poi si cambia il referente, quel numero non è suo
 var TEL_AUTO = null;
 // campo → tendina: f-referente/f-luogo/f-titolo/f-tramite (eventi e preventivi), sp-piattaforma (spese), c-nome (contatto nuovo)
-var CAMPI_SUGG = { 'f-referente': 'referente', 'f-luogo': 'luogo', 'f-titolo': 'titolo', 'f-tramite': 'tramite', 'sp-piattaforma': 'piattaforma', 'c-nome': 'cnome' };
+var CAMPI_SUGG = { 'f-referente': 'referente', 'f-luogo': 'luogo', 'f-titolo': 'titolo', 'sp-piattaforma': 'piattaforma', 'c-nome': 'cnome' };
 function normTxt(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim(); }
 function eventiRecenti() { return eventi().slice().sort(function (a, b) { return a.data < b.data ? 1 : -1; }); }
 
@@ -2295,7 +2375,7 @@ function voceListino(id) { return ((DATI && DATI.listino) || []).filter(function
 function piuGiorni(d, n) { var p = parti(d), x = new Date(p.a, p.m - 1, p.g + n); return x.getFullYear() + '-' + ('0' + (x.getMonth() + 1)).slice(-2) + '-' + ('0' + x.getDate()).slice(-2); }
 
 // Campi dell'evento che si compilano dal preventivo (stessi id del modulo di modifica: f-…)
-var CAMPI_PREV_EV = ['titolo', 'tipo', 'data', 'luogo', 'indirizzo', 'referente', 'telefono', 'ruoloReferente', 'tramite', 'contattatoDa', 'arrivo', 'inizio', 'fine'];
+var CAMPI_PREV_EV = ['titolo', 'tipo', 'data', 'luogo', 'indirizzo', 'referente', 'telefono', 'ruoloReferente', 'tramite', 'contattatoDa', 'pagamento', 'arrivo', 'inizio', 'fine'];
 var SCHEDA_PREV = [
   ['Orari', [['oraCerimonia', 'Cerimonia', 'time'], ['oraAperitivo', 'Aperitivo', 'time'], ['oraCena', 'Cena', 'time'], ['oraTorta', 'Taglio torta', 'time']]],
   ['Musica', [['ingresso', 'Ingresso sposi (brano)', 'text'], ['primoBallo', 'Primo ballo (brano)', 'text'], ['altriBrani', 'Altre richieste musicali', 'area']]],
@@ -2529,7 +2609,7 @@ function vistaPreventivo() {
         esc(DATI.esibirsi) + '">Apri Esibirsi ›</a></div></div>';
     }
   }
-  h += '<h2>Cliente ed evento</h2><div class="carta campi">' + ['titolo', 'tipo', 'data', 'luogo', 'indirizzo', 'referente', 'telefono', 'ruoloReferente', 'tramite', 'contattatoDa'].map(campoEv).join('') + '</div>';
+  h += '<h2>Cliente ed evento</h2><div class="carta campi">' + ['titolo', 'tipo', 'data', 'luogo', 'indirizzo', 'referente', 'telefono', 'ruoloReferente', 'tramite', 'contattatoDa', 'pagamento'].map(campoEv).join('') + '</div>';
   if (P.evento.tipo === 'Matrimonio') {
     var pp = P.persone || {};
     h += '<h2>Persone</h2><p class="tenue" style="margin-top:0">Salvando finiscono nei contatti dell\'evento: sposi (una scheda con i due numeri), location, wedding planner.</p>' +
@@ -2645,6 +2725,32 @@ function campoHtml(c, obj) {
   return h + '</div>';
 }
 
+/** Nel modulo: fattura/contanti/misto decidono quali caselle servono; netto e totale li calcola l'app. */
+function mostraSoldi() {
+  var p = $('f-pagamento') ? $('f-pagamento').value : '';
+  var vedi = { totale: !p, lordo: p === 'fattura' || p === 'misto', nero: p === 'contanti' || p === 'misto' };
+  Object.keys(vedi).forEach(function (k) { var el = $('f-' + k); if (el && el.parentNode && el.parentNode.style) el.parentNode.style.display = vedi[k] ? '' : 'none'; });
+}
+var RESTA_FATTURA = 0.89;
+/** Come il server: da fattura e contanti escono netto e totale (quello che resta a noi). */
+function conti(e, vecchio) {
+  if (['fattura', 'contanti', 'misto'].indexOf(e.pagamento) < 0) return e;
+  var c = function (n) { return Math.round((n + 1e-9) * 100) / 100; };
+  var lordo = num(e.lordo), nero = num(e.nero), tot = num(e.totale), prima = vecchio && vecchio.pagamento;
+  if (vecchio && prima === e.pagamento && tot && tot !== num(vecchio.totale) && lordo === num(vecchio.lordo) && nero === num(vecchio.nero)) {
+    if (e.pagamento === 'fattura') lordo = c(tot / RESTA_FATTURA); else nero = Math.max(0, c(tot - lordo * RESTA_FATTURA));
+  }
+  if (e.pagamento === 'fattura') {
+    if (!lordo || (prima === 'contanti' && lordo === num(vecchio.lordo))) lordo = prima === 'contanti' ? num(vecchio.nero) || tot : lordo || tot;
+    nero = 0;
+  } else if (e.pagamento === 'contanti') {
+    if (!nero || (prima === 'fattura' && nero === num(vecchio.nero))) nero = prima === 'fattura' ? num(vecchio.lordo) || tot : nero || tot;
+    lordo = 0;
+  }
+  if (!lordo && !nero) return e;
+  e.lordo = String(lordo); e.nero = String(nero); e.netto = String(c(lordo * RESTA_FATTURA)); e.totale = String(c(num(e.netto) + nero));
+  return e;
+}
 function vistaModifica() {
   if (!BOZZA) { V = 'eventi'; return vistaEventi(); }
   var h = '<button class="btn-link" data-az="annullaModifica">‹ Annulla</button>' +
@@ -2655,29 +2761,36 @@ function vistaModifica() {
 }
 
 // ─── Riepilogo
+function annoArrivo(e) { return e.arrivato || String(e.data).slice(0, 4); }
 function calcolaRiepilogo(anno) {
-  var r = { date: 0, passate: 0, dafare: 0, annullate: 0, totale: 0, netto: 0, lordo: 0, nero: 0,
-    incassato: 0, daIncassare: 0, tipi: {}, canali: {}, mesi: [] };
+  var r = { date: 0, passate: 0, dafare: 0, annullate: 0, totale: 0, netto: 0, lordo: 0, nero: 0, nonDetto: 0, pagate: 0,
+    forse: { n: 0, soldi: 0 }, incassato: 0, daIncassare: 0, tipi: {}, canali: {}, arrivi: {}, mesi: [], aperti: [], senzaCanale: [], senzaPagamento: [] };
   for (var i = 0; i < 12; i++) r.mesi.push({ fatto: 0, futuro: 0 });
+  var metti = function (g, k, t) { g[k] = g[k] || { n: 0, soldi: 0 }; g[k].n++; g[k].soldi += t; };
   eventi().forEach(function (e) {
-    if (!e.data || e.data.slice(0, 4) !== anno) return;
-    if (e.stato === 'annullato') { r.annullate++; return; }
+    if (!e.data || e.stato === 'annullato') { if (e.data && e.data.slice(0, 4) === anno) r.annullate++; return; }
     var t = num(e.totale);
+    if (e.stato !== 'da confermare' && annoArrivo(e) === anno) metti(r.arrivi, canaleDi(e), t);
+    if (e.data.slice(0, 4) !== anno) return;
+    if (e.stato === 'da confermare') { r.forse.n++; r.forse.soldi += t; return; } // in forse: non conta finché non è confermata
     r.date++;
+    if (t) r.pagate++;
     if (passato(e)) r.passate++; else r.dafare++;
     r.totale += t; r.netto += num(e.netto); r.lordo += num(e.lordo); r.nero += num(e.nero);
+    if (!e.pagamento) { r.nonDetto += t; if (t) r.senzaPagamento.push(e); }
     r.incassato += incassato(e); r.daIncassare += residuo(e);
-    var tp = e.tipo || 'Senza tipo';
-    r.tipi[tp] = r.tipi[tp] || { n: 0, soldi: 0 }; r.tipi[tp].n++; r.tipi[tp].soldi += t;
-    var c = e.tramite || 'Non indicato';
-    r.canali[c] = r.canali[c] || { n: 0, soldi: 0 }; r.canali[c].n++; r.canali[c].soldi += t;
+    if (passato(e) && residuo(e)) r.aperti.push(e);
+    metti(r.tipi, e.tipo || 'Senza tipo', t);
+    metti(r.canali, canaleDi(e), t);
+    if (canaleDi(e) === 'Non indicato') r.senzaCanale.push(e);
     r.mesi[parti(e.data).m - 1][passato(e) ? 'fatto' : 'futuro'] += t;
   });
-  r.media = r.date ? r.totale / r.date : 0;
+  r.media = r.pagate ? r.totale / r.pagate : 0; // le date gratis non abbassano la media
   r.aTesta = r.totale / ((DATI.liste && DATI.liste.membri.length) || 3);
   return r;
 }
-
+/** Canale fra quelli decisi; il resto ("Altro", vuoto) è da indicare. */
+function canaleDi(e) { return DATI.liste.canali.indexOf(e.tramite) >= 0 ? e.tramite : 'Non indicato'; }
 function barre(gruppi) {
   var l = Object.keys(gruppi).map(function (k) { return [k, gruppi[k]]; }).sort(function (a, b) { return b[1].soldi - a[1].soldi; });
   var max = Math.max.apply(null, l.map(function (x) { return x[1].soldi; }).concat([1]));
@@ -2703,21 +2816,40 @@ function vistaRiepilogo() {
       return '<button class="chip' + (x === ANNO_RIEP ? ' attivo' : '') + '" data-az="annoRiep" data-v="' + x + '">' + x + '</button>';
     }).join('') + '</div>';
   if (NUM_TAB === 'spese') return testa + vistaSpese(ANNO_RIEP);
-  return testa +
-    '<div class="tessere">' +
-    tessera(euro(r.totale), 'Totale (netto + nero)', true) + tessera(euro(r.incassato), 'Incassato') +
-    tessera(euro(r.daIncassare), 'Da incassare') + tessera(euro(r.aTesta), 'A testa') +
-    tessera(euro(r.media), 'Media per data') + tessera(r.date, 'Date: ' + r.passate + ' fatte, ' + r.dafare + ' da fare') +
-    '</div>' +
-    '<div class="tessere tre">' + tessera(euro(r.netto), 'Netto') + tessera(euro(r.lordo), 'Lordo') + tessera(euro(r.nero), 'Nero') + '</div>' +
+  var pc = function (x) { return Math.max(0, x / Math.max(1, r.totale + r.forse.soldi) * 100); };
+  var h = testa + '<div class="carta eroe"><div class="tenue">Entrate sicure ' + esc(ANNO_RIEP) + ' (quello che resta a noi)</div><div class="grosso">' + euro(r.totale) + '</div>' +
+    '<div class="barra3"><i class="inc" style="width:' + pc(r.incassato) + '%"></i><i class="res" style="width:' + pc(r.daIncassare) + '%"></i><i class="for" style="width:' + pc(r.forse.soldi) + '%"></i></div>' +
+    '<div class="voci3"><span><b class="p-inc"></b>incassato <strong>' + euro(r.incassato) + '</strong></span><span><b class="p-res"></b>da incassare <strong>' + euro(r.daIncassare) + '</strong></span>' +
+    (r.forse.n ? '<span><b class="p-for"></b>in forse <strong>' + euro(r.forse.soldi) + '</strong> (' + r.forse.n + ')</span>' : '') + '</div></div>' +
+    '<div class="tessere tre">' + tessera(euro(Math.round(r.aTesta)), 'a testa', true) + tessera(euro(Math.round(r.media)), 'media per data') + tessera(r.date, r.passate + ' fatte, ' + r.dafare + ' da fare') + '</div>';
+  if (r.aperti.length) h += '<h2>Da incassare adesso · ' + euro(r.aperti.reduce(function (t, e) { return t + residuo(e); }, 0)) + '</h2><div class="carta">' + r.aperti.sort(function (x, y) { return x.data < y.data ? -1 : 1; }).map(function (e) {
+    return '<div class="extra"><button class="nome btn-nudo" data-az="apri" data-id="' + esc(e.id) + '"><b>' + esc(e.titolo) + '</b><div class="tenue">' + esc(dataIt(e.data)) + '</div></button>' +
+      '<button class="cella-btn no" data-az="tabSegna" data-k="saldoRicevuto" data-id="' + esc(e.id) + '">' + euro(residuo(e)) + ' ✓</button></div>';
+  }).join('') + '</div>';
+  h += '<h2>Da dove arrivano</h2><div class="carta"><div class="chips" style="margin:0;padding:0 0 8px">' + [['concerto', 'Concerti ' + ANNO_RIEP], ['arrivo', 'Arrivati nel ' + ANNO_RIEP]].map(function (x) {
+    return '<button class="chip' + (RIEP_PER === x[0] ? ' attivo' : '') + '" data-az="riepPer" data-v="' + x[0] + '">' + x[1] + '</button>';
+  }).join('') + '</div>' + barre(RIEP_PER === 'arrivo' ? r.arrivi : r.canali) + (r.senzaCanale.length ? sistemaHtml('tramite', r.senzaCanale, DATI.liste.canali) : '') + '</div>';
+  h += '<h2>Fattura e contanti</h2><div class="carta"><dl class="dati">' + dato('In fattura (lordo)', euro(r.lordo)) + dato('Trattenuta 11%', '− ' + euro(r.lordo - r.netto)) + dato('Netto da fattura', '<b>' + euro(r.netto) + '</b>') +
+    dato('In contanti', '<b>' + euro(r.nero) + '</b>') + (r.nonDetto ? dato('Non ancora indicato', euro(r.nonDetto)) : '') + '</dl>' +
+    (r.senzaPagamento.length ? sistemaHtml('pagamento', r.senzaPagamento, DATI.liste.pagamenti.filter(function (x) { return x !== 'misto'; })) : '') + '</div>' +
     '<h2>Mese per mese</h2><div class="carta"><div class="mesi">' + r.mesi.map(function (m, i) {
       var alt = function (x) { return Math.round(x / maxMese * 110); };
       return '<div class="mese">' + (m.futuro ? '<i class="futuro" style="height:' + alt(m.futuro) + 'px"></i>' : '') +
         (m.fatto ? '<i style="height:' + alt(m.fatto) + 'px"></i>' : '') + '<span>' + MESI[i].charAt(0).toUpperCase() + '</span></div>';
     }).join('') + '</div><div class="legenda"><b style="background:var(--arancio)"></b>fatte<b style="background:var(--petrolio)"></b>in programma</div></div>' +
     '<h2>Per tipo</h2><div class="carta">' + barre(r.tipi) + '</div>' +
-    '<h2>Per canale (da dove arrivano)</h2><div class="carta">' + barre(r.canali) + '</div>' +
     (r.annullate ? '<p class="tenue">' + r.annullate + ' date annullate non contate.</p>' : '');
+  return h;
+}
+/** Elenco a comparsa delle date a cui manca un'informazione: si sistemano con un tocco. */
+function sistemaHtml(campo, lista, scelte) {
+  var aperto = SISTEMA === campo;
+  return '<button class="btn-link" data-az="sistema" data-v="' + campo + '">' + (aperto ? '▾ ' : '▸ ') + lista.length + (lista.length === 1 ? ' data' : ' date') + (campo === 'tramite' ? ' senza canale: sistemale' : ' senza indicazione: sistemale') + '</button>' +
+    (aperto ? lista.slice(0, 60).map(function (e) {
+      return '<div class="sistema"><div><b>' + esc(e.titolo) + '</b> <span class="tenue">' + esc(dataIt(e.data)) + ' · ' + euro(e.totale) + (campo === 'tramite' && e.tramite ? ' · era "' + esc(e.tramite) + '"' : '') + '</span></div><div class="stati">' + scelte.map(function (v) {
+        return '<button class="chip" data-az="sistemaData" data-k="' + campo + '" data-id="' + esc(e.id) + '" data-v="' + esc(v) + '">' + esc(v) + '</button>';
+      }).join('') + '</div></div>';
+    }).join('') + (campo === 'pagamento' ? '<p class="tenue">Con "fattura" il compenso scritto diventa il lordo e a voi resta l\'89%. Se è metà e metà, aprite l\'evento e scegliete "misto".</p>' : '') : '');
 }
 
 // ─── Eventi scritti solo nel calendario
@@ -2796,7 +2928,7 @@ function vistaAltro() {
     (CHAT_TG.length ? '<p class="tenue">Tocca il gruppo della band:</p>' + CHAT_TG.map(function (c, i) {
       return '<button class="voce" data-az="scegliChat" data-i="' + i + '">' + esc(c.nome) + '</button>';
     }).join('') : '') + '</div>' +
-    faceIdHtml() +
+    faceIdHtml() + notificheHtml() +
     '<h2>🔑 PIN</h2><div class="carta"><p style="margin-top:0">Il PIN serve se il Face ID non c\'è. Cambiandolo, gli altri tuoi dispositivi dovranno rientrare: ' +
     'utile se pensi che qualcuno lo conosca.</p><button class="btn-sec btn-largo" data-az="apriCambiaPin">Cambia PIN</button></div>' +
     '<h2>Preventivi</h2><div class="carta"><button class="btn-sec btn-largo" style="margin-top:0" data-vai="listino">💶 Listino prezzi ›</button></div>' +
@@ -3114,7 +3246,8 @@ var COMANDI = {
     FORM.forEach(function (g) { g[1].forEach(function (c) { ev[c[0]] = String($('f-' + c[0]).value || '').trim(); }); });
     if (!ev.titolo) return avviso('Scrivi il nome dell\'evento.', true);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(ev.data)) return avviso('Metti la data.', true);
-    ['totale', 'anticipo', 'netto', 'lordo', 'nero'].forEach(function (k) { ev[k] = ev[k].replace(/[€\s]/g, '').replace(',', '.'); });
+    ['totale', 'anticipo', 'lordo', 'nero'].forEach(function (k) { ev[k] = String(ev[k] || '').replace(/[€\s]/g, '').replace(',', '.'); });
+    if (ev.arrivato && !/^20\d{2}$/.test(ev.arrivato)) return avviso('L\'anno di arrivo va scritto così: 2026.', true);
     // si vede subito la scheda dell'evento; il server conferma dietro (calendario, contatti…)
     var eNuovo = !ev.id, id = ev.id || idTemporaneo(), bozza = Object.assign({}, BOZZA, ev), campi = Object.assign({}, ev);
     SEL = id; BOZZA = null; V = 'evento'; if (window.scrollTo) window.scrollTo(0, 0);
@@ -3124,7 +3257,7 @@ var COMANDI = {
     }, function () {
       var l = DATI.eventi, i = -1;
       l.forEach(function (e, j) { if (e.id === id) i = j; });
-      var nuovo = Object.assign({}, i >= 0 ? l[i] : { stato: 'confermato' }, campi, { id: id });
+      var nuovo = conti(Object.assign({}, i >= 0 ? l[i] : { stato: 'confermato' }, campi, { id: id }), i >= 0 ? l[i] : null);
       if (i >= 0) l[i] = nuovo; else l.push(nuovo);
     }, function () { BOZZA = bozza; V = 'modifica'; disegna(); }); // errore: si torna al modulo con quello scritto
   },
@@ -3256,9 +3389,52 @@ var COMANDI = {
   },
   // spese
   numTab: function (d) { NUM_TAB = d.v; disegna(); },
-  nuovaProva: function () { PF = nuovaPF(null); vai('provaform'); },
+  riepPer: function (d) { RIEP_PER = d.v; disegna(); },
+  sistema: function (d) { SISTEMA = SISTEMA === d.v ? '' : d.v; disegna(); },
+  sistemaData: function (d) {
+    var e = trova(d.id), k = d.k;
+    if (!e || ['tramite', 'pagamento'].indexOf(k) < 0) return;
+    var ev = { id: e.id }, v = d.v;
+    ev[k] = v;
+    scrivi('salvaEvento', { evento: ev }, function () { ridisegnaSePuo(); }, function () {
+      var y = trova(d.id);
+      if (!y || y[k] === v) return;
+      var prima = Object.assign({}, y);
+      y[k] = v;
+      if (k === 'pagamento') conti(y, prima);
+    });
+  },
+  attivaPush: function () { attivaPush(); },
+  togliPush: function (d) { scrivi('togliPush', { id: d.id }, function () { disegna(); }); },
+  apriConta: function () {
+    apriModale('<h2>🏦 Quanti soldi ci sono in cassa?</h2><label for="cc-importo">Importo €</label><input id="cc-importo" inputmode="decimal" placeholder="es. 350,50">' +
+      '<label for="cc-note">Note (facoltative)</label><input id="cc-note" maxlength="200" placeholder="es. 200 contanti, 150 su Satispay">' +
+      '<div class="bottoni"><button class="btn-sec" data-az="annulla">Annulla</button><button class="btn" data-az="contaCassa">Salva</button></div>', 'cassa');
+  },
+  contaCassa: function () {
+    var v = $('cc-importo').value.replace(/[€\s]/g, '').replace(',', '.');
+    if (!/^\d+(\.\d{1,2})?$/.test(v)) return avviso('Scrivi l\'importo, per esempio 350,50.', true);
+    var n = $('cc-note').value.trim();
+    chiudiModale();
+    scrivi('contaCassa', { importo: v, descrizione: n }, function () { disegna(); });
+  },
+  apriMovimento: function () {
+    apriModale('<h2>Entrata o uscita</h2><label for="mc-tipo">Tipo</label><select id="mc-tipo"><option value="entrata">Entrata (soldi messi in cassa)</option><option value="uscita">Uscita (soldi tolti)</option></select>' +
+      '<label for="mc-importo">Importo €</label><input id="mc-importo" inputmode="decimal"><label for="mc-descrizione">Cosa</label><input id="mc-descrizione" maxlength="200" placeholder="es. quota del concerto">' +
+      '<p class="tenue">Rimborsi e spese pagate dalla cassa si scalano già da soli.</p><div class="bottoni"><button class="btn-sec" data-az="annulla">Annulla</button><button class="btn" data-az="salvaMovimento">Salva</button></div>', 'cassa');
+  },
+  salvaMovimento: function () {
+    var x = { tipo: $('mc-tipo').value, importo: $('mc-importo').value.replace(/[€\s]/g, '').replace(',', '.'), descrizione: $('mc-descrizione').value.trim() };
+    if (!/^\d+(\.\d{1,2})?$/.test(x.importo) || !num(x.importo)) return avviso('Importo non valido.', true);
+    if (!x.descrizione) return avviso('Scrivi di cosa si tratta.', true);
+    chiudiModale();
+    scrivi('segnaMovimentoCassa', x, function () { disegna(); });
+  },
+  eliminaMovimento: function (d) { chiedi('Togliere questo movimento?', 'Togli', function () { scrivi('eliminaMovimentoCassa', { id: d.id }, function () { disegna(); }); }); },
+  chiediConteggio: function () { chiedi('Chiedere a ' + DATI.cassiere + ' di contare la cassa? Gli arrivano una mail e, se le ha attivate, una notifica.', 'Chiedi', function () { scrivi('chiediConteggio', {}, function () { disegna(); }); }); },
+  nuovaProva: function () { PF = nuovaPF(null); vai('provaform'); caricaDisponibilita(); },
   apriProva: function (d) { SEL_PV = d.id; vai('prova'); },
-  modificaProva: function (d) { var p = provaDi(d.id); if (p && slotFuturi(p).length) { PF = nuovaPF(p); vai('provaform'); } },
+  modificaProva: function (d) { var p = provaDi(d.id); if (p && slotFuturi(p).length) { PF = nuovaPF(p); vai('provaform'); caricaDisponibilita(); } },
   pfGiorno: function (d) { leggiPF(); PF.giorni[Number(d.i)] = !PF.giorni[Number(d.i)]; disegna(); },
   pfFascia: function (d) { leggiPF(); PF.fasce[d.k].on = !PF.fasce[d.k].on; disegna(); },
   pfCella: function (d) { leggiPF(); PF.scelta[d.s] = !!d.v; disegna(); },
@@ -3458,7 +3634,7 @@ var COMANDI = {
     var tipo = TIPO_DA_SITO[x.tipo] || 'Altro', mese = Number(String(x.data).slice(5, 7));
     PREV = nuovoPrev();
     PREV.listino = tipo === 'Matrimonio' ? 'Matrimonio' : (mese >= 5 && mese <= 9 ? 'Estate' : 'Inverno');
-    PREV.evento = { tipo: tipo, data: x.data, titolo: x.nome, luogo: x.dove, referente: x.nome, telefono: x.telefono, tramite: 'Sito',
+    PREV.evento = { tipo: tipo, data: x.data, titolo: x.nome, luogo: x.dove, referente: x.nome, telefono: x.telefono, tramite: 'Instagram/Sito',
       note: ['Richiesta dal sito il ' + dataIt(String(x.creato).slice(0, 10)), x.email && 'Email: ' + x.email, x.messaggio].filter(Boolean).join('\n') };
     // lasciato a metà? si riparte da lì. La richiesta diventa "gestita" solo quando il preventivo si salva
     var b = bozzaSito(x);
@@ -3861,7 +4037,8 @@ document.addEventListener('change', function (e) {
   if (e.target && e.target.id === 'c-ruolo' && $('c-box-referente')) $('c-box-referente').style.display = CON_REFERENTE.indexOf(e.target.value) < 0 ? 'none' : '';
   if (e.target && e.target.id === 'c-ruolo' && $('c-box-sposi')) $('c-box-sposi').style.display = e.target.value === 'Sposi' ? '' : 'none';
   // sondaggio prove: cambiando il periodo si rifà l'elenco dei giorni
-  if (e.target && V === 'provaform' && PF && (e.target.id === 'pf-da' || e.target.id === 'pf-a')) { leggiPF(); disegna(); }
+  if (e.target && V === 'provaform' && PF && (e.target.id === 'pf-da' || e.target.id === 'pf-a')) { leggiPF(); disegna(); caricaDisponibilita(); }
+  if (e.target && e.target.id === 'f-pagamento') mostraSoldi();
   // nel preventivo il tipo decide quali voci mostrare (matrimonio sì/no): si ridisegna tenendo quello già scritto
   if (e.target && e.target.id === 'f-tipo' && V === 'preventivo' && PREV) { leggiModuloPrev(); disegna(); }
 });
