@@ -298,7 +298,7 @@
   .avviso-pag { border-color: var(--fiamma); background: linear-gradient(90deg, rgba(217,76,26,.22), rgba(21,55,59,.72)); }
   .richiesta-nuova { border-color: var(--arancio); }
 </style>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-A+/Ya9YYuuXyiZ/lR53TV43Y5fAkf7wRIPTFr0G0RWc='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-+dwDef6x++2t9vowe46CEEx8XLtyaBjQkAzcjo0spK8='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -318,8 +318,9 @@
 
 <script>
 // ─── Versione e changelog: VERSIONE deve essere uguale alla prima voce (lo controlla il test)
-var VERSIONE = '0.56';
+var VERSIONE = '0.57';
 var CHANGELOG = [
+  { v: '0.57', data: '2026-11-25', testo: 'Listino allineato ai PDF nuovi (Matrimoni 2026-2027, Estate 2027, Inverno 2026-2027): prezzi, orari di allestimento e trasferte. Aggiunte le ore extra di DJ Set e Service per party, i pacchetti Social (Estate e Inverno) e i km extra in tutti i listini. I preventivi già fatti non cambiano.' },
   { v: '0.56', data: '2026-11-25', testo: 'Preventivi più veloci: premi Salva e lo vedi subito, il server conferma dietro e puoi andare avanti. Il calendario si controlla già mentre scrivi e si aggiorna un attimo dopo il salvataggio. Foglio leggibile e Google Contatti non fanno più aspettare chi salva in quel momento. Un PDF premuto mentre si salva si mette in fila.' },
   { v: '0.55', data: '2026-11-25', testo: 'Richieste dal sito: il preventivo si può lasciare a metà e riprendere (✏️ Riprendi preventivo, anche da un altro telefono). La richiesta diventa gestita solo quando premi Salva, e da lì lo riapri con 📄 Apri preventivo. Anche le richieste già gestite tornano utilizzabili.' },
   { v: '0.54', data: '2026-11-18', testo: 'Più veloce: dopo un salvataggio il server rilegge solo la parte che è cambiata (prima rileggeva tutto il foglio), e la copia veloce dei dati dura 6 ore invece di una; anche i lavori automatici (contatti, recap, backup) non la buttano più via. Spese, rimborsi, compiti e voci della checklist si vedono salvati subito, mentre il server conferma dietro.' },
