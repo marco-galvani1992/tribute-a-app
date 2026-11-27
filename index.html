@@ -297,6 +297,23 @@
   .voci3 { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 14px; color: var(--tenue); } .voci3 strong { color: var(--testo); } .voci3 b { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; }
   .btn-nudo { background: none; padding: 4px 0; text-align: left; color: var(--testo); }
   .sistema { padding: 8px 0; border-top: 1px solid var(--bordo); } .sistema .stati { margin-top: 6px; } .sistema .chip { padding: 6px 10px; min-height: 36px; font-size: 13px; }
+  .filo { display: grid; grid-template-columns: 92px 1fr auto; gap: 10px; align-items: start; padding: 10px 0; border-top: 1px solid var(--bordo); }
+  .filo-q { font-family: var(--titoli); font-weight: 800; color: var(--pesca); font-size: 13px; line-height: 1.2; }
+  .slogan { margin: 0 0 12px; padding: 6px 16px; border-left: 3px solid var(--arancio); } .slogan p { font-family: var(--titoli); font-weight: 800; font-size: 17px; margin: 8px 0; }
+  .lista-f { margin: 8px 0 0; padding-left: 18px; } .lista-f li { margin: 6px 0; }
+  .onda { display: flex; align-items: flex-end; gap: 2px; height: 70px; margin-top: 8px; } .onda i { flex: 1 1 0; min-width: 3px; border-radius: 3px 3px 0 0; } .onda i.stima { opacity: .45; }
+  .o0 i, .onda .o0 { background: var(--arancio); } .onda .o1 { background: #6fb7d6; } .onda .o2 { background: var(--verde); } .onda .o3 { background: #c3a5ee; }
+  .carta.blocco { border-left: 4px solid var(--arancio); } .carta.blocco.o1 { border-left-color: #6fb7d6; } .carta.blocco.o2 { border-left-color: var(--verde); } .carta.blocco.o3 { border-left-color: #c3a5ee; }
+  .brano { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-top: 1px solid var(--bordo); }
+  .su-giu { display: flex; flex-direction: column; gap: 2px; } .su-giu button { width: 30px; height: 22px; min-height: 22px; padding: 0; font-size: 12px; background: rgba(255,255,255,.06); border-radius: 6px; } .su-giu button:disabled { opacity: .25; }
+  .brano-t { flex: 1 1 auto; min-width: 0; background: none; padding: 2px 0; min-height: 40px; text-align: left; } .brano-t b, .brano-t span { display: block; } .brano-t .tenue { font-size: 12px; }
+  .nota-b { font-size: 12px; color: var(--pesca); } .en { color: var(--arancio); font-size: 10px; letter-spacing: -1px; white-space: nowrap; }
+  .brano-r { display: block; width: 100%; text-align: left; background: none; padding: 8px 0; min-height: 40px; border-top: 1px solid var(--bordo); font-size: 14px; }
+  .griglia-ct { display: grid; gap: 6px 8px; align-items: center; } .griglia-ct label { margin: 0; font-size: 13px; } .griglia-ct input { min-height: 38px; padding: 6px 8px; min-width: 0; }
+  input.esempio { background: rgba(242,201,76,.16); border-color: rgba(242,201,76,.55); } .esempio-t { background: rgba(242,201,76,.3); padding: 0 4px; border-radius: 4px; }
+  .ct-nome { font-weight: 700; text-align: center; }
+  .th-p { display: block; padding: 8px 10px; font-size: 12px; font-weight: 700; color: var(--pesca); } .td-c { padding: 6px 10px; } .td-c small { display: block; color: var(--tenue); }
+  .tb tr.r-ora td, .tb tr.r-ora th { background: rgba(240,138,60,.14); }
   .chips .sep { flex: 0 0 1px; background: var(--petrolio-2); margin: 4px 4px; }
   .due-btn { display: flex; gap: 6px; }
   .due-btn .btn-sec { padding: 12px 10px; white-space: nowrap; }
@@ -389,7 +406,7 @@
   .riga-pf .celle { display: flex; gap: 4px; flex: 0 0 auto; }
   .riga-pf .chip { padding: 6px 9px; min-height: 40px; font-size: 13px; }
 </style>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-ku3BGfikEyhFLeWTyPZ4yFHhSRGketjIlZP7/2vpGmg='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'self'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-sJHyRnHzSgdhz5KP9G1fjWjQMW1YiMsI8BUA+9PMCcI='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; frame-src 'none'; worker-src 'self'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -409,8 +426,9 @@
 
 <script>
 // ─── Versione e changelog: VERSIONE deve essere uguale alla prima voce (lo controlla il test)
-var VERSIONE = '0.61';
+var VERSIONE = '0.62';
 var CHANGELOG = [
+  { v: '0.62', data: '2026-11-27', testo: 'Nuova sezione per il nuovo show (Progetti → il suo nome): Show (concept, filo della serata, formazione, proposte), Scaletta a blocchi con il repertorio, energia e durata, Conti con i numeri che si cambiano e i risultati che si ricalcolano subito, Ricerca e Da decidere. Tutto modificabile da tutti e tre.' },
   { v: '0.61', data: '2026-11-25', testo: 'Domande fra noi: se qualcuno deve confermare una cosa (per esempio un anticipo ricevuto), entrando trova la domanda e risponde con un tocco. Resta in cima a Eventi finché non risponde.' },
   { v: '0.60', data: '2026-11-25', testo: 'Numeri rifatti: totale sicuro con barra (incassato, da incassare, in forse a parte), cosa c\'è da incassare adesso, da dove arrivano i clienti (Passaparola, Instagram/Sito, Musiqua, Showgroup, Matrimonio.com) per anno del concerto o di arrivo, fattura e contanti. Negli eventi si sceglie come pagano e l\'app calcola da sola il netto (in fattura resta l\'89%). Cassa: c\'è il saldo, lo scrive Pope; rimborsi e spese della cassa si scalano da soli. Notifiche sul telefono (Altro → 🔔). Nei sondaggi chi ha scritto "No" nel calendario Disponibilità parte già segnato.' },
   { v: '0.59', data: '2026-11-25', testo: 'Tabella delle date (Eventi → Tabella): tutte le date come nel file, con ricerca, filtri, ordine toccando le colonne, totali per mese e soldi da incassare in evidenza; si segna l\'incasso toccando la casella. Progetti nuovi: Gantt a settimane o mesi con progetti e compiti, colori per persona, concerti e prove sulla stessa riga del tempo, e la lista "Da fare" divisa per urgenza. I progetti scritti nel calendario al posto delle prove sono già dentro.' },
@@ -548,6 +566,7 @@ var DISP = {};                      // calendario Disponibilità: { data: { memb
 var RIEP_PER = 'concerto', SISTEMA = ''; // Numeri: canali per anno del concerto | arrivo; elenco da sistemare aperto
 var VOTI_ATTESA = {}, TIMER_VOTI = 0; // voti toccati e non ancora mandati: { sondaggio: { giorno: voto } }
 var PR_TAB = 'gantt', PR_CHI = '';  // Progetti: gantt | lista, e persona
+var SEL_F = '', F_TAB = 'show', F_FILTRO = { q: '', dec: '' }, F_AGGIUNGI = ''; // format aperto, scheda, filtro del repertorio, blocco a cui si aggiungono brani
 var GANTT = { zoom: 'settimane', chiusi: {}, x: null };
 var TAB = { anno: null, solo: '', tipo: '', q: '', ord: 'data', giu: false }; // tabella delle date
 var CHAT_TG = [];                   // gruppi Telegram trovati
@@ -570,7 +589,7 @@ var VISTE = [
 ]; // "Altro" è sul nome in alto a destra
 // vista "figlia" -> voce della barra da accendere
 var PADRE = { evento: 'eventi', modifica: 'eventi', calendario: 'eventi', confronto: 'altro', doppioni: 'contatti', contatto: 'contatti', modello: 'messaggi',
-  preventivo: 'preventivi', recap: 'eventi', tabella: 'eventi', prove: 'eventi', prova: 'eventi', provaform: 'eventi', progetto: 'progetti' };
+  preventivo: 'preventivi', recap: 'eventi', tabella: 'eventi', formato: 'progetti', prove: 'eventi', prova: 'eventi', provaform: 'eventi', progetto: 'progetti' };
 var COLORE_STATO_P = { bozza: 'neutra', inviato: 'att', accettato: 'ok', rifiutato: 'no' };
 var EMOJI_RUOLO = { Sposi: '💍', 'Wedding planner': '📋', Location: '🏛️', Fotografo: '📷', Videomaker: '🎥', Catering: '🍽️', Organizzatore: '🎤', Altro: '👤' };
 var ETICHETTA_CANALE = { mail: '📧 mail', whatsapp: '💬 WhatsApp', fatto: '✓ a mano', saltato: '⏭ saltato' };
@@ -767,6 +786,7 @@ function disegna() {
   else if (V === 'provaform') h = vistaProvaForm();
   else if (V === 'progetti') h = vistaProgetti();
   else if (V === 'progetto') h = vistaProgetto();
+  else if (V === 'formato') h = vistaFormato();
   else h = vistaEventi();
   $('app').innerHTML = h;
   dopoDisegno();
@@ -1616,6 +1636,212 @@ function rigaCompito(c, conProgetto) {
     (c.scadenza ? '<span class="tenue' + (scad ? ' scaduto' : '') + '" style="font-size:12px">' + esc(dataIt(c.scadenza).slice(0, 5)) + '</span>' : '') + '</div>';
 }
 
+// ─── Format di spettacolo (il nuovo show): i contenuti arrivano dal server, qui solo come si mostrano e si calcolano
+function formati() { return (DATI && DATI.formati) || []; }
+function formatoDi(id) { return formati().filter(function (f) { return f.id === id; })[0] || null; }
+function datiF(f) { return leggiJson(f && f.dati, {}); }
+function braniDi(f) { return ((DATI && DATI.brani) || []).filter(function (b) { return b.formato === f.id; }); }
+function braniBlocco(f, id) { return braniDi(f).filter(function (b) { return b.blocco === id; }).sort(function (a, b) { return num(a.ordine) - num(b.ordine); }); }
+var DURATA_BRANO = 3.5; // minuti, se non è scritta
+function durataB(b) { return num(b.durata) || DURATA_BRANO; }
+function minuti(m) { m = Math.round(m); return m >= 60 ? Math.floor(m / 60) + ' h ' + (m % 60 ? m % 60 + ' min' : '') : m + ' min'; }
+/** Scrive una parte del format: si vede subito, il server conferma dietro. */
+function salvaParteF(f, parte, valore, dopo) {
+  scrivi('salvaFormato', { id: f.id, parte: parte, valore: valore }, function () { if (dopo) dopo(); ridisegnaSePuo(); }, function () {
+    var x = formatoDi(f.id); if (!x) return;
+    if (parte === 'nome') x.nome = valore; else { var d = datiF(x); d[parte] = valore; x.dati = JSON.stringify(d); }
+  });
+}
+function vistaFormato() {
+  var f = formatoDi(SEL_F);
+  if (!f) { V = 'progetti'; return vistaProgetti(); }
+  var d = datiF(f), schede = [['show', '🏫 Show'], ['scaletta', '🎵 Scaletta'], ['conti', '💶 Conti'], ['ricerca', '🔎 Ricerca'], ['decidere', '☑️ Da decidere']];
+  var h = '<button class="btn-link" data-vai="progetti">‹ Progetti</button><div class="barra"><h1>' + esc(f.nome) + '</h1><button class="btn-sec btn-piccolo-sec" data-az="fModifica" data-v="nome">✏️</button></div>' +
+    '<div class="chips">' + schede.map(function (x) { return '<button class="chip' + (F_TAB === x[0] ? ' attivo' : '') + '" data-az="fTab" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div>';
+  if (F_TAB === 'scaletta') return h + scalettaHtml(f, d);
+  if (F_TAB === 'conti') return h + contiHtml(f, d);
+  if (F_TAB === 'ricerca') return h + (d.ricerca || []).map(function (x, i) {
+    return '<div class="carta"><div class="riga"><b>' + esc(x.titolo) + '</b><button class="btn-link" data-az="fModifica" data-v="ricerca" data-i="' + i + '">✏️</button></div><p class="testo-lungo" style="margin:6px 0 0">' + esc(x.testo) + '</p></div>';
+  }).join('') + '<button class="btn-sec btn-largo" data-az="fModifica" data-v="ricerca" data-i="' + (d.ricerca || []).length + '">+ Aggiungi una nota</button>';
+  if (F_TAB === 'decidere') {
+    var c = compitiDi(f.progettoId), aperti = c.filter(function (x) { return x.fatto !== 'Sì'; }), fatti = c.filter(function (x) { return x.fatto === 'Sì'; });
+    return h + '<p class="tenue" style="margin-top:0">Sono i compiti del progetto: si vedono anche nel Gantt e in "Da fare".</p>' +
+      '<div class="carta">' + (aperti.length ? aperti.map(function (x) { return rigaCompito(x); }).join('') : '<p class="tenue" style="margin:0">Tutto deciso ✓</p>') +
+      '<button class="btn-link" data-az="nuovoCompitoIn" data-id="' + esc(f.progettoId) + '">+ Aggiungi</button></div>' +
+      (fatti.length ? '<h2>Deciso (' + fatti.length + ')</h2><div class="carta">' + fatti.map(function (x) { return rigaCompito(x); }).join('') + '</div>' : '') +
+      (progetto(f.progettoId) ? '<button class="btn-sec btn-largo" data-az="apriProgetto" data-id="' + esc(f.progettoId) + '">Apri il progetto ›</button>' : '');
+  }
+  // Show
+  var tl = (d.filo || []).map(function (x, i) {
+    return '<div class="filo"><div class="filo-q">' + esc(x.momento) + '</div><div><b>' + esc(x.cosa) + '</b><div class="tenue">' + esc([x.chi && '👥 ' + x.chi, x.effetti && '✨ ' + x.effetti].filter(Boolean).join(' · ')) + '</div></div>' +
+      '<button class="btn-x" data-az="fFilo" data-i="' + i + '" aria-label="Modifica">✏️</button></div>';
+  }).join('');
+  var carta = function (titolo, parte, corpo) { return '<div class="carta"><div class="riga"><h2 style="margin:0">' + titolo + '</h2><button class="btn-link" data-az="fModifica" data-v="' + parte + '">✏️ Modifica</button></div>' + corpo + '</div>'; };
+  return h + carta('Il concept', 'concept', '<p class="testo-lungo">' + esc(d.concept || '') + '</p>') +
+    ((d.slogan || []).length ? '<div class="slogan">' + d.slogan.map(function (x) { return '<p>“' + esc(typeof x === 'string' ? x : '') + '”</p>'; }).join('') + '<button class="btn-link" data-az="fModifica" data-v="slogan">✏️ Slogan</button></div>' : '') +
+    '<div class="carta"><div class="riga"><h2 style="margin:0">Il filo della serata</h2><button class="btn-link" data-az="fFilo" data-i="' + (d.filo || []).length + '">+ Momento</button></div>' + tl + '</div>' +
+    carta('Formazione', 'formazione', '<p class="testo-lungo">' + esc(d.formazione || '') + '</p>') +
+    carta('Idee guida', 'idee', '<p class="testo-lungo">' + esc(d.idee || '') + '</p>') +
+    carta('Proposte da discutere', 'proposte', '<ul class="lista-f">' + (d.proposte || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>');
+}
+// — Scaletta
+function scalettaHtml(f, d) {
+  var blocchi = d.blocchi || [], tutti = braniDi(f), inScaletta = [], h = '';
+  blocchi.forEach(function (b) { inScaletta = inScaletta.concat(braniBlocco(f, b.id).map(function (x) { return { b: x, blocco: b }; })); });
+  var tot = inScaletta.reduce(function (t, x) { return t + durataB(x.b); }, 0);
+  h += '<div class="tessere tre">' + [[tutti.length, 'brani in repertorio'], [inScaletta.length, 'in scaletta'], ['≈ ' + minuti(tot), 'di musica']].map(function (x) {
+    return '<div class="tessera"><div class="n">' + x[0] + '</div><div class="l">' + x[1] + '</div></div>'; }).join('') + '</div>';
+  // l'onda dell'energia: un'asta per brano, colore del blocco; senza energia del brano vale quella del blocco
+  if (inScaletta.length) h += '<div class="carta onda-c"><div class="tenue">L\'onda dell\'energia (deve salire e scendere, non solo salire)</div><div class="onda">' + inScaletta.map(function (x) {
+    var e = num(x.b.energia) || num(x.blocco.energia) || 3;
+    return '<i class="o' + (blocchi.indexOf(x.blocco) % 4) + (x.b.energia ? '' : ' stima') + '" style="height:' + (e * 20) + '%" title="' + esc(x.b.titolo + ' · ' + e) + '"></i>';
+  }).join('') + '</div></div>';
+  blocchi.forEach(function (b, i) {
+    var l = braniBlocco(f, b.id), min = l.reduce(function (t, x) { return t + durataB(x); }, 0);
+    h += '<div class="carta blocco o' + (i % 4) + '"><div class="riga"><div><b>' + esc(b.nome) + '</b><div class="tenue">' + esc(b.situazione) + (b.energia ? ' · energia ' + esc(b.energia) : '') + ' · ' + l.length + ' brani, ≈ ' + minuti(min) + '</div></div>' +
+      '<button class="btn-x" data-az="fBlocco" data-i="' + i + '" aria-label="Modifica il blocco">✏️</button></div>' +
+      l.map(function (x, j) {
+        return '<div class="brano"><span class="su-giu"><button data-az="fSposta" data-id="' + esc(x.id) + '" data-v="-1"' + (j ? '' : ' disabled') + ' aria-label="Su">↑</button><button data-az="fSposta" data-id="' + esc(x.id) + '" data-v="1"' + (j < l.length - 1 ? '' : ' disabled') + ' aria-label="Giù">↓</button></span>' +
+          '<button class="brano-t" data-az="fBrano" data-id="' + esc(x.id) + '"><b>' + esc(x.titolo) + '</b><span class="tenue">' + esc([x.artista, x.decennio && "'" + x.decennio.slice(-2), x.medley && 'medley con ' + x.medley].filter(Boolean).join(' · ')) + '</span>' +
+          (x.note || x.effetto ? '<span class="nota-b">' + esc([x.effetto && '✨ ' + x.effetto, x.note].filter(Boolean).join(' · ')) + '</span>' : '') + '</button>' +
+          (x.energia ? '<span class="en">' + '●'.repeat(num(x.energia)) + '</span>' : '') + '</div>';
+      }).join('') + '<button class="btn-link" data-az="fAggiungi" data-id="' + esc(b.id) + '">+ Aggiungi brani dal repertorio</button></div>';
+  });
+  h += '<div class="azioni"><button class="btn-sec" data-az="fBlocco" data-i="' + blocchi.length + '">+ Blocco</button><button class="btn-sec" data-az="fBrano" data-id="">+ Brano nuovo</button></div>';
+  // repertorio fuori scaletta
+  var fuori = tutti.filter(function (x) { return !x.blocco; }), decenni = ['70', '80', '90', '2000', '2010', '2020'];
+  h += '<h2>Repertorio fuori scaletta (' + fuori.length + ')</h2>' + decenni.map(function (dd) {
+    var l = fuori.filter(function (x) { return x.decennio === dd; }).sort(function (a, b) { return a.titolo < b.titolo ? -1 : 1; });
+    return l.length ? '<div class="carta"><div class="tenue" style="margin-bottom:4px">Anni ' + esc(dd) + '</div>' + l.map(function (x) {
+      return '<button class="brano-r" data-az="fBrano" data-id="' + esc(x.id) + '"><b>' + esc(x.titolo) + '</b> <span class="tenue">' + esc(x.artista) + '</span>' + (x.note ? ' <span class="nota-b">' + esc(x.note) + '</span>' : '') + '</button>';
+    }).join('') + '</div>' : '';
+  }).join('') + (fuori.some(function (x) { return decenni.indexOf(x.decennio) < 0; }) ? '<div class="carta">' + fuori.filter(function (x) { return decenni.indexOf(x.decennio) < 0; }).map(function (x) {
+    return '<button class="brano-r" data-az="fBrano" data-id="' + esc(x.id) + '"><b>' + esc(x.titolo) + '</b> <span class="tenue">' + esc(x.artista) + '</span></button>'; }).join('') + '</div>' : '');
+  return h;
+}
+function apriBranoF(f, b) {
+  var x = b || { id: '', titolo: '', artista: '', decennio: '', genere: '', bpm: '', blocco: '', energia: '', effetto: '', medley: '', durata: '', note: '' };
+  var sel = function (id, lista, v) { return '<select id="' + id + '">' + lista.map(function (o) { return '<option value="' + esc(o[0]) + '"' + (String(o[0]) === String(v) ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('') + '</select>'; };
+  var inp = function (k, etichetta, extra) { return '<div><label for="fb-' + k + '">' + etichetta + '</label><input id="fb-' + k + '" value="' + esc(x[k]) + '"' + (extra || '') + '></div>'; };
+  apriModale('<h2>' + (x.id ? 'Brano' : 'Brano nuovo') + '</h2>' + inp('titolo', 'Titolo') + inp('artista', 'Artista') +
+    '<div class="campi" style="grid-template-columns:1fr 1fr"><div><label for="fb-decennio">Decennio</label>' + sel('fb-decennio', [['', '—']].concat(['70', '80', '90', '2000', '2010', '2020'].map(function (d) { return [d, 'anni ' + d]; })), x.decennio) + '</div>' +
+    '<div><label for="fb-energia">Energia</label>' + sel('fb-energia', [['', '—'], ['1', '1 calma'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5 al massimo']], x.energia) + '</div></div>' +
+    '<label for="fb-blocco">Blocco della scaletta</label>' + sel('fb-blocco', [['', 'Fuori scaletta']].concat((datiF(f).blocchi || []).map(function (b) { return [b.id, b.nome]; })), x.blocco) +
+    '<div class="campi" style="grid-template-columns:1fr 1fr 1fr">' + inp('durata', 'Minuti', ' inputmode="decimal" placeholder="3,5"') + inp('bpm', 'BPM', ' inputmode="numeric"') + inp('genere', 'Genere') + '</div>' +
+    inp('effetto', 'Effetto', ' placeholder="es. fuoco freddo"') + inp('medley', 'In medley con', ' placeholder="es. Wannabe"') +
+    '<label for="fb-note">Note</label><textarea id="fb-note" rows="2">' + esc(x.note) + '</textarea>' +
+    '<div class="bottoni"><button class="btn-sec" data-az="annulla">Annulla</button>' + (x.id ? '<button class="btn-pericolo" data-az="fEliminaBrano" data-id="' + esc(x.id) + '">Elimina</button>' : '') +
+    '<button class="btn" data-az="fSalvaBrano" data-id="' + esc(x.id) + '">Salva</button></div>', 'brano');
+}
+function aggiungiBraniHtml(f) {
+  var q = normTxt(F_FILTRO.q), l = braniDi(f).filter(function (x) { return x.blocco !== F_AGGIUNGI && (!q || normTxt(x.titolo + ' ' + x.artista).indexOf(q) >= 0) && (!F_FILTRO.dec || x.decennio === F_FILTRO.dec); })
+    .sort(function (a, b) { return (a.blocco ? 1 : 0) - (b.blocco ? 1 : 0) || (a.titolo < b.titolo ? -1 : 1); });
+  var b = (datiF(f).blocchi || []).filter(function (x) { return x.id === F_AGGIUNGI; })[0], nomi = {};
+  (datiF(f).blocchi || []).forEach(function (x) { nomi[x.id] = x.nome; });
+  return l.slice(0, 120).map(function (x) {
+    return '<button class="brano-r" data-az="fMetti" data-id="' + esc(x.id) + '"><b>＋ ' + esc(x.titolo) + '</b> <span class="tenue">' + esc(x.artista + (x.decennio ? " · '" + x.decennio.slice(-2) : '')) + '</span>' +
+      (x.blocco ? ' <span class="pill att">ora in ' + esc(nomi[x.blocco] || '?') + '</span>' : '') + '</button>';
+  }).join('') || '<p class="tenue">Niente da aggiungere' + (b ? ' a ' + esc(b.nome) : '') + '.</p>';
+}
+function apriAggiungi(f) {
+  var b = (datiF(f).blocchi || []).filter(function (x) { return x.id === F_AGGIUNGI; })[0];
+  if (!b) return;
+  apriModale('<h2>Aggiungi a ' + esc(b.nome) + '</h2><input id="fa-cerca" type="search" placeholder="Cerca titolo o artista…" value="' + esc(F_FILTRO.q) + '">' +
+    '<div class="chips">' + ['', '70', '80', '90', '2000', '2010', '2020'].map(function (d) { return '<button class="chip' + (F_FILTRO.dec === d ? ' attivo' : '') + '" data-az="fDecennio" data-v="' + d + '">' + (d || 'Tutti') + '</button>'; }).join('') + '</div>' +
+    '<div id="fa-lista">' + aggiungiBraniHtml(f) + '</div><div class="bottoni"><button class="btn" data-az="annulla">Fatto</button></div>', 'aggiungi');
+}
+// — Conti: numeri di esempio che la band sostituisce; i risultati si ricalcolano mentre si scrive
+var C_UNITARI = [['musicista', 'Musicista'], ['dj', 'DJ'], ['ballerina', 'Ballerina'], ['fonico', 'Fonico'], ['gadget', 'Gadget'], ['effetti', 'Effetti'], ['trasporto', 'Trasporto'], ['vitto', 'Vitto a persona'], ['usura', 'Usura attrezzatura']];
+var C_VERSIONE = [['prezzo', 'Prezzo €'], ['serate', 'Serate l\'anno'], ['musicisti', 'Musicisti'], ['dj', 'DJ'], ['ballerine', 'Ballerine'], ['fonico', 'Fonico'], ['gadget', 'Gadget (1 = sì)'], ['effetti', 'Effetti (1 = sì)'], ['usura', 'Usura (1 = sì)']];
+function calcolaConti(c) {
+  var u = c.unitari || {}, out = { versioni: [] };
+  out.fissi = (c.fissi || []).reduce(function (t, x) { return t + num(x.importo); }, 0);
+  out.ammAnno = out.fissi / Math.max(1, num(c.anni) || 1);
+  out.versioni = (c.versioni || []).map(function (v) {
+    var persone = num(v.musicisti) + num(v.dj) + num(v.ballerine) + num(v.fonico);
+    var compensi = num(v.musicisti) * num(u.musicista) + num(v.dj) * num(u.dj) + num(v.ballerine) * num(u.ballerina) + num(v.fonico) * num(u.fonico);
+    var altri = num(v.gadget) * num(u.gadget) + num(v.effetti) * num(u.effetti) + num(u.trasporto) + persone * num(u.vitto) + num(v.usura) * num(u.usura);
+    var oneri = compensi * num(c.oneri) / 100, agenzia = num(v.prezzo) * num(c.agenzia) / 100, costo = compensi + altri + oneri + agenzia, margine = num(v.prezzo) - costo;
+    return { nome: v.nome, dove: v.dove, prezzo: num(v.prezzo), serate: num(v.serate), persone: persone, compensi: compensi, altri: altri, oneri: oneri, agenzia: agenzia, costo: costo, margine: margine,
+      perc: num(v.prezzo) ? margine / num(v.prezzo) : 0, aTesta: persone ? margine / persone : 0 };
+  });
+  out.utileAnno = out.versioni.reduce(function (t, v) { return t + v.serate * v.margine; }, 0) - out.ammAnno;
+  var p = out.versioni[0];
+  if (p) {
+    var ag = num(c.agenzia) / 100, base = p.compensi + p.altri + p.oneri;
+    out.serateFissi = p.margine > 0 ? out.fissi / p.margine : null;
+    out.prezzoMinimo = (base + (p.serate ? out.ammAnno / p.serate : out.ammAnno)) / (1 - ag);
+    out.prezzoUtile = out.prezzoMinimo / (1 - num(c.utile) / 100);
+    out.soloPrima = p.serate * p.margine - out.ammAnno;
+    out.scala = [-500, 0, 500, 1000, 1500].map(function (dlt) {
+      var prezzo = Math.max(0, Math.round((p.prezzo + dlt) / 100) * 100), m = prezzo * (1 - ag) - base;
+      return { prezzo: prezzo, margine: m, serate: m > 0 ? out.fissi / m : null, utile: p.serate * m - out.ammAnno };
+    });
+  }
+  return out;
+}
+function risultatiConti(c) {
+  var r = calcolaConti(c), p = r.versioni[0];
+  var h = '<div class="tb"><table><thead><tr><th><span class="th-p">Versione</span></th><th><span class="th-p">Prezzo</span></th><th><span class="th-p">Costi</span></th><th><span class="th-p">Margine</span></th><th><span class="th-p">A testa</span></th></tr></thead><tbody>' + r.versioni.map(function (v) {
+    return '<tr><th><div class="td-c"><b>' + esc(v.nome) + '</b><small>' + v.persone + ' persone</small></div></th><td>' + euro(v.prezzo) + '</td><td>' + euro(Math.round(v.costo * 100) / 100) + '</td>' +
+      '<td class="' + (v.margine < 0 ? 'scaduto' : 'v-ok') + '"><b>' + euro(Math.round(v.margine * 100) / 100) + '</b> <small>' + Math.round(v.perc * 1000) / 10 + '%</small></td><td>' + euro(Math.round(v.aTesta)) + '</td></tr>';
+  }).join('') + '</tbody></table></div>';
+  if (!p) return h;
+  var sotto = p.prezzo < r.prezzoMinimo;
+  h += '<div class="carta eroe" style="margin-top:12px"><div class="tenue">Con tutte le serate dell\'anno, dopo aver pagato la quota dell\'investimento</div><div class="grosso' + (r.utileAnno < 0 ? ' scaduto' : '') + '">' + euro(Math.round(r.utileAnno)) + '</div>' +
+    '<div class="voci3"><span>investimento <strong>' + euro(r.fissi) + '</strong> (' + euro(Math.round(r.ammAnno)) + ' l\'anno)</span><span>solo le serate ' + esc(p.nome) + ': <strong>' + euro(Math.round(r.soloPrima)) + '</strong></span></div></div>' +
+    '<div class="carta"><dl class="dati">' + dato('Serate ' + esc(p.nome) + ' per ripagare l\'investimento', r.serateFissi == null ? 'mai, il margine è negativo' : '<b>' + Math.round(r.serateFissi * 10) / 10 + '</b> (ne avete messe ' + p.serate + ' l\'anno)') +
+    dato('Prezzo minimo ' + esc(p.nome), '<b>' + euro(Math.round(r.prezzoMinimo)) + '</b>') + dato('Con l\'utile del ' + num(c.utile) + '%', '<b>' + euro(Math.round(r.prezzoUtile)) + '</b>') + '</dl>' +
+    '<p class="' + (sotto ? 'scaduto' : 'v-ok') + '" style="margin:8px 0 0">' + (sotto ? '⚠ ' + euro(p.prezzo) + ' è sotto il prezzo minimo: si va sotto il pareggio.' : '✓ ' + euro(p.prezzo) + ' copre i costi e l\'investimento.') + '</p></div>' +
+    '<h2>Se cambia il prezzo della ' + esc(p.nome) + '</h2><div class="tb"><table><thead><tr><th><span class="th-p">Prezzo</span></th><th><span class="th-p">Margine</span></th><th><span class="th-p">Serate per l\'investimento</span></th><th><span class="th-p">Utile l\'anno*</span></th></tr></thead><tbody>' +
+    r.scala.map(function (x) { return '<tr' + (x.prezzo === p.prezzo ? ' class="r-ora"' : '') + '><th><div class="td-c"><b>' + euro(x.prezzo) + '</b></div></th><td class="' + (x.margine < 0 ? 'scaduto' : '') + '">' + euro(Math.round(x.margine * 100) / 100) + '</td><td>' + (x.serate == null ? 'mai' : Math.round(x.serate * 10) / 10) + '</td><td class="' + (x.utile < 0 ? 'scaduto' : 'v-ok') + '">' + euro(Math.round(x.utile)) + '</td></tr>'; }).join('') +
+    '</tbody></table></div><p class="tenue">* solo con le ' + p.serate + ' serate ' + esc(p.nome) + ' dell\'anno.</p>';
+  return h;
+}
+function contiHtml(f, d) {
+  var c = d.conti || {}, veri = c.veri || {}, gialla = function (k) { return veri[k] ? '' : ' esempio'; };
+  var campo = function (k, v, extra) { return '<input class="ct' + gialla(k) + '" id="ct-' + k + '" inputmode="decimal" value="' + esc(v == null ? '' : v) + '"' + (extra || '') + '>'; };
+  var vers = c.versioni || [];
+  var h = '<div class="avvertenza">I campi <span class="esempio-t">gialli</span> sono <b>numeri di esempio</b> (tranne i prezzi, che sono vostri): metteteci quelli veri. I risultati si ricalcolano mentre scrivete; "Salva i numeri" li tiene per tutti.</div>' +
+    '<div id="ct-ris">' + risultatiConti(c) + '</div>' +
+    '<h2>Le tre versioni</h2><div class="carta"><div class="griglia-ct" style="grid-template-columns:minmax(96px,1.2fr) repeat(' + vers.length + ',1fr)"><span></span>' + vers.map(function (v, i) { return '<input class="ct-nome" id="ct-v' + i + '-nome" value="' + esc(v.nome) + '" aria-label="Nome versione">'; }).join('') +
+    C_VERSIONE.map(function (r) { return '<label>' + r[1] + '</label>' + vers.map(function (v, i) { return campo('v' + i + '-' + r[0], v[r[0]]); }).join(''); }).join('') + '</div>' +
+    vers.map(function (v, i) { return '<label for="ct-v' + i + '-dove">' + esc(v.nome) + ': dove</label><input id="ct-v' + i + '-dove" value="' + esc(v.dove || '') + '">'; }).join('') + '</div>' +
+    '<h2>Costi a serata</h2><div class="carta"><div class="griglia-ct" style="grid-template-columns:1fr 110px">' + C_UNITARI.map(function (x) { return '<label for="ct-u-' + x[0] + '">' + x[1] + ' €</label>' + campo('u-' + x[0], (c.unitari || {})[x[0]]); }).join('') +
+    '<label for="ct-oneri">Oneri e ritenute sui compensi %</label>' + campo('oneri', c.oneri) + '<label for="ct-agenzia">Commissione agenzia %</label>' + campo('agenzia', c.agenzia) +
+    '<label for="ct-utile">Utile minimo che volete %</label>' + campo('utile', c.utile) + '</div></div>' +
+    '<h2>Investimento iniziale</h2><div class="carta"><div class="griglia-ct" style="grid-template-columns:1fr 110px">' + (c.fissi || []).map(function (x, i) {
+      return '<input id="ct-f' + i + '-nome" value="' + esc(x.nome) + '" aria-label="Voce">' + campo('f' + i + '-importo', x.importo, ' aria-label="Importo"');
+    }).join('') + '<input id="ct-f' + (c.fissi || []).length + '-nome" placeholder="+ voce nuova" aria-label="Voce nuova">' + campo('f' + (c.fissi || []).length + '-importo', '', ' aria-label="Importo" placeholder="€"') +
+    '<label for="ct-anni">Da ripagare in anni</label>' + campo('anni', c.anni) + '</div></div>' +
+    '<button class="btn btn-largo" data-az="fSalvaConti">Salva i numeri</button>';
+  return h;
+}
+/** I conti come sono scritti adesso nei campi (per il calcolo dal vivo e per salvarli). */
+function leggiConti(c) {
+  var x = JSON.parse(JSON.stringify(c || {})), v = function (k) { var el = $('ct-' + k); return el ? String(el.value || '').replace(/[€\s]/g, '').replace(',', '.') : null; };
+  var n = function (k, prima) { var t = v(k); return t == null ? prima : (t === '' ? '' : num(t)); };
+  x.veri = x.veri || {};
+  var segna = function (k, prima, ora) { if (String(prima) !== String(ora)) x.veri[k] = true; };
+  (x.versioni || []).forEach(function (ver, i) {
+    if ($('ct-v' + i + '-nome')) ver.nome = String($('ct-v' + i + '-nome').value || '').trim() || ver.nome;
+    if ($('ct-v' + i + '-dove')) ver.dove = String($('ct-v' + i + '-dove').value || '').trim();
+    C_VERSIONE.forEach(function (r) { var ora = n('v' + i + '-' + r[0], ver[r[0]]); segna('v' + i + '-' + r[0], ver[r[0]], ora); ver[r[0]] = ora; });
+  });
+  x.unitari = x.unitari || {};
+  C_UNITARI.forEach(function (u) { var ora = n('u-' + u[0], x.unitari[u[0]]); segna('u-' + u[0], x.unitari[u[0]], ora); x.unitari[u[0]] = ora; });
+  ['oneri', 'agenzia', 'utile', 'anni'].forEach(function (k) { var ora = n(k, x[k]); segna(k, x[k], ora); x[k] = ora; });
+  var fissi = [];
+  for (var i = 0; i <= (x.fissi || []).length; i++) {
+    var nome = $('ct-f' + i + '-nome') ? String($('ct-f' + i + '-nome').value || '').trim() : ((x.fissi || [])[i] || {}).nome, imp = n('f' + i + '-importo', ((x.fissi || [])[i] || {}).importo);
+    if (!nome && !num(imp)) continue;
+    if ((x.fissi || [])[i]) segna('f' + i + '-importo', x.fissi[i].importo, imp); else x.veri['f' + i + '-importo'] = true;
+    fissi.push({ nome: nome || 'Voce', importo: imp === '' ? 0 : imp });
+  }
+  x.fissi = fissi;
+  return x;
+}
+
 // — Gantt: una riga per progetto e una per compito, tempo in orizzontale, nomi fermi a sinistra
 var COLORI_CHI = { Galva: '#f08a3c', Pope: '#5fbf8f', Tuzzi: '#6fb7d6', Tutti: '#c3a5ee' };
 function coloreChi(chi) { var c = COLORI_CHI[chi] || '#7d9497'; return 'background:' + c + ';color:#10191c'; }
@@ -1748,6 +1974,7 @@ function vistaProgetti() {
   var l = progetti().filter(function (p) { return !FILTRO_PR || p.stato === FILTRO_PR; }).sort(function (a, b) { return (a.scadenza || '9') < (b.scadenza || '9') ? -1 : 1; });
   var h = '<div class="barra"><h1>Progetti</h1><button class="btn" data-az="nuovoProgetto">+ Nuovo</button></div>' +
     '<div class="chips">' + [['gantt', '📊 Gantt'], ['lista', '☑️ Da fare']].map(function (x) { return '<button class="chip' + (PR_TAB === x[0] ? ' attivo' : '') + '" data-az="prTab" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') +
+    formati().map(function (f) { return '<button class="chip" data-az="apriFormato" data-id="' + esc(f.id) + '">🎒 ' + esc(f.nome) + '</button>'; }).join('') +
     (PR_TAB === 'gantt' ? '<span class="sep"></span>' + Object.keys(ZOOM_GANTT).map(function (z) { return '<button class="chip' + (GANTT.zoom === z ? ' attivo' : '') + '" data-az="prZoom" data-v="' + z + '">' + z + '</button>'; }).join('') + '<span class="sep"></span><button class="chip" data-az="prOggi">oggi</button>' : '') + '</div>';
   if (PR_TAB === 'lista') return h + listaCompitiHtml();
   h += '<div class="chips">' + DATI.liste.statiProgetto.concat(['']).map(function (x) {
@@ -1763,7 +1990,9 @@ function vistaProgetto() {
   var p = progetto(SEL_P);
   if (!p) { V = 'progetti'; return vistaProgetti(); }
   var c = compitiDi(p.id), daFare = c.filter(function (x) { return x.fatto !== 'Sì'; }).sort(perScadenza), fatti = c.filter(function (x) { return x.fatto === 'Sì'; });
+  var fp = formati().filter(function (f) { return f.progettoId === p.id; })[0];
   return '<button class="btn-link" data-vai="progetti">‹ Progetti</button><h1>🗂️ ' + esc(p.nome) + '</h1>' +
+    (fp ? '<button class="btn btn-largo" style="margin:0 0 10px" data-az="apriFormato" data-id="' + esc(fp.id) + '">🎒 Apri ' + esc(fp.nome) + ': show, scaletta e conti</button>' : '') +
     '<p class="tenue" style="margin:0">' + esc(dataIt(p.inizio)) + (p.scadenza ? ' → ' + esc(dataIt(p.scadenza)) : '') + ' · ' + esc(p.stato) + '</p>' +
     (p.descrizione ? '<p class="testo-lungo">' + esc(p.descrizione) + '</p>' : '') +
     '<div class="progresso" style="height:10px"><i style="width:' + Math.round(avanzamento(p) * 100) + '%"></i></div>' +
@@ -2867,6 +3096,13 @@ function vistaRiepilogo() {
   return h;
 }
 /** Elenco a comparsa delle date a cui manca un'informazione: si sistemano con un tocco. */
+/** Mette in ordine (e nel blocco) questi brani: si vede subito, una chiamata sola. */
+function ordinaF(f, blocco, ids) {
+  ids = ids.filter(function (id) { return !/^tmp/.test(id); });
+  scrivi('ordinaBlocco', { formato: f.id, blocco: blocco, ids: ids }, function () { if (MODALE !== 'aggiungi') ridisegnaSePuo(); }, function () {
+    ids.forEach(function (id, i) { (DATI.brani || []).forEach(function (b) { if (b.id === id) { b.blocco = blocco; b.ordine = String(i + 1); } }); });
+  });
+}
 function sistemaHtml(campo, lista, scelte) {
   var aperto = SISTEMA === campo;
   return '<button class="btn-link" data-az="sistema" data-v="' + campo + '">' + (aperto ? '▾ ' : '▸ ') + lista.length + (lista.length === 1 ? ' data' : ' date') + (campo === 'tramite' ? ' senza canale: sistemale' : ' senza indicazione: sistemale') + '</button>' +
@@ -3123,7 +3359,7 @@ function riceviDati(d) {
 }
 
 // ridisegna senza cancellare quello che si sta scrivendo in un altro modulo
-function ridisegnaSePuo() { if (['modifica', 'modello', 'listino', 'preventivo', 'provaform'].indexOf(V) < 0) disegna(); }
+function ridisegnaSePuo() { if (['modifica', 'modello', 'listino', 'preventivo', 'provaform'].indexOf(V) < 0 && !(V === 'formato' && F_TAB === 'conti')) disegna(); }
 function ricarica() {
   google.script.run
     .withSuccessHandler(function (d) { riceviDati(d); if (V === 'preventivo' && PREV && $('p-sconto')) leggiModuloPrev(); if (V === 'provaform') leggiPF(); disegna(); forseListaDaCompletare(); })
@@ -3428,6 +3664,126 @@ var COMANDI = {
   },
   domandaVista: function (d) {
     scrivi('domandaVista', { id: d.id }, function () { ridisegnaSePuo(); }, function () { DATI.domande = (DATI.domande || []).filter(function (y) { return y.id !== d.id; }); });
+  },
+  apriFormato: function (d) { SEL_F = d.id; vai('formato'); },
+  fTab: function (d) { F_TAB = d.v; disegna(); },
+  fModifica: function (d) {
+    var f = formatoDi(SEL_F); if (!f) return;
+    var x = datiF(f), k = d.v, testo, titolo = { nome: 'Nome dello show', concept: 'Il concept', formazione: 'Formazione', idee: 'Idee guida', slogan: 'Slogan (uno per riga)', proposte: 'Proposte (una per riga)', ricerca: 'Nota' }[k];
+    if (k === 'ricerca') {
+      var n = (x.ricerca || [])[Number(d.i)] || { titolo: '', testo: '' };
+      return apriModale('<h2>' + (n.titolo ? 'Modifica nota' : 'Nota nuova') + '</h2><label for="fm-titolo">Titolo</label><input id="fm-titolo" value="' + esc(n.titolo) + '"><label for="fm-testo">Testo</label><textarea id="fm-testo" rows="10">' + esc(n.testo) + '</textarea>' +
+        '<div class="bottoni"><button class="btn-sec" data-az="annulla">Annulla</button>' + (n.titolo ? '<button class="btn-pericolo" data-az="fSalvaTesto" data-v="ricerca" data-i="' + esc(d.i) + '" data-x="via">Elimina</button>' : '') +
+        '<button class="btn" data-az="fSalvaTesto" data-v="ricerca" data-i="' + esc(d.i) + '">Salva</button></div>', 'formato');
+    }
+    testo = k === 'nome' ? f.nome : Array.isArray(x[k]) ? x[k].filter(function (y) { return typeof y === 'string'; }).join('\n') : (x[k] || '');
+    apriModale('<h2>' + esc(titolo || '') + '</h2>' + (k === 'nome' ? '<input id="fm-testo" maxlength="60" value="' + esc(testo) + '">' : '<textarea id="fm-testo" rows="' + (k === 'concept' ? 12 : 8) + '">' + esc(testo) + '</textarea>') +
+      '<div class="bottoni"><button class="btn-sec" data-az="annulla">Annulla</button><button class="btn" data-az="fSalvaTesto" data-v="' + esc(k) + '">Salva</button></div>', 'formato');
+  },
+  fSalvaTesto: function (d) {
+    var f = formatoDi(SEL_F); if (!f) return;
+    var x = datiF(f), k = d.v, t = String($('fm-testo') ? $('fm-testo').value : '').trim(), valore;
+    if (k === 'ricerca') {
+      var l = (x.ricerca || []).slice(), i = Number(d.i);
+      if (d.x === 'via') l.splice(i, 1);
+      else { var tit = String($('fm-titolo').value || '').trim(); if (!tit) return avviso('Scrivi un titolo.', true); l[i] = { titolo: tit, testo: t }; }
+      valore = l;
+    } else if (k === 'slogan' || k === 'proposte') valore = t.split('\n').map(function (y) { return y.trim(); }).filter(Boolean);
+    else valore = t;
+    if (k === 'nome' && !t) return avviso('Scrivi il nome.', true);
+    chiudiModale();
+    salvaParteF(f, k, valore);
+  },
+  fFilo: function (d) {
+    var f = formatoDi(SEL_F); if (!f) return;
+    var l = datiF(f).filo || [], i = Number(d.i), x = l[i] || { momento: '', cosa: '', chi: '', effetti: '' };
+    var c = function (k, e) { return '<label for="ff-' + k + '">' + e + '</label><input id="ff-' + k + '" value="' + esc(x[k]) + '">'; };
+    apriModale('<h2>' + (l[i] ? 'Momento della serata' : 'Momento nuovo') + '</h2>' + c('momento', 'Quando') + c('cosa', 'Cosa succede') + c('chi', 'Chi è sul palco') + c('effetti', 'Ledwall ed effetti') +
+      '<div class="bottoni"><button class="btn-sec" data-az="annulla">Annulla</button>' + (l[i] ? '<button class="btn-sec" data-az="fFiloSalva" data-i="' + i + '" data-x="su"' + (i ? '' : ' disabled') + '>↑</button><button class="btn-pericolo" data-az="fFiloSalva" data-i="' + i + '" data-x="via">Elimina</button>' : '') +
+      '<button class="btn" data-az="fFiloSalva" data-i="' + i + '">Salva</button></div>', 'formato');
+  },
+  fFiloSalva: function (d) {
+    var f = formatoDi(SEL_F); if (!f) return;
+    var l = (datiF(f).filo || []).slice(), i = Number(d.i);
+    if (d.x === 'via') l.splice(i, 1);
+    else if (d.x === 'su') { if (i > 0) { var t = l[i - 1]; l[i - 1] = l[i]; l[i] = t; } }
+    else {
+      var x = {}; ['momento', 'cosa', 'chi', 'effetti'].forEach(function (k) { x[k] = String($('ff-' + k).value || '').trim(); });
+      if (!x.momento && !x.cosa) return avviso('Scrivi almeno quando e cosa succede.', true);
+      l[i] = x;
+    }
+    chiudiModale();
+    salvaParteF(f, 'filo', l);
+  },
+  fBlocco: function (d) {
+    var f = formatoDi(SEL_F); if (!f) return;
+    var l = datiF(f).blocchi || [], i = Number(d.i), x = l[i] || { nome: '', situazione: '', energia: '' };
+    apriModale('<h2>' + (l[i] ? 'Blocco' : 'Blocco nuovo') + '</h2><label for="fk-nome">Nome</label><input id="fk-nome" value="' + esc(x.nome) + '" placeholder="es. 8. Cartoni del pomeriggio">' +
+      '<label for="fk-situazione">Situazione o emozione</label><input id="fk-situazione" value="' + esc(x.situazione) + '"><label for="fk-energia">Energia del blocco</label><select id="fk-energia">' +
+      ['', '1', '2', '3', '4', '5'].map(function (v) { return '<option value="' + v + '"' + (String(x.energia) === v ? ' selected' : '') + '>' + (v || '—') + '</option>'; }).join('') + '</select>' +
+      (l[i] ? '<p class="tenue">Eliminandolo, i suoi brani tornano nel repertorio.</p>' : '') +
+      '<div class="bottoni"><button class="btn-sec" data-az="annulla">Annulla</button>' + (l[i] ? '<button class="btn-sec" data-az="fBloccoSalva" data-i="' + i + '" data-x="su"' + (i ? '' : ' disabled') + '>↑</button><button class="btn-pericolo" data-az="fBloccoSalva" data-i="' + i + '" data-x="via">Elimina</button>' : '') +
+      '<button class="btn" data-az="fBloccoSalva" data-i="' + i + '">Salva</button></div>', 'formato');
+  },
+  fBloccoSalva: function (d) {
+    var f = formatoDi(SEL_F); if (!f) return;
+    var l = (datiF(f).blocchi || []).slice(), i = Number(d.i), via = null;
+    if (d.x === 'via') via = l.splice(i, 1)[0];
+    else if (d.x === 'su') { if (i > 0) { var t = l[i - 1]; l[i - 1] = l[i]; l[i] = t; } }
+    else {
+      var nome = String($('fk-nome').value || '').trim();
+      if (!nome) return avviso('Scrivi il nome del blocco.', true);
+      l[i] = Object.assign({}, l[i] || { id: 'k' + Date.now().toString(36) }, { nome: nome, situazione: String($('fk-situazione').value || '').trim(), energia: $('fk-energia').value });
+    }
+    chiudiModale();
+    salvaParteF(f, 'blocchi', l);
+    if (via) (DATI.brani || []).forEach(function (b) { if (b.formato === f.id && b.blocco === via.id) { b.blocco = ''; b.ordine = ''; } });
+  },
+  fBrano: function (d) { var f = formatoDi(SEL_F); if (f) apriBranoF(f, d.id ? braniDi(f).filter(function (b) { return b.id === d.id; })[0] : null); },
+  fSalvaBrano: function (d) {
+    var f = formatoDi(SEL_F); if (!f) return;
+    var x = { id: d.id || '', formato: f.id };
+    ['titolo', 'artista', 'decennio', 'energia', 'blocco', 'durata', 'bpm', 'genere', 'effetto', 'medley', 'note'].forEach(function (k) { x[k] = String($('fb-' + k).value || '').trim(); });
+    if (!x.titolo) return avviso('Scrivi il titolo.', true);
+    x.durata = x.durata.replace(',', '.');
+    if (x.durata && !/^\d{1,2}(\.\d)?$/.test(x.durata)) return avviso('Minuti: per esempio 3,5.', true);
+    if (x.bpm && !/^\d{2,3}$/.test(x.bpm)) return avviso('BPM: un numero, per esempio 128.', true);
+    chiudiModale();
+    var id = x.id || idTemporaneo();
+    scrivi('salvaBrano', { brano: x }, function () { ridisegnaSePuo(); }, function () {
+      DATI.brani = DATI.brani || [];
+      var b = DATI.brani.filter(function (y) { return y.id === id; })[0];
+      if (!b) { b = { id: id, ordine: '' }; DATI.brani.push(b); }
+      if (b.blocco !== x.blocco) b.ordine = String(braniBlocco(f, x.blocco).length + 1);
+      Object.assign(b, x, { id: id, ordine: x.blocco ? b.ordine : '' });
+    });
+  },
+  fEliminaBrano: function (d) {
+    chiedi('Eliminare il brano dal repertorio?', 'Elimina', function () {
+      scrivi('eliminaBrano', { id: d.id }, function () { ridisegnaSePuo(); }, function () { DATI.brani = (DATI.brani || []).filter(function (b) { return b.id !== d.id; }); });
+    });
+  },
+  fSposta: function (d) {
+    var f = formatoDi(SEL_F); if (!f) return;
+    var b = braniDi(f).filter(function (x) { return x.id === d.id; })[0]; if (!b) return;
+    var l = braniBlocco(f, b.blocco), i = l.indexOf(b), j = i + Number(d.v);
+    if (j < 0 || j >= l.length) return;
+    l.splice(i, 1); l.splice(j, 0, b);
+    ordinaF(f, b.blocco, l.map(function (x) { return x.id; }));
+  },
+  fAggiungi: function (d) { var f = formatoDi(SEL_F); if (!f) return; F_AGGIUNGI = d.id; F_FILTRO = { q: '', dec: '' }; apriAggiungi(f); },
+  fDecennio: function (d) { var f = formatoDi(SEL_F); if (!f) return; F_FILTRO.dec = d.v; F_FILTRO.q = $('fa-cerca') ? $('fa-cerca').value : F_FILTRO.q; apriAggiungi(f); },
+  fMetti: function (d) {
+    var f = formatoDi(SEL_F); if (!f || !F_AGGIUNGI) return;
+    if (/^tmp/.test(d.id)) return avviso('Un attimo: il brano si sta ancora salvando.');
+    ordinaF(f, F_AGGIUNGI, braniBlocco(f, F_AGGIUNGI).map(function (x) { return x.id; }).concat([d.id]));
+    if ($('fa-lista')) $('fa-lista').innerHTML = aggiungiBraniHtml(f);
+  },
+  fSalvaConti: function () {
+    var f = formatoDi(SEL_F); if (!f) return;
+    var c = leggiConti(datiF(f).conti);
+    c.esempio = Object.keys(c.veri).length === 0;
+    salvaParteF(f, 'conti', c, function () { avviso('Numeri salvati ✓', false, 3000); });
   },
   riepPer: function (d) { RIEP_PER = d.v; disegna(); },
   sistema: function (d) { SISTEMA = SISTEMA === d.v ? '' : d.v; disegna(); },
@@ -4046,6 +4402,8 @@ document.addEventListener('pointerup', finisciTiro);
 
 // La ricerca ridisegna solo l'elenco, così la tastiera resta aperta
 document.addEventListener('input', function (e) {
+  if (e.target && /^ct-/.test(e.target.id || '') && V === 'formato' && F_TAB === 'conti' && $('ct-ris')) { var ff = formatoDi(SEL_F); if (ff) $('ct-ris').innerHTML = risultatiConti(leggiConti(datiF(ff).conti)); }
+  if (e.target && e.target.id === 'fa-cerca' && MODALE === 'aggiungi') { var fa = formatoDi(SEL_F); F_FILTRO.q = e.target.value; if (fa) $('fa-lista').innerHTML = aggiungiBraniHtml(fa); }
   if (e.target && e.target.id === 'cerca-t') { TAB.q = e.target.value; $('corpo-t').innerHTML = corpoTabella(); }
   if (e.target && e.target.id === 'cerca') { FILTRO.q = e.target.value; $('lista').innerHTML = listaHtml(); }
   if (e.target && PREV && V === 'preventivo' && /^(q-\d+|l-prezzo-\d+|l-nome-\d+|p-sconto)$/.test(e.target.id || '')) {
@@ -4088,7 +4446,7 @@ document.addEventListener('keydown', function (e) {
 
 // Ricarica da sola ogni 60 s, ma non mentre si scrive, c'è il modale o si è nel login
 setInterval(function () {
-  if (TIRA || occupato || MODALE || ['modifica', 'calendario', 'modello', 'preventivo', 'listino', 'provaform'].indexOf(V) >= 0 || !SESS || !DATI || DATI.login) return;
+  if (TIRA || occupato || MODALE || ['modifica', 'calendario', 'modello', 'preventivo', 'listino', 'provaform'].indexOf(V) >= 0 || (V === 'formato' && F_TAB === 'conti') || !SESS || !DATI || DATI.login) return;
   ricarica();
 }, 60000);
 // telefono bloccato o app cambiata con un preventivo del sito a metà: si salva la bozza
